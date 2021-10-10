@@ -9,6 +9,7 @@ export default function Signup() {
 
     const emailRef = useRef() as React.MutableRefObject<HTMLInputElement>;
     const passwordRef = useRef() as React.MutableRefObject<HTMLInputElement>;
+    const usernameRef = useRef() as React.MutableRefObject<HTMLInputElement>;
     // const passwordConfirmRef = useRef() as React.MutableRefObject<HTMLInputElement>;
     const {signup} = useAuth();
     const history = useHistory();
@@ -16,7 +17,7 @@ export default function Signup() {
     async function handleSubmit(e: any) {
         e.preventDefault();
 
-        await signup(emailRef.current.value, passwordRef.current.value);
+        await signup(emailRef.current.value, passwordRef.current.value, usernameRef.current.value);
         history.push("/");
     }
 
@@ -30,6 +31,12 @@ export default function Signup() {
         Email
       </label>
       <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="email" type="text" placeholder="Email" ref={emailRef}></input>
+    </div>
+    <div className="mb-4">
+      <label className="block text-gray-700 text-sm font-bold mb-2">
+        Username
+      </label>
+      <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="username" type="text" placeholder="Username" ref={usernameRef}></input>
     </div>
     <div className="mb-6">
       <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">

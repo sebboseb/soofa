@@ -11,7 +11,7 @@ import UpdateProfile from './components/UpdateProfile';
 function App() {
   return (
     <>
-    <div className="w-screen h-screen bg-gray-900 absolute" id="superBody">
+    <div className="w-screen min-h-screen h-auto bg-gray-900 absolute" id="superBody">
     <Router>
     <AuthProvider>
       <Switch>
