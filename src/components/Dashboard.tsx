@@ -30,12 +30,12 @@ function Dashboard() {
             const url = "http://www.omdbapi.com/?s=Game of Thrones&Season=1&apikey=43a10563";
             const response = await fetch(url);
             const responseJson = await response.json();
-    
+
             setSeries(responseJson.Search);
-    
+
             // console.log(series[0]);
         }
-        
+
         getUsers();
         getSeriesRequest();
     }, []);
@@ -47,14 +47,14 @@ function Dashboard() {
 
     for (let i = 1; i <= addCard; i++) {
         items.push(
-         
-            <Tilt><li className="bg-black w-16 h-24 rounded mx-1 my-1 text-white" onClick={() => cardOnClick(series[i - 1])} ><img src={series[i-1] && series[i - 1].Poster}></img></li></Tilt>
+
+            <Tilt scale={1.1}><li className="bg-black w-16 h-24 rounded mx-1 my-1 text-white" onClick={() => cardOnClick(series[i - 1])} ><img src={series[i - 1] && series[i - 1].Poster}></img></li></Tilt>
             // {series.map((serie, index) => (<img src={serie[index + 1].Poster}></img>))}
             // series.map((serie, index) => (<li key={i} className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"><img src={serie[index]}></img></li>))
             // series.map((serie, index) => (<img src={series[index].Poster}></img>))
         )
     }
-//className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"
+    //className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"
     return (
         <>
             <Navbar></Navbar>
@@ -82,21 +82,18 @@ function Dashboard() {
 
                         {addCard !== 0 ?
                             <div className=" w-3/4 bg-white max-w-xl rounded mt-16">
-                                <ul className="flex flex-wrap list-none pt-2 justify-center">
+                                <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
                                     {items}
                                 </ul>
                             </div> : null}
 
 
-                            <div className=" w-3/4 bg-white max-w-xl rounded mt-16">
-                                <ul className="flex flex-wrap list-none pt-2 justify-center">
-                                    <img src={favourites.Poster} alt="" />
-                                </ul>
-                            </div>
-
-
+                        <div className=" w-3/4 bg-white max-w-xl rounded mt-16">
+                            <ul className="flex flex-wrap list-none pt-2 justify-center">
+                                <img src={favourites.Poster} alt="" />
+                            </ul>
+                        </div>
                     </div>
-
                 </div>
             </div>
 
