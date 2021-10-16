@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from './contexts/AuthContext';
 import Navbar from './Navbar';
-import Tilt from 'react-vanilla-tilt';
+// import Tilt from 'react-vanilla-tilt';
+import Tilt from 'react-parallax-tilt';
 
 function Dashboard() {
 
@@ -46,15 +47,14 @@ function Dashboard() {
 
     for (let i = 1; i <= addCard; i++) {
         items.push(
-            <Tilt options={{
-                reverse:           true,
-            }}><li onClick={() => cardOnClick(series[i - 1])} ><img src={series[i-1] && series[i - 1].Poster}></img></li></Tilt>
+         
+            <Tilt><li className="bg-black w-16 h-24 rounded mx-1 my-1 text-white" onClick={() => cardOnClick(series[i - 1])} ><img src={series[i-1] && series[i - 1].Poster}></img></li></Tilt>
             // {series.map((serie, index) => (<img src={serie[index + 1].Poster}></img>))}
             // series.map((serie, index) => (<li key={i} className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"><img src={serie[index]}></img></li>))
             // series.map((serie, index) => (<img src={series[index].Poster}></img>))
         )
     }
-
+//className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"
     return (
         <>
             <Navbar></Navbar>
