@@ -5,33 +5,55 @@ import { Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from './contexts/AuthContext';
 import Navbar from './Navbar';
-
+import Tilt from 'react-vanilla-tilt';
 
 function Dashboard() {
 
 
     const { currentUser } = useAuth();
-
     const [addCard, setAddCard] = useState(3);
-
-    const items = []
-
-    for (let i = 1; i <= addCard; i++) {
-        items.push(
-            <li key={i} className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"></li>
-        )
-    }
-
-    const [lollol, setLol] = useState([]);
+    const [series, setSeries] = useState([]);
+    const [favourites, setFavourites] = useState([]);
+    const [lol, setLol] = useState(1);
+    const items = [];
+    const [username, setUsername] = useState([]);
 
     useEffect(() => {
         const getUsers = async () => {
             db.collection("User").doc(currentUser.uid).get().then(doc => {
-                setLol(<span>{doc.data().Username}</span>);
+                setUsername(<span>{doc.data().Username}</span>);
             });
         }
+
+        const getSeriesRequest = async () => {
+            const url = "http://www.omdbapi.com/?s=Game of Thrones&Season=1&apikey=43a10563";
+            const response = await fetch(url);
+            const responseJson = await response.json();
+    
+            setSeries(responseJson.Search);
+    
+            // console.log(series[0]);
+        }
+        
         getUsers();
+        getSeriesRequest();
     }, []);
+
+    function cardOnClick(clickedCard) {
+        setFavourites(clickedCard);
+        console.log(clickedCard);
+    }
+
+    for (let i = 1; i <= addCard; i++) {
+        items.push(
+            <Tilt options={{
+                reverse:           true,
+            }}><li onClick={() => cardOnClick(series[i - 1])} ><img src={series[i-1] && series[i - 1].Poster}></img></li></Tilt>
+            // {series.map((serie, index) => (<img src={serie[index + 1].Poster}></img>))}
+            // series.map((serie, index) => (<li key={i} className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"><img src={serie[index]}></img></li>))
+            // series.map((serie, index) => (<img src={series[index].Poster}></img>))
+        )
+    }
 
     return (
         <>
@@ -44,7 +66,7 @@ function Dashboard() {
 
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
 
-                        <span><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {lollol} here is what your friends have been watching</h1></span>
+                        <span><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
 
                         <div className="flex mt-16 space-x-4">
                             <Link to="/updateprofile" className=" rounded bg-white w-24 h-14">Update Profile</Link>
@@ -59,13 +81,18 @@ function Dashboard() {
                         </div>
 
                         {addCard !== 0 ?
-                            <div className=" min-w-3/4 bg-white max-w-xl rounded mt-16">
+                            <div className=" w-3/4 bg-white max-w-xl rounded mt-16">
                                 <ul className="flex flex-wrap list-none pt-2 justify-center">
                                     {items}
                                 </ul>
                             </div> : null}
 
 
+                            <div className=" w-3/4 bg-white max-w-xl rounded mt-16">
+                                <ul className="flex flex-wrap list-none pt-2 justify-center">
+                                    <img src={favourites.Poster} alt="" />
+                                </ul>
+                            </div>
 
 
                     </div>
