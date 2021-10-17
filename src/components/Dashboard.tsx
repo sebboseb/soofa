@@ -31,6 +31,7 @@ function Dashboard() {
 
             setSeries(responseJson.Search);
             console.log(series[0]);
+            console.log(series.length);
         }
 
         getUsers();
@@ -55,7 +56,7 @@ function Dashboard() {
 
     for (let i = 1; i <= addCard; i++) {
         items.push(
-            series[i - 1] && <Tilt className=" cursor-pointer" key={makeid(5)} tiltReverse={true} scale={1.05}><li className="bg-black w-16 h-24 rounded mx-1 my-1 text-white" onClick={() => cardOnClick(series[i - 1])} ><img src={series[i - 1].Poster}></img></li></Tilt>
+            series[i - 1] && <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" key={makeid(5)} tiltReverse={true} scale={1.05}><li className="bg-black w-16 h-24 rounded mx-1 my-1 text-white" onClick={() => cardOnClick(series[i - 1])} ><img src={series[i - 1].Poster}></img></li></Tilt>
             // {series.map((serie, index) => (<img src={serie[index + 1].Poster}></img>))}
             // series.map((serie, index) => (<li key={i} className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"><img src={serie[index]}></img></li>))
             // series.map((serie, index) => (<img src={series[index].Poster}></img>))
@@ -71,8 +72,8 @@ function Dashboard() {
                         <span><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
                         <div className="flex mt-16 space-x-4">
                             <Link to="/updateprofile" className=" rounded bg-white w-24 h-14">Update Profile</Link>
-                            <button className="rounded bg-white w-24 h-14" onClick={() => setAddCard(addCard + 1)}>Add Card</button>
-                            <button className="rounded bg-white w-24 h-14" onClick={() => setAddCard(addCard - 1)}>Remove Card</button>
+                            <button className="rounded bg-white w-24 h-14" onClick={() => {if (addCard <= series.length - 1) {setAddCard(addCard + 1)}}}>Add Card</button>
+                            <button className="rounded bg-white w-24 h-14" onClick={() => {if (addCard >= 1) {setAddCard(addCard - 1)}}}>Remove Card</button>
                             <input type="text" placeholder="Name" onChange={(event) => { setNewName(event.target.value) }} />
                             <input type="number" placeholder="Mana" onChange={(event) => { setNewMana(event.target.value) }} />
                             <button className="rounded bg-white w-24 h-14" onClick={() => createUser()}>Firebase</button>
@@ -83,6 +84,7 @@ function Dashboard() {
                                     {items}
                                 </ul>
                             </div> : null}
+                            {addCard}
                         {/* <div className=" w-3/4 bg-white max-w-xl rounded mt-16">
                             <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
                                 <img src={favourites.Poster} alt="" />
