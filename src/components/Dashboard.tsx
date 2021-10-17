@@ -25,13 +25,16 @@ function Dashboard() {
         }
 
         const getSeriesRequest = async () => {
-            const url = "http://www.omdbapi.com/?s=Game of Thrones&Season=1&apikey=43a10563";
+            const url = "https://api.themoviedb.org/3/movie/popular?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US";
+            // const apiKey = 'e333684dcb3e9eac6a70505572519a23';
+            // const url = `https://api.themoviedb.org/3/tv/1399?api_key=${apiKey}&language=en-US`;
             const response = await fetch(url);
             const responseJson = await response.json();
+            const seriesResults = responseJson.results;
 
-            setSeries(responseJson.Search);
-            console.log(series[0]);
-            console.log(series.length);
+            setSeries(seriesResults);
+            console.log(series);
+            // console.log(series);
         }
 
         getUsers();
@@ -56,7 +59,8 @@ function Dashboard() {
 
     for (let i = 1; i <= addCard; i++) {
         items.push(
-            series[i - 1] && <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" key={makeid(5)} tiltReverse={true} scale={1.05}><li className="bg-black w-16 h-24 rounded mx-1 my-1 text-white" onClick={() => cardOnClick(series[i - 1])} ><img src={series[i - 1].Poster}></img></li></Tilt>
+            //w16h24
+            series[i - 1] && <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" key={makeid(5)} tiltReverse={true} scale={1.05}><li className="bg-black w-24 h-36 rounded mx-1 my-1 text-white"><img src={`https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`}></img></li></Tilt>
             // {series.map((serie, index) => (<img src={serie[index + 1].Poster}></img>))}
             // series.map((serie, index) => (<li key={i} className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"><img src={serie[index]}></img></li>))
             // series.map((serie, index) => (<img src={series[index].Poster}></img>))
