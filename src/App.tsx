@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import React from 'react';
 import { AuthProvider } from './components/contexts/AuthContext';
 import Signup from './components/Signup';
@@ -7,6 +9,7 @@ import LoginPage from './components/LoginPage';
 import PrivateRoute from './components/PrivateRoute';
 import ForgotPassword from './components/ForgotPassword';
 import UpdateProfile from './components/UpdateProfile';
+import DetailsPage from './components/DetailsPage';
 
 function App() {
   return (
@@ -19,7 +22,8 @@ function App() {
         <PrivateRoute path="/updateprofile" component={UpdateProfile}></PrivateRoute>
         <Route path="/signup" component={Signup}></Route>
         <Route path="/login" component={LoginPage}></Route>
-        <Route path="/forgot-password" component={ForgotPassword}></Route>
+        <Route path="/forgotpassword" component={ForgotPassword}></Route>
+        <Route path="/detailspage" component={DetailsPage}></Route>
       </Switch>
     </AuthProvider>
     </Router>
