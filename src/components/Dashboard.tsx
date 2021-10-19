@@ -7,6 +7,7 @@ import { doc, updateDoc } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import Navbar from './Navbar';
 import Tilt from 'react-parallax-tilt';
+import StarRatings from 'react-star-ratings';
 
 function Dashboard() {
 
@@ -19,6 +20,7 @@ function Dashboard() {
     const [username, setUsername] = useState([]);
     const [descriptionText, setDescriptionText] = useState("Text");
     const [episodes, setEpisodes] = useState([]);
+    const [seasonNr, setSeasonNr] = useState(6);
 
     useEffect(() => {
         const getUsers = async () => {
@@ -30,7 +32,7 @@ function Dashboard() {
         const getSeriesRequest = async () => {
             const url = "https://api.themoviedb.org/3/tv/popular?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US";
 
-            const urlSolo = "https://api.themoviedb.org/3/tv/87362/season/6?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US";
+            const urlSolo = `https://api.themoviedb.org/3/tv/87362/season/${seasonNr}?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US`;
             const responseSolo = await fetch(urlSolo);
             const responseSoloJson = await responseSolo.json();
             console.log(responseSoloJson);
@@ -85,17 +87,18 @@ function Dashboard() {
     }
 
     const userDocument = doc(db, "User", currentUser.uid);
+    const userDocumentFav = doc(db, "User", currentUser.uid, "Favourites", "[0]");
 
     async function createUser() {
         await updateDoc(userDocument, {
             Name: "Bagurgle"
-        })
+        });
     }
 
     async function addEpisode(murloc) {
         await updateDoc(userDocument, {
-            Favourites: [murloc]
-        })
+            Favourites: [murloc],
+        });
     }
 
     return (
@@ -113,6 +116,9 @@ function Dashboard() {
                             <input type="number" placeholder="Mana" onChange={(event) => { setNewMana(event.target.value) }} />
                             <button className="rounded bg-white w-24 h-14" onClick={() => createUser()}>Firebase</button>
                         </div>
+
+
+
                         {addCard !== 0 ?
                             <div className=" w-full bg-white max-w-3xl rounded mt-16">
                                 <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
@@ -133,17 +139,32 @@ function Dashboard() {
                                                 <div>
                                                     <ul>
                                                         <h1 className="font-medium">{episode.name}</h1>
-                                                        <div className="ml-2">
-                                                            <li>{episodes[index].guest_stars[0].name}</li>
-                                                            <li>{episodes[index].guest_stars[1].name}</li>
-                                                            <li>{episodes[index].guest_stars[2].name}</li>
-                                                            <li>{episodes[index].guest_stars[3].name}</li>
+
+                                                        <div className="flex flex-col justify-between h-32">
+
+
+                                                            <div className="ml-2 leading-5">
+                                                                <li>{episodes[index].guest_stars[0].name}</li>
+                                                                <li>{episodes[index].guest_stars[1].name}</li>
+                                                                <li>{episodes[index].guest_stars[2].name}</li>
+                                                                <li>{episodes[index].guest_stars[3].name}</li>
+                                                            </div>
+                                                            <div className=" ml-1">
+                                                                <StarRatings rating={4.5} starDimension="20px" starSpacing="1px" starRatedColor="#F59E0B" />
+
+
+                                                            </div>
+
+
+
+
+
                                                         </div>
                                                     </ul>
                                                 </div>
-                                                <img className=" w-24 justify-end" src="https://www.themoviedb.org/t/p/w440_and_h660_face/2FWF65jBENpITVB2NytRk9AR7jN.jpg" alt="" />
+                                                <img className=" w-24 justify-end" src={episodes[index].still_path !== null ? (`https://www.themoviedb.org/t/p/w600_and_h900_bestv2${episodes[index].still_path}`) : ("https://www.themoviedb.org/t/p/w440_and_h660_face/2FWF65jBENpITVB2NytRk9AR7jN.jpg")} alt="" />
                                             </div>
-
+                                            {/* https://www.themoviedb.org/t/p/w600_and_h900_bestv2/dYEYnVb9p80FDRpWESdxiJjmW5S.jpg */}
                                         </li>
                                     ))}
                                 </ul>
