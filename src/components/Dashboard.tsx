@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
+import { doc, updateDoc } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import Navbar from './Navbar';
 import Tilt from 'react-parallax-tilt';
@@ -35,6 +36,8 @@ function Dashboard() {
             console.log(responseSoloJson);
             console.log(responseSoloJson.episodes);
             console.log(responseSoloJson.episodes[0].guest_stars[2].name);
+
+            console.log(responseSoloJson.episodes[0].guest_stars.length);
 
             setEpisodes(responseSoloJson.episodes);
             // const apiKey = 'e333684dcb3e9eac6a70505572519a23';
@@ -79,6 +82,14 @@ function Dashboard() {
             // series.map((serie, index) => (<li key={i} className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"><img src={serie[index]}></img></li>))
             // series.map((serie, index) => (<img src={series[index].Poster}></img>))
         )
+    }
+
+    const userDocument = doc(db, "User", currentUser.uid);
+
+    async function createUser() {
+        await updateDoc(userDocument, {
+            Name: "Bagurgle"
+        })
     }
 
     return (
