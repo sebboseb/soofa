@@ -92,6 +92,12 @@ function Dashboard() {
         })
     }
 
+    async function addEpisode(murloc) {
+        await updateDoc(userDocument, {
+            Favourites: [murloc]
+        })
+    }
+
     return (
         <>
             <Navbar></Navbar>
@@ -123,7 +129,7 @@ function Dashboard() {
                                 <ul className="flex overflow-scroll max-w-5xl h-96 flex-wrap list-none pt-2 pb-2 justify-center">
                                     {episodes.map((episode, index) => (
 
-                                        <li className="bg-black text-white w-72 p-4 h-44 rounded shadow mx-1 my-1 flex flex-col" key={index}>
+                                        <li className="bg-black text-white w-72 p-4 h-44 rounded shadow mx-1 my-1 flex flex-col" key={index} onClick={() => addEpisode(episodes[index])}>
 
 
                                             <div className="flex justify-between">
