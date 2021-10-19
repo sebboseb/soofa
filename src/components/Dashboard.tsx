@@ -128,12 +128,9 @@ function Dashboard() {
                             <div>
                                 <ul className="flex overflow-scroll max-w-5xl h-96 flex-wrap list-none pt-2 pb-2 justify-center">
                                     {episodes.map((episode, index) => (
-
-                                        <li className="bg-black text-white w-72 p-4 h-44 rounded shadow mx-1 my-1 flex flex-col" key={index} onClick={() => addEpisode(episodes[index])}>
-
-
+                                        <li className="bg-white text-black w-72 p-4 h-44 rounded shadow mx-1 my-1 flex flex-col" key={index} onClick={() => addEpisode(episodes[index])}>
                                             <div className="flex justify-between">
-                                                <li>
+                                                <div>
                                                     <ul>
                                                         <h1 className="font-medium">{episode.name}</h1>
                                                         <div className="ml-2">
@@ -143,10 +140,8 @@ function Dashboard() {
                                                             <li>{episodes[index].guest_stars[3].name}</li>
                                                         </div>
                                                     </ul>
-                                                </li>
-
+                                                </div>
                                                 <img className=" w-24 justify-end" src="https://www.themoviedb.org/t/p/w440_and_h660_face/2FWF65jBENpITVB2NytRk9AR7jN.jpg" alt="" />
-
                                             </div>
 
                                         </li>
