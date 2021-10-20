@@ -12,7 +12,7 @@ import StarRatings from 'react-star-ratings';
 function Dashboard() {
 
     const { currentUser } = useAuth();
-    const [addCard, setAddCard] = useState(0);
+    const [addCard, setAddCard] = useState(6);
     const [series, setSeries] = useState([]);
     const [favourites, setFavourites] = useState([]);
     const [lol, setLol] = useState(1);
@@ -21,6 +21,7 @@ function Dashboard() {
     const [descriptionText, setDescriptionText] = useState("Text");
     const [episodes, setEpisodes] = useState([]);
     const [seasonNr, setSeasonNr] = useState(6);
+    const [posters, setPosters] = useState("");
 
     useEffect(() => {
         const getUsers = async () => {
@@ -30,26 +31,22 @@ function Dashboard() {
         }
 
         const getSeriesRequest = async () => {
-            const url = "https://api.themoviedb.org/3/tv/popular?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US";
+            // const url = "https://api.themoviedb.org/3/tv/popular?api_key=e333684dcb3e9eac6a70505572519a23&language=se-SE";
+            const url = `https://api.themoviedb.org/3/tv/87362?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US`;
 
-            const urlSolo = `https://api.themoviedb.org/3/tv/87362/season/${seasonNr}?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US`;
-            const responseSolo = await fetch(urlSolo);
-            const responseSoloJson = await responseSolo.json();
-            console.log(responseSoloJson);
-            console.log(responseSoloJson.episodes);
-            console.log(responseSoloJson.episodes[0].guest_stars[2].name);
-
-            console.log(responseSoloJson.episodes[0].guest_stars.length);
-
-            setEpisodes(responseSoloJson.episodes);
             // const apiKey = 'e333684dcb3e9eac6a70505572519a23';
             // const url = `https://api.themoviedb.org/3/tv/1399?api_key=${apiKey}&language=en-US`;
             const response = await fetch(url);
             const responseJson = await response.json();
-            const seriesResults = responseJson.results;
+
+            // const seriesResults = responseJson.results;
+            const seriesResults = responseJson.seasons;
+
+
+            setPosters(responseJson.poster_path);
 
             setSeries(seriesResults);
-            console.log(series);
+            console.log(responseJson);
             // console.log(series);
         }
 
@@ -77,9 +74,17 @@ function Dashboard() {
         items.push(
             //w16h24
             series[i - 1] &&
-            // <Link to="/detailspage">
-            <div onClick={() => setDescriptionText(series[i - 1].overview)}><Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" key={makeid(5)} tiltReverse={true} scale={1.05}><li className="bg-black w-24 h-36 rounded mx-1 my-1 text-white"><img src={`https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`}></img></li></Tilt></div>
-            // </Link>
+            <Link to="/detailspage">
+                <div onClick={() => setDescriptionText(series[i - 1].overview)}>
+                    <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" key={makeid(5)} tiltReverse={true} scale={1.05}>
+                        <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
+                            <img src={`https://image.tmdb.org/t/p/original${posters}`}></img>
+                            <p className="text-center font-bold">{series[i - 1].name}</p>
+                        </li>
+                    </Tilt>
+                </div>
+                {/* `https://image.tmdb.org/t/p/original${series[i - 1].poster_path}` */}
+            </Link>
             // {series.map((serie, index) => (<img src={serie[index + 1].Poster}></img>))}
             // series.map((serie, index) => (<li key={i} className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"><img src={serie[index]}></img></li>))
             // series.map((serie, index) => (<img src={series[index].Poster}></img>))
@@ -120,56 +125,14 @@ function Dashboard() {
 
 
                         {addCard !== 0 ?
-                            <div className=" w-full bg-white max-w-3xl rounded mt-16">
+                            <div className=" w-full bg-white max-w-6xl rounded mt-16">
                                 <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
                                     {items}
                                 </ul>
                             </div> : null}
                         {addCard}
 
-                        <div className=" w-3/4 bg-white max-w-6xl h-auto rounded mt-16 flex items-center justify-center">
-                            <p className=" text-center">
-                                {episodes.name}
-                            </p>
-                            <div>
-                                <ul className="flex overflow-scroll max-w-5xl h-96 flex-wrap list-none pt-2 pb-2 justify-center">
-                                    {episodes.map((episode, index) => (
-                                        <li className="bg-white text-black w-72 p-4 h-44 rounded shadow mx-1 my-1 flex flex-col" key={index} onClick={() => addEpisode(episodes[index])}>
-                                            <div className="flex justify-between">
-                                                <div>
-                                                    <ul>
-                                                        <h1 className="font-medium">{episode.name}</h1>
 
-                                                        <div className="flex flex-col justify-between h-32">
-
-
-                                                            <div className="ml-2 leading-5">
-                                                                <li>{episodes[index].guest_stars[0].name}</li>
-                                                                <li>{episodes[index].guest_stars[1].name}</li>
-                                                                <li>{episodes[index].guest_stars[2].name}</li>
-                                                                <li>{episodes[index].guest_stars[3].name}</li>
-                                                            </div>
-                                                            <div className=" ml-1">
-                                                                <StarRatings rating={4.5} starDimension="20px" starSpacing="1px" starRatedColor="#F59E0B" />
-
-
-                                                            </div>
-
-
-
-
-
-                                                        </div>
-                                                    </ul>
-                                                </div>
-                                                <img className=" w-24 justify-end" src={episodes[index].still_path !== null ? (`https://www.themoviedb.org/t/p/w600_and_h900_bestv2${episodes[index].still_path}`) : ("https://www.themoviedb.org/t/p/w440_and_h660_face/2FWF65jBENpITVB2NytRk9AR7jN.jpg")} alt="" />
-                                            </div>
-                                            {/* https://www.themoviedb.org/t/p/w600_and_h900_bestv2/dYEYnVb9p80FDRpWESdxiJjmW5S.jpg */}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
