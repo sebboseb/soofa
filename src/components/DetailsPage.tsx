@@ -24,13 +24,13 @@ function DetailsPage() {
 
     useEffect(() => {
         async function getSeriesRequest() {
-            const seriesList = await getEpisodesRequest(76331, 1);
+            const seriesList = await getEpisodesRequest(id, 1);
             setEpisodes(seriesList);
 
             const personList = await getPersonRequest(personsId);
             setPerson(personList);
 
-            const creditsList = await getCreditsRequest(76331);
+            const creditsList = await getCreditsRequest(id);
             setCastList(creditsList.cast);
 
 

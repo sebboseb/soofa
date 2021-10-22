@@ -23,6 +23,7 @@ function Dashboard() {
     const [episodes, setEpisodes] = useState([]);
     const [seasonNr, setSeasonNr] = useState(6);
     const [posters, setPosters] = useState("");
+    const [query, setQuery] = useState("Alla mot alla");
 
     useEffect(() => {
         const getUsers = async () => {
@@ -32,9 +33,10 @@ function Dashboard() {
         }
 
         async function getSeriesRequest() {
-            const seriesList = await getSearchRequest();
+            const seriesList = await getSearchRequest(query);
             setSeries(seriesList);
             console.log(seriesList);
+
         }
 
         getUsers();
@@ -67,6 +69,7 @@ function Dashboard() {
                   coldlight: "oracle",
                   tide: "hunter",
                   id: series[i - 1].id,
+
                 }
               }}>
                 <div onClick={() => setDescriptionText(JSON.stringify(series))}>
@@ -97,6 +100,18 @@ function Dashboard() {
         });
     }
 
+const onChange = (e) => {
+    e.preventDefault();
+
+    setQuery(e.target.value);
+}
+
+const searchConfirm = async () => {
+    const seriesList = await getSearchRequest(query);
+    setSeries(seriesList);
+    console.log(seriesList);
+}
+
     return (
         <>
             <Navbar></Navbar>
@@ -104,6 +119,9 @@ function Dashboard() {
                 <div className="w-full h-full max-w-6xl bg-gray-700 flex flex-col items-center">
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
                         <span><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
+                        <input type="text" placeholder="Sök efter en serie" value={query} onChange={onChange}/>
+                        <button onClick={() => searchConfirm()}>Sök</button>
+                        {query}
                         <div className="flex mt-16 space-x-4">
                             <Link to="/updateprofile" className=" rounded bg-white w-24 h-14">Update Profile</Link>
                             <button className="rounded bg-white w-24 h-14" onClick={() => { if (addCard <= series.length - 1) { setAddCard(addCard + 1) } }}>Add Card</button>
