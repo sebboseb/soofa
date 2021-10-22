@@ -27,7 +27,7 @@ function Navbar() {
             <AvatarCircle userName={currentUser.email} />
             <TailwindcssButton children={"Text"} />
             <TailwindcssButton children={"Text"} />
-            <TailwindcssButton children={"Text"} />
+            <TailwindcssButton children={"Profil"} />
             <button className="text-white font-semibold" onClick={handleLogout}>Log Out</button>
           </div></div>
     )

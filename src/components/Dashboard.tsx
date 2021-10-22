@@ -8,6 +8,7 @@ import { useAuth } from './contexts/AuthContext';
 import Navbar from './Navbar';
 import Tilt from 'react-parallax-tilt';
 import StarRatings from 'react-star-ratings';
+import { getPopularRequest, getSearchRequest, getSeasonsRequest } from './utils/api';
 
 function Dashboard() {
 
@@ -18,7 +19,7 @@ function Dashboard() {
     const [lol, setLol] = useState(1);
     const items = [];
     const [username, setUsername] = useState([]);
-    const [descriptionText, setDescriptionText] = useState("Text");
+    const [descriptionText, setDescriptionText] = useState("Teawdawdawdawdawdawdawdawdxt");
     const [episodes, setEpisodes] = useState([]);
     const [seasonNr, setSeasonNr] = useState(6);
     const [posters, setPosters] = useState("");
@@ -30,24 +31,10 @@ function Dashboard() {
             });
         }
 
-        const getSeriesRequest = async () => {
-            // const url = "https://api.themoviedb.org/3/tv/popular?api_key=e333684dcb3e9eac6a70505572519a23&language=se-SE";
-            const url = `https://api.themoviedb.org/3/tv/87362?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US`;
-
-            // const apiKey = 'e333684dcb3e9eac6a70505572519a23';
-            // const url = `https://api.themoviedb.org/3/tv/1399?api_key=${apiKey}&language=en-US`;
-            const response = await fetch(url);
-            const responseJson = await response.json();
-
-            // const seriesResults = responseJson.results;
-            const seriesResults = responseJson.seasons;
-
-
-            setPosters(responseJson.poster_path);
-
-            setSeries(seriesResults);
-            console.log(responseJson);
-            // console.log(series);
+        async function getSeriesRequest() {
+            const seriesList = await getSearchRequest();
+            setSeries(seriesList);
+            console.log(seriesList);
         }
 
         getUsers();
@@ -74,20 +61,23 @@ function Dashboard() {
         items.push(
             //w16h24
             series[i - 1] &&
-            <Link to="/detailspage">
-                <div onClick={() => setDescriptionText(series[i - 1].overview)}>
+            <Link to={{
+                pathname: '/detailspage',
+                state: {
+                  coldlight: "oracle",
+                  tide: "hunter"
+                }
+              }}>
+                <div onClick={() => setDescriptionText(JSON.stringify(series))}>
                     <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" key={makeid(5)} tiltReverse={true} scale={1.05}>
                         <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
-                            <img src={`https://image.tmdb.org/t/p/original${posters}`}></img>
+                            <img src={`https://image.tmdb.org/t/p/original${series[i-1].poster_path}`}></img>
                             <p className="text-center font-bold">{series[i - 1].name}</p>
                         </li>
                     </Tilt>
                 </div>
-                {/* `https://image.tmdb.org/t/p/original${series[i - 1].poster_path}` */}
+                 {/* `https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`  */}
             </Link>
-            // {series.map((serie, index) => (<img src={serie[index + 1].Poster}></img>))}
-            // series.map((serie, index) => (<li key={i} className="bg-black w-16 h-24 rounded mx-1 my-1 text-white"><img src={serie[index]}></img></li>))
-            // series.map((serie, index) => (<img src={series[index].Poster}></img>))
         )
     }
 
@@ -132,10 +122,12 @@ function Dashboard() {
                             </div> : null}
                         {addCard}
 
-
+                        <div className="font-bold text-white">{descriptionText}</div>
                     </div>
                 </div>
             </div>
+            
+            
         </>
     )
 }
