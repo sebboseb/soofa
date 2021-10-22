@@ -104,12 +104,14 @@ const onChange = (e) => {
     e.preventDefault();
 
     setQuery(e.target.value);
-}
 
-const searchConfirm = async () => {
-    const seriesList = await getSearchRequest(query);
-    setSeries(seriesList);
-    console.log(seriesList);
+    fetch(`https://api.themoviedb.org/3/search/tv?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US&query=${query}`).then((res) => res.json()).then((data) => {
+        if (!data.errors) {
+            setSeries(data.results);
+        } else {
+            setSeries([]);
+        }
+    });
 }
 
     return (
@@ -120,7 +122,6 @@ const searchConfirm = async () => {
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
                         <span><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
                         <input type="text" placeholder="Sök efter en serie" value={query} onChange={onChange}/>
-                        <button onClick={() => searchConfirm()}>Sök</button>
                         {query}
                         <div className="flex mt-16 space-x-4">
                             <Link to="/updateprofile" className=" rounded bg-white w-24 h-14">Update Profile</Link>
