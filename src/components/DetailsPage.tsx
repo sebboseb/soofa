@@ -20,7 +20,7 @@ function DetailsPage() {
     const items = [];
 
     const location = useLocation();
-    const {coldlight, tide} = location.state;
+    const {coldlight, tide, id} = location.state;
 
     useEffect(() => {
         async function getSeriesRequest() {
@@ -35,7 +35,7 @@ function DetailsPage() {
 
 
             console.log(person);
-            console.log(creditsList)
+            console.log(creditsList);
         }
 
         getSeriesRequest();
@@ -51,6 +51,7 @@ function DetailsPage() {
                             {murloc}
                             {coldlight}
                             {tide}
+                            {id}
                         </li>
                     ))
                     : null}

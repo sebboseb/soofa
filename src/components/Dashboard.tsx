@@ -65,7 +65,8 @@ function Dashboard() {
                 pathname: '/detailspage',
                 state: {
                   coldlight: "oracle",
-                  tide: "hunter"
+                  tide: "hunter",
+                  id: series[i - 1].id,
                 }
               }}>
                 <div onClick={() => setDescriptionText(JSON.stringify(series))}>
