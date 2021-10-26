@@ -29,8 +29,8 @@ export async function getEpisodesRequest(id: number, season: number) {
     return episodesResult;
 }
 
-export async function getSeasonsRequest() {
-    const url = `https://api.themoviedb.org/3/tv/87362?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US`;
+export async function getSeasonsRequest(id: number) {
+    const url = `https://api.themoviedb.org/3/tv/${id}?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US`;
     const responseSolo = await fetch(url);
     const responseSoloJson = await responseSolo.json();
     const seasonsResult = responseSoloJson.seasons;

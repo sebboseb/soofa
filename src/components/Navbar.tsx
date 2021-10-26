@@ -25,7 +25,7 @@ function Navbar() {
             <div id="back-nav" className="p-4 h-16 justify-center w-screen bg-gray-800 flex space-x-4 absolute z-10"></div>
           <div id="nav" className="p-4 justify-center w-screen h-16 bg-gray-800 flex space-x-4 absolute max-w-6xl z-10">
             <AvatarCircle userName={currentUser.email} />
-            <TailwindcssButton children={"Text"} />
+            <TailwindcssButton children={"Aktivitet"} />
             <TailwindcssButton children={"Text"} />
             <TailwindcssButton children={"Profil"} />
             <button className="text-white font-semibold" onClick={handleLogout}>Log Out</button>
