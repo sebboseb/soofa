@@ -1,51 +1,24 @@
-// @ts-nocheck
+//@ts-nocheck
 
 import React, { useState, useEffect } from 'react';
-import StarRatings from 'react-star-ratings';
-import { Link, useLocation, useParams } from 'react-router-dom';
-import { getCreditsRequest, getCustomRequest, getEpisodesRequest, getPersonRequest, getSuccessionRequest, getSeasonsRequest, getSearchRequest } from './utils/api';
-import { db } from '../firebase';
-import { doc, updateDoc, setDoc, addDoc, arrayUnion } from "firebase/firestore";
-import { useAuth } from './contexts/AuthContext';
+import { getSuccessionRequest, getSeasonsRequest } from './utils/api';
 import Tilt from 'react-parallax-tilt';
 
-function DetailsPage() {
-
-    const { id } = useParams();
-
-    const { currentUser } = useAuth();
-
-    const [episodes, setEpisodes] = useState([]);
-    const [personsId, setPersonsId] = useState(1991569);
-    const [season, setSeason] = useState(6);
-    const [person, setPerson] = useState([]);
-    const [murloc, setMurloc] = useState("");
-    const [castList, setCastList] = useState([]);
-    const [starlol, setStarlol] = useState(4.5);
-    const seasonsLOL = [];
-
-    const items = [];
-
-    const location = useLocation();
-    // const { coldlight, tide, seriesid, seasonNumber, seriesPoster } = location.state; 
+function Testthing() {
 
     const [succession, setSuccession] = useState([]);
+    const [season, setSeason] = useState([]);
+    const seasonsLOL = [];
 
     useEffect(() => {
         async function getSeriesRequest() {
-            const seriesList = await getSearchRequest(id.replaceAll('-', ' '));
-            // getSuccessionRequest(id); //useparams id
-            // id.replace('-', /\s/g)
-            setSuccession(seriesList[0]);
+            const seriesList = await getSuccessionRequest(76331); //useparams id
+            setSuccession(seriesList);
 
             console.log(succession);
 
-            // const seasonList = await getSeasonsRequest(id);
-            // setSeason(seasonList);
-
-            // const searchList = await getSearchRequest(id.replaceAll('-', ' '));
-            // setSeason(searchList);
-            // console.log(season);
+            const seasonList = await getSeasonsRequest(76331);
+            setSeason(seasonList);
         }
 
         getSeriesRequest();
@@ -67,9 +40,6 @@ function DetailsPage() {
 
     return (
         <>
-        <Link to="/" className="font-semibold text-white text-xl">Dashboard</Link>
-        <p className="text-white font-semibold">{id.replaceAll('-', ' ')}</p>
-        <p className="text-white">{window.location.pathname}</p>
             <div className=" w-screen flex justify-center">
                 <div className=" w-full max-w-6xl h-screen bg-white flex">
                     <div className="flex flex-col items-center">
@@ -91,4 +61,4 @@ function DetailsPage() {
     )
 }
 
-export default DetailsPage;
+export default Testthing;

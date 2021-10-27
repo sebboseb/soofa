@@ -10,7 +10,7 @@ export async function getPopularRequest() {
 }
 
 export async function getSearchRequest(query: string) {
-    const searchUrl = `https://api.themoviedb.org/3/search/tv?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US&query=${query}`;
+    const searchUrl = `https://api.themoviedb.org/3/search/tv?api_key=e333684dcb3e9eac6a70505572519a23&language=sv-SE&query=${query}`;
     const response = await fetch(searchUrl);
     const responseJson = await response.json();
     const searchResults = responseJson.results;
@@ -58,6 +58,15 @@ export async function getPersonRequest(id: any) {
 
 export async function getCreditsRequest(id: any) {
     const url = `https://api.themoviedb.org/3/tv/${id}/credits?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US`;
+    const responseSolo = await fetch(url);
+    const responseSoloJson = await responseSolo.json();
+    const episodesResult = responseSoloJson;
+
+    return episodesResult;
+}
+
+export async function getSuccessionRequest(id: any) {
+    const url = `https://api.themoviedb.org/3/tv/${id}?api_key=e333684dcb3e9eac6a70505572519a23&language=sv-SE`;
     const responseSolo = await fetch(url);
     const responseSoloJson = await responseSolo.json();
     const episodesResult = responseSoloJson;

@@ -76,14 +76,14 @@ function Dashboard() {
             //       id: series[i - 1].id,
             //     }
             //   }}>
-            <div onClick={() => {
+            <div key={makeid(5)} onClick={() => {
                 setMainId(series[i - 1].id);
                 refreshSeasons();
                 setSeriesName(series[i - 1].name);
                 addEpisode(series[i - 1], { star_rating: starlol });
             }
             }>
-                <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" key={makeid(5)} tiltReverse={true} scale={1.05}>
+                <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
                     <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
                         <img src={`https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`}></img>
                         <p className="text-center font-bold">{series[i - 1].name}</p>
@@ -100,17 +100,16 @@ function Dashboard() {
         seasonsLOL.push(
             //w16h24
             season[i - 1] &&
-            <Link to={{
+            <Link key={makeid(5)} to={{
                 pathname: `/series/episodes/${(seriesName).replace(/\s/g, '-')}/${season[i - 1].name.replace(/\s/g, '-')}`,
-                state: {
-                    coldlight: "oracle",
-                    tide: "hunter",
-                    seriesid: mainId,
-                    seasonNumber: season[i - 1].season_number
-                }
+                // state: {
+                //     seriesid: mainId,
+                //     seasonNumber: season[i - 1].season_number,
+                //     seriesPoster: season[i - 1].poster_path
+                // }
             }}>
-                <div onClick={() => {addSeason(season[i - 1], { star_rating: starlol });}}>
-                    <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" key={makeid(5)} tiltReverse={true} scale={1.05}>
+                <div onClick={() => { addSeason(season[i - 1], { star_rating: starlol }); }}>
+                    <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
                         <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
                             <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`}></img>
                             <p className="text-center font-bold">{season[i - 1].name}</p>
@@ -141,8 +140,8 @@ function Dashboard() {
         console.log(favourites);
 
         await updateDoc(userDocumentFav, {
-            [murloc.name]: 
-            [murloc],
+            [murloc.name]:
+                [murloc],
             // deleteField(),
         });
     }
@@ -186,7 +185,6 @@ function Dashboard() {
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
                         <span><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
                         <input type="text" placeholder="Sök efter en serie" value={query} onChange={onChange} />
-                        {query}
                         <div className="flex mt-16 space-x-4">
                             <Link to="/updateprofile" className=" rounded bg-white w-24 h-14">Update Profile</Link>
                             <button className="rounded bg-white w-24 h-14" onClick={() => { if (addCard <= series.length - 1) { setAddCard(addCard + 1) } }}>Add Card</button>
@@ -195,9 +193,6 @@ function Dashboard() {
                             <input type="number" placeholder="Mana" onChange={(event) => { setNewMana(event.target.value) }} />
                             <button className="rounded bg-white w-24 h-14" onClick={() => addEpisode()}>Firebase</button>
                         </div>
-
-
-
                         {addCard !== 0 ?
                             <div className=" w-full bg-white max-w-6xl rounded mt-16">
                                 <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
