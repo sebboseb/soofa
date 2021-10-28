@@ -188,7 +188,7 @@ function Dashboard() {
 
     return (
         <>
-            <Navbar></Navbar>
+            <Navbar username={username}></Navbar>
             <div className="absolute w-screen h-screen flex justify-center">
                 <div className="w-full h-full max-w-6xl bg-gray-700 flex flex-col items-center">
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">

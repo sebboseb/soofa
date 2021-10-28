@@ -11,6 +11,7 @@ import ForgotPassword from './components/ForgotPassword';
 import UpdateProfile from './components/UpdateProfile';
 import DetailsPage from './components/DetailsPage';
 import Testthing from './components/Testthing';
+import ProfilePage from './components/ProfilePage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/forgotpassword" component={ForgotPassword}></Route>
         <Route path="/series/:id" component={DetailsPage}></Route>
         <Route path="/testthing" component={Testthing}></Route>
+        <Route path="/profilepage" component={ProfilePage}></Route>
       </Switch>
     </AuthProvider>
     </Router>
