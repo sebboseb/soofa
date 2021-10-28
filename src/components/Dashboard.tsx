@@ -68,21 +68,27 @@ function Dashboard() {
         items.push(
             //w16h24
             series[i - 1] &&
-            // <Link to={{
-            //     pathname: '/detailspage',
-            //     state: {
-            //       coldlight: "oracle",
-            //       tide: "hunter",
-            //       id: series[i - 1].id,
-            //     }
-            //   }}>
-            <div key={makeid(5)} onClick={() => {
-                setMainId(series[i - 1].id);
-                refreshSeasons();
-                setSeriesName(series[i - 1].name);
+            <Link key={makeid(5)} to={{
+                pathname: `/series/${(series[i - 1].name).replace(/\s/g, '-')}`,
+                ///${season[i - 1].name.replace(/\s/g, '-')}
+                // state: {
+                //     seriesid: mainId,
+                //     seasonNumber: season[i - 1].season_number,
+                //     seriesPoster: season[i - 1].poster_path
+                // }
+            }}>
+            {/* <Link to={{
+                pathname: '/detailspage',
+                state: {
+                  coldlight: "oracle",
+                  tide: "hunter",
+                  id: series[i - 1].id,
+                }
+              }}> */}
+            {/* <div key={makeid(5)} onClick={() => {
                 addEpisode(series[i - 1], { star_rating: starlol });
             }
-            }>
+            }> */}
                 <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
                     <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
                         <img src={`https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`}></img>
@@ -90,36 +96,39 @@ function Dashboard() {
                     </li>
                 </Tilt>
                 <StarRatings rating={starlol} starDimension="20px" starSpacing="1px" starRatedColor="#F59E0B" />
-            </div>
-            /* `https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`  */
-            // </Link>
-        )
-    }
-
-    for (let i = 1; i <= 20; i++) {
-        seasonsLOL.push(
-            //w16h24
-            season[i - 1] &&
-            <Link key={makeid(5)} to={{
-                pathname: `/series/episodes/${(seriesName).replace(/\s/g, '-')}/${season[i - 1].name.replace(/\s/g, '-')}`,
-                // state: {
-                //     seriesid: mainId,
-                //     seasonNumber: season[i - 1].season_number,
-                //     seriesPoster: season[i - 1].poster_path
-                // }
-            }}>
-                <div onClick={() => { addSeason(season[i - 1], { star_rating: starlol }); }}>
-                    <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
-                        <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
-                            <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`}></img>
-                            <p className="text-center font-bold">{season[i - 1].name}</p>
-                        </li>
-                    </Tilt>
-                </div>
-                {/* `https://image.tmdb.org/t/p/original${season[i - 1].poster_path}` */}
+            {/* </div> */}
+             {/* `https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`
+            
+             </Link> */}
             </Link>
         )
     }
+
+    // for (let i = 1; i <= 20; i++) {
+    //     seasonsLOL.push(
+    //         //w16h24
+    //         season[i - 1] &&
+    //         <Link key={makeid(5)} to={{
+    //             pathname: `/series/${(seriesName).replace(/\s/g, '-')}`,
+    //             ///${season[i - 1].name.replace(/\s/g, '-')}
+    //             // state: {
+    //             //     seriesid: mainId,
+    //             //     seasonNumber: season[i - 1].season_number,
+    //             //     seriesPoster: season[i - 1].poster_path
+    //             // }
+    //         }}>
+    //             <div onClick={() => { addSeason(season[i - 1], { star_rating: starlol }); }}>
+    //                 <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
+    //                     <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
+    //                         <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`}></img>
+    //                         <p className="text-center font-bold">{season[i - 1].name}</p>
+    //                     </li>
+    //                 </Tilt>
+    //             </div>
+    //             {/* `https://image.tmdb.org/t/p/original${season[i - 1].poster_path}` */}
+    //         </Link>
+    //     )
+    // }
 
     const userDocument = doc(db, "User", currentUser.uid);
     const userDocumentFav = doc(db, "User", currentUser.uid, "Favourites", "Series");
@@ -197,13 +206,6 @@ function Dashboard() {
                             <div className=" w-full bg-white max-w-6xl rounded mt-16">
                                 <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
                                     {items}
-                                </ul>
-                            </div> : null}
-                        {addCard}
-                        {addCard !== 0 ?
-                            <div className=" w-full bg-white max-w-6xl rounded mt-16">
-                                <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
-                                    {seasonsLOL}
                                 </ul>
                             </div> : null}
                     </div>

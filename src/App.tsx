@@ -24,7 +24,7 @@ function App() {
         <Route path="/signup" component={Signup}></Route>
         <Route path="/login" component={LoginPage}></Route>
         <Route path="/forgotpassword" component={ForgotPassword}></Route>
-        <Route path="/series/episodes/:id" component={DetailsPage}></Route>
+        <Route path="/series/:id" component={DetailsPage}></Route>
         <Route path="/testthing" component={Testthing}></Route>
       </Switch>
     </AuthProvider>
