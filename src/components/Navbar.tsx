@@ -35,7 +35,9 @@ function Navbar({username}) {
 
 function TailwindcssButton(props: any) {
     return (
-      <Link to="/profilepage">
+      <Link to={{
+        pathname: `/${props.children}`,
+    }}>
       <div className="flex justify-center items-center">
         <button className="bg-gray-400 text-white
        font-medium px-4 py-2 rounded hover:bg-gray-600

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, addDoc, arrayUnion, deleteDoc, deleteField } from "firebase/firestore";
+import { doc, updateDoc, setDoc, addDoc, arrayUnion, deleteDoc, deleteField, getDoc } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import Navbar from './Navbar';
 import Tilt from 'react-parallax-tilt';
@@ -13,12 +13,12 @@ import { getEpisodesRequest, getPopularRequest, getSearchRequest, getSeasonsRequ
 function Dashboard() {
 
     const { currentUser } = useAuth();
-    const [addCard, setAddCard] = useState(6);
+    const [addCard, setAddCard] = useState(20);
     const [series, setSeries] = useState([]);
     const [favourites, setFavourites] = useState([]);
     const [lol, setLol] = useState(1);
     const items = [];
-    const [username, setUsername] = useState([]);
+    const [username, setUsername] = useState("");
     const [descriptionText, setDescriptionText] = useState("Teawdawdawdawdawdawdawdawdxt");
     const [episodes, setEpisodes] = useState([]);
     const [seasonNr, setSeasonNr] = useState(6);
@@ -29,12 +29,32 @@ function Dashboard() {
     const seasonsLOL = [];
     const [starlol, setStarlol] = useState(4.5);
     const [seriesName, setSeriesName] = useState("");
+    const [claimed, setClaimed] = useState([]);
+    const [murlocWarleader, setMurlocWarleader] = useState([]);
+    const [thisRating, setThisRating] = useState(0);
 
     useEffect(() => {
         const getUsers = async () => {
             db.collection("User").doc(currentUser.uid).get().then(doc => {
-                setUsername(<span>{doc.data().Username}</span>);
+                setUsername(doc.data().Username);
                 setFavourites([doc.data().Favourites]);
+            });
+
+            const docRef = doc(db, "User", currentUser.uid, "Favourites", "Series");
+            const docSnap = await getDoc(docRef);
+            let mapData = Object.values(docSnap.data());
+            setMurlocWarleader(mapData);
+
+            if (docSnap.exists()) {
+                console.log("Document data:", mapData[0]);
+                setClaimed(mapData);
+            } else {
+                // doc.data() will be undefined in this case
+                console.log("No such document!");
+            }
+
+            db.collection("User").doc(currentUser.uid).get().then(doc => {
+                setUsername(doc.data().Username);
             });
         }
 
@@ -49,6 +69,7 @@ function Dashboard() {
 
         }
 
+        getStars("Succession");
         getUsers();
         getSeriesRequest();
     }, []);
@@ -64,11 +85,42 @@ function Dashboard() {
         return result;
     }
 
-    for (let i = 1; i <= addCard; i++) {
+    async function changeRating(newRating, name) {
+        const starrating = { star_rating: newRating }
+        Object.assign(murlocWarleader[name], starrating);
+        console.log(name);
+        console.log(murlocWarleader[name].name);
+
+        await updateDoc(userDocumentFav, {
+            [murlocWarleader[name].name]: murlocWarleader[name]
+        });
+    }
+
+     async function getStars(coldlight) {
+        let bagurgle = 0;
+        const docRef = doc(db, "User", currentUser.uid, "Favourites", "Series");
+        const docSnap = await getDoc(docRef);
+        if (docSnap.data()[coldlight]) {
+            bagurgle = await (docSnap.data()[coldlight]["star_rating"]);
+        }
+        else {
+            console.log("lol");
+            bagurgle = 0;
+        }
+        setThisRating(bagurgle);
+    }
+
+    function inteAsync() {
+        
+    }
+
+    for (let i = 1; i <= 20; i++) {
+        // {getStars((series[i - 1].name))}
+        // {console.log(thisRating)}
         items.push(
             //w16h24
             series[i - 1] &&
-            <Link key={makeid(5)} to={{
+            <div><Link key={makeid(5)} to={{
                 pathname: `/series/${(series[i - 1].name).replace(/\s/g, '-')}`,
                 ///${season[i - 1].name.replace(/\s/g, '-')}
                 // state: {
@@ -77,7 +129,7 @@ function Dashboard() {
                 //     seriesPoster: season[i - 1].poster_path
                 // }
             }}>
-            {/* <Link to={{
+                {/* <Link to={{
                 pathname: '/detailspage',
                 state: {
                   coldlight: "oracle",
@@ -85,7 +137,7 @@ function Dashboard() {
                   id: series[i - 1].id,
                 }
               }}> */}
-            {/* <div key={makeid(5)} onClick={() => {
+                {/* <div key={makeid(5)} onClick={() => {
                 addEpisode(series[i - 1], { star_rating: starlol });
             }
             }> */}
@@ -95,12 +147,28 @@ function Dashboard() {
                         <p className="text-center font-bold">{series[i - 1].name}</p>
                     </li>
                 </Tilt>
-                <StarRatings rating={starlol} starDimension="20px" starSpacing="1px" starRatedColor="#F59E0B" />
-            {/* </div> */}
-             {/* `https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`
+
+                {/* </div> */}
+                {/* `https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`
             
              </Link> */}
             </Link>
+                {/* <StarRatings
+                    rating={
+                        {thisRating}
+                        // 5
+                    }
+                    starRatedColor="#f59e0b"
+                    numberOfStars={5}
+                    starDimension="24px"
+                    starSpacing="1px"
+                    // changeRating={getStars}
+                    name={series[i - 1].name}
+                    starHoverColor="#f59e0b"
+                /> */}
+                <p>{thisRating}</p>
+                <div onClick={() => getStars(series[i - 1].name)}>mrrrrrrrrgl</div>
+            </div>
         )
     }
 
@@ -151,7 +219,6 @@ function Dashboard() {
         await updateDoc(userDocumentFav, {
             [murloc.name]:
                 [murloc],
-            // deleteField(),
         });
     }
 
@@ -186,29 +253,50 @@ function Dashboard() {
         console.log(seasonList);
     }
 
+    // Promise.all(
+    //     series.filter(Boolean).map((thingy) => getStars(thingy.name))
+    //   ).then((starThingies) => {
+    //     setThisRating(starThingies)
+    //   })
+
     return (
         <>
             <Navbar username={username}></Navbar>
-            <div className="absolute w-screen h-screen flex justify-center">
-                <div className="w-full h-full max-w-6xl bg-gray-700 flex flex-col items-center">
+            <div className=" w-screen flex justify-center relative">
+                <div className=" w-full max-w-6xl h-auto min-h-screen bg-gray-700 flex justify-center">
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
-                        <span><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
+                        <span onClick={() => {{getStars("Succession")} {console.log(thisRating)}}}><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
                         <input type="text" placeholder="Sök efter en serie" value={query} onChange={onChange} />
                         <div className="flex mt-16 space-x-4">
-                            <Link to="/updateprofile" className=" rounded bg-white w-24 h-14">Update Profile</Link>
-                            <button className="rounded bg-white w-24 h-14" onClick={() => { if (addCard <= series.length - 1) { setAddCard(addCard + 1) } }}>Add Card</button>
-                            <button className="rounded bg-white w-24 h-14" onClick={() => { if (addCard >= 1) { setAddCard(addCard - 1) } }}>Remove Card</button>
-                            <input type="text" placeholder="Name" onChange={(event) => { setNewName(event.target.value) }} />
-                            <input type="number" placeholder="Mana" onChange={(event) => { setNewMana(event.target.value) }} />
-                            <button className="rounded bg-white w-24 h-14" onClick={() => addEpisode()}>Firebase</button>
+
                         </div>
-                        {addCard !== 0 ?
-                            <div className=" w-full bg-white max-w-6xl rounded mt-16">
-                                <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
-                                    {items}
-                                </ul>
-                            </div> : null}
-                    </div>
+                        {/* {addCard !== 0 ?
+                            <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
+                                {items}
+                            </ul>
+                            : null} */}
+                            <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
+                            {
+  series.filter(Boolean).map((thingy, index) => (
+    <div>
+        <Link key={makeid(5)} to={{
+                pathname: `/series/${(thingy.name).replace(/\s/g, '-')}`,
+                ///${season[i - 1].name.replace(/\s/g, '-')}
+                // state: {
+                //     seriesid: mainId,
+                //     seasonNumber: season[i - 1].season_number,
+                //     seriesPoster: season[i - 1].poster_path
+                // }
+            }}>
+        
+      <li className="bg-black w-52 rounded mx-1 my-1 text-white">
+        <img className="" src={`https://image.tmdb.org/t/p/original${series[index].poster_path}`}></img>
+      </li>
+      </Link>
+    </div>
+  ))
+}
+</ul></div>
                 </div>
             </div>
         </>

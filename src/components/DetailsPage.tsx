@@ -65,6 +65,10 @@ function DetailsPage() {
     async function addEpisode(murloc, starrating) {
         Object.assign(murloc, starrating);
         console.log(murloc);
+        if ((murloc.name).includes(".")) {
+            (murloc.name) = (murloc.name).replace(/\./g, '');
+            console.log(murloc.name);
+        }
         // setFavourites([...favourites, murloc]);
         // console.log(favourites);
 
@@ -106,7 +110,7 @@ function DetailsPage() {
             <p className="text-white font-semibold">{id.replaceAll('-', ' ')}</p>
             <p className="text-white">{window.location.pathname}</p> */}
             <div className=" w-screen flex justify-center relative">
-                <div className=" w-full max-w-6xl h-screen bg-gray-700 flex">
+                <div className=" w-full max-w-6xl h-auto bg-gray-700 flex">
                     <div className="flex flex-col items-center">
                         <div className="w-3/4 relative">
                             <div className=" bg-gradient-to-t via-transparent from-gray-700 h-full w-full absolute"></div>
@@ -115,7 +119,7 @@ function DetailsPage() {
                             <div className=" bg-gradient-to-r via-transparent from-gray-700 h-full w-full absolute"></div>
                             <img src={`https://image.tmdb.org/t/p/original${succession.backdrop_path}`}></img>
                         </div>
-                        <div className="flex">
+                        <div className="flex justify-between">
                             <div className="flex flex-col items-center">
 
 
@@ -137,7 +141,7 @@ function DetailsPage() {
                                 <Link to="/" className="font-semibold text-white text-xl">Dashboard</Link>
                             </div>
 
-                            <div className="flex flex-col">
+                            <div className="flex flex-col max-w-4xl">
                                 <h1 className=" text-gray-300 font-semibold p-4">{succession.name}</h1>
                                 <p className=" text-gray-300 font-semibold pb-4 pl-4 pr-4">{succession.overview}</p>
                             </div>

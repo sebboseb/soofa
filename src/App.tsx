@@ -27,7 +27,7 @@ function App() {
         <Route path="/forgotpassword" component={ForgotPassword}></Route>
         <Route path="/series/:id" component={DetailsPage}></Route>
         <Route path="/testthing" component={Testthing}></Route>
-        <Route path="/profilepage" component={ProfilePage}></Route>
+        <PrivateRoute path="/:profileId" component={ProfilePage}></PrivateRoute>
       </Switch>
     </AuthProvider>
     </Router>
