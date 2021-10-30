@@ -69,7 +69,7 @@ function Dashboard() {
 
         }
 
-        getStars("Succession");
+        // getStars("Succession");
         getUsers();
         getSeriesRequest();
     }, []);
@@ -96,22 +96,22 @@ function Dashboard() {
         });
     }
 
-     async function getStars(coldlight) {
-        let bagurgle = 0;
-        const docRef = doc(db, "User", currentUser.uid, "Favourites", "Series");
-        const docSnap = await getDoc(docRef);
-        if (docSnap.data()[coldlight]) {
-            bagurgle = await (docSnap.data()[coldlight]["star_rating"]);
-        }
-        else {
-            console.log("lol");
-            bagurgle = 0;
-        }
-        setThisRating(bagurgle);
-    }
+    //  async function getStars(coldlight) {
+    //     let bagurgle = 0;
+    //     const docRef = doc(db, "User", currentUser.uid, "Favourites", "Series");
+    //     const docSnap = await getDoc(docRef);
+    //     if (docSnap.data()[coldlight]) {
+    //         bagurgle = await (docSnap.data()[coldlight]["star_rating"]);
+    //     }
+    //     else {
+    //         console.log("lol");
+    //         bagurgle = 0;
+    //     }
+    //     setThisRating(bagurgle);
+    // }
 
     function inteAsync() {
-        
+
     }
 
     for (let i = 1; i <= 20; i++) {
@@ -247,12 +247,6 @@ function Dashboard() {
         });
     }
 
-    async function refreshSeasons() {
-        const seasonList = await getSeasonsRequest(mainId);
-        setSeason(seasonList);
-        console.log(seasonList);
-    }
-
     // Promise.all(
     //     series.filter(Boolean).map((thingy) => getStars(thingy.name))
     //   ).then((starThingies) => {
@@ -265,39 +259,30 @@ function Dashboard() {
             <div className=" w-screen flex justify-center relative">
                 <div className=" w-full max-w-6xl h-auto min-h-screen bg-gray-700 flex justify-center">
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
-                        <span onClick={() => {{getStars("Succession")} {console.log(thisRating)}}}><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
+                        <span onClick={() => { { getStars("Succession") } { console.log(thisRating) } }}><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
                         <input type="text" placeholder="Sök efter en serie" value={query} onChange={onChange} />
                         <div className="flex mt-16 space-x-4">
 
                         </div>
-                        {/* {addCard !== 0 ?
-                            <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
-                                {items}
-                            </ul>
-                            : null} */}
-                            <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
+                        <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
                             {
                                 //onClick upp med meny kolla starrating
-  series.filter(Boolean).map((thingy, index) => (
-    <div>
-        <Link key={makeid(5)} to={{
-                pathname: `/series/${(thingy.name).replace(/\s/g, '-')}`,
-                ///${season[i - 1].name.replace(/\s/g, '-')}
-                // state: {
-                //     seriesid: mainId,
-                //     seasonNumber: season[i - 1].season_number,
-                //     seriesPoster: season[i - 1].poster_path
-                // }
-            }}>
-        
-      <li className="bg-black w-52 rounded mx-1 my-1 text-white">
-        <img className="" src={`https://image.tmdb.org/t/p/original${series[index].poster_path}`}></img>
-      </li>
-      </Link>
-    </div>
-  ))
-}
-</ul></div>
+                                series.filter(Boolean).map((thingy, index) => (
+                                    thingy.poster_path &&
+                                    <div>
+                                        <Link key={makeid(5)} to={{
+                                            pathname: `/series/${(thingy.name).replace(/\s/g, '-')}`,
+                                        }}>
+
+                                            <li className="bg-black w-52 rounded mx-1 my-1 text-white">
+                                                <img className="" src={`https://image.tmdb.org/t/p/original${thingy.poster_path}`}></img>
+                                            </li>
+                                        </Link>
+                                    </div>
+                                ))
+                            }
+                        </ul>
+                    </div>
                 </div>
             </div>
         </>

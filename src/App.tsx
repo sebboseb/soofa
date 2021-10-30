@@ -12,6 +12,7 @@ import UpdateProfile from './components/UpdateProfile';
 import DetailsPage from './components/DetailsPage';
 import Testthing from './components/Testthing';
 import ProfilePage from './components/ProfilePage';
+import Episodes from './components/Episodes';
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
         <Route path="/login" component={LoginPage}></Route>
         <Route path="/forgotpassword" component={ForgotPassword}></Route>
         <Route path="/series/:id" component={DetailsPage}></Route>
-        <Route path="/testthing" component={Testthing}></Route>
+        <Route path="/:id/season-:seasonId/episodes" component={Episodes}></Route>
         <PrivateRoute path="/:profileId" component={ProfilePage}></PrivateRoute>
       </Switch>
     </AuthProvider>

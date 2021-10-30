@@ -28,12 +28,13 @@ function DetailsPage() {
             db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Series").get().then(doc => {
                 if (doc.data()) {
                     setIsInFavourites(true);
-                if (doc.data()[id.replaceAll('-', ' ')]) {
-                    if (doc.data()[id.replaceAll('-', ' ')]["star_rating"]) {
-                        console.log(doc.data()[id.replaceAll('-', ' ')]["star_rating"]);
-                        setLolmurloc(doc.data()[id.replaceAll('-', ' ')]["star_rating"]);
+                    if (doc.data()[id.replaceAll('-', ' ')]) {
+                        if (doc.data()[id.replaceAll('-', ' ')]["star_rating"]) {
+                            console.log(doc.data()[id.replaceAll('-', ' ')]["star_rating"]);
+                            setLolmurloc(doc.data()[id.replaceAll('-', ' ')]["star_rating"]);
+                        }
                     }
-                }}
+                }
                 else {
                     setIsInFavourites(false);
                     setLolmurloc(0);
@@ -92,20 +93,27 @@ function DetailsPage() {
     }
 
     for (let i = 1; i <= 20; i++) {
+        
         seasonsLOL.push(
             season[i - 1] &&
-            <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
-                <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
-                    <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`} className=" rounded-t"></img>
-                    <p className="text-center font-bold">{season[i - 1].name}</p>
-                </li>
-            </Tilt>
-        )
+            // (season[i - 1].name !== "Specials") ?
+            <Link key={season[i - 1].id} to={{
+                pathname: `/${id}/season-${season[i - 1].season_number}/episodes`,
+            }}>
+                <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
+                    <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
+                        <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`} className=" rounded-t"></img>
+                        <p className="text-center font-bold">{season[i - 1].name}</p>
+                    </li>
+                </Tilt>
+            </Link>
+            // : <div></div>
+        ) 
     }
 
     return (
         <>
-        <Navbar username={username}></Navbar>
+            <Navbar username={username}></Navbar>
             {/* <Link to="/" className="font-semibold text-white text-xl">Dashboard</Link>
             <p className="text-white font-semibold">{id.replaceAll('-', ' ')}</p>
             <p className="text-white">{window.location.pathname}</p> */}
@@ -119,7 +127,7 @@ function DetailsPage() {
                             <div className=" bg-gradient-to-r via-transparent from-gray-700 h-full w-full absolute"></div>
                             <img src={`https://image.tmdb.org/t/p/original${succession.backdrop_path}`}></img>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between absolute mt-96">
                             <div className="flex flex-col items-center">
 
 
@@ -146,10 +154,13 @@ function DetailsPage() {
                                 <p className=" text-gray-300 font-semibold pb-4 pl-4 pr-4">{succession.overview}</p>
                             </div>
                         </div>
-                        <h1 className="font-semibold text-xl text-gray-300">Säsonger</h1>
-                        <ul className=" list-none flex max-w-5xl flex-wrap">
-                            {seasonsLOL}
-                        </ul>
+                        <Review></Review>
+                        <div className="mt-80 flex flex-col items-center">
+                            <h1 className="font-semibold text-xl text-gray-300">Säsonger</h1>
+                            <ul className=" list-none flex max-w-5xl flex-wrap">
+                                {seasonsLOL}
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -158,3 +169,11 @@ function DetailsPage() {
 }
 
 export default DetailsPage;
+
+function Review() {
+    return (
+        <>
+            <h1>Best show ever</h1>
+        </>
+    )
+}
