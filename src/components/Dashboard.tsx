@@ -277,6 +277,7 @@ function Dashboard() {
                             : null} */}
                             <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
                             {
+                                //onClick upp med meny kolla starrating
   series.filter(Boolean).map((thingy, index) => (
     <div>
         <Link key={makeid(5)} to={{
