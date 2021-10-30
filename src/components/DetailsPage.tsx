@@ -54,6 +54,10 @@ function DetailsPage() {
             const seasonList = await getSeasonsRequest(seriesList[0].id);
             setSeason(seasonList);
             console.log(seasonList);
+
+            const castingList = await getCreditsRequest(seriesList[0].id);
+            setCastList(castingList.cast);
+            console.log(castingList);
         }
 
         getUsers();
@@ -93,7 +97,7 @@ function DetailsPage() {
     }
 
     for (let i = 1; i <= 20; i++) {
-        
+
         seasonsLOL.push(
             season[i - 1] &&
             // (season[i - 1].name !== "Specials") ?
@@ -108,7 +112,7 @@ function DetailsPage() {
                 </Tilt>
             </Link>
             // : <div></div>
-        ) 
+        )
     }
 
     return (
@@ -127,7 +131,7 @@ function DetailsPage() {
                             <div className=" bg-gradient-to-r via-transparent from-gray-700 h-full w-full absolute"></div>
                             <img src={`https://image.tmdb.org/t/p/original${succession.backdrop_path}`}></img>
                         </div>
-                        <div className="flex justify-between absolute mt-96">
+                        <div className="flex justify-between">
                             <div className="flex flex-col items-center">
 
 
@@ -147,19 +151,34 @@ function DetailsPage() {
                                     onClick={() => addEpisode(succession, { star_rating: lolmurloc })}
                                 >Logga</button>
                                 <Link to="/" className="font-semibold text-white text-xl">Dashboard</Link>
+                                <div>
+                                    {
+                                        castList.filter(Boolean).map((thingy, index) => (
+
+                                            <div className="flex flex-col items-center">
+                                                {/* <li className="bg-black w-52 rounded mx-1 my-1 text-white">
+                                            <img className="" src={`https://image.tmdb.org/t/p/original${thingy.still_path}`}></img>
+                                        </li> */}
+                                                <h1 className="text-white font-semibold">{thingy.name}</h1>
+                                            </div>
+                                        ))
+                                    }
+                                </div>
                             </div>
 
                             <div className="flex flex-col max-w-4xl">
                                 <h1 className=" text-gray-300 font-semibold p-4">{succession.name}</h1>
                                 <p className=" text-gray-300 font-semibold pb-4 pl-4 pr-4">{succession.overview}</p>
+                                <div className="flex flex-col items-center">
+
+                                    <div className="flex flex-col items-center mt-44">
+                                    <h1 className="font-semibold text-xl text-gray-300">Säsonger</h1>
+                                    <ul className=" list-none flex max-w-5xl flex-wrap">
+                                        {seasonsLOL}
+                                    </ul>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <Review></Review>
-                        <div className="mt-80 flex flex-col items-center">
-                            <h1 className="font-semibold text-xl text-gray-300">Säsonger</h1>
-                            <ul className=" list-none flex max-w-5xl flex-wrap">
-                                {seasonsLOL}
-                            </ul>
                         </div>
                     </div>
                 </div>
