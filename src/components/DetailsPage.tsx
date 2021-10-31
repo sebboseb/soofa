@@ -156,10 +156,11 @@ function DetailsPage() {
                                         castList.filter(Boolean).map((thingy, index) => (
 
                                             <div className="flex flex-col items-center">
-                                                {/* <li className="bg-black w-52 rounded mx-1 my-1 text-white">
-                                            <img className="" src={`https://image.tmdb.org/t/p/original${thingy.still_path}`}></img>
-                                        </li> */}
-                                                <h1 className="text-white font-semibold">{thingy.name}</h1>
+                                                <Link to={{
+                                            pathname: `/actor/${(thingy.name).replace(/\s/g, '-')}`,
+                                        }}>
+                                                <h1 className="text-white font-semibold min-w-max">{thingy.name} - {thingy.character}</h1>
+                                                </Link>
                                             </div>
                                         ))
                                     }
@@ -172,10 +173,10 @@ function DetailsPage() {
                                 <div className="flex flex-col items-center">
 
                                     <div className="flex flex-col items-center mt-44">
-                                    <h1 className="font-semibold text-xl text-gray-300">Säsonger</h1>
-                                    <ul className=" list-none flex max-w-5xl flex-wrap">
-                                        {seasonsLOL}
-                                    </ul>
+                                        <h1 className="font-semibold text-xl text-gray-300">Säsonger</h1>
+                                        <ul className=" list-none flex max-w-5xl flex-wrap">
+                                            {seasonsLOL}
+                                        </ul>
                                     </div>
                                 </div>
                             </div>

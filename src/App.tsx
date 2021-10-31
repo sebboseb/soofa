@@ -13,6 +13,7 @@ import DetailsPage from './components/DetailsPage';
 import Testthing from './components/Testthing';
 import ProfilePage from './components/ProfilePage';
 import Episodes from './components/Episodes';
+import Person from './components/Person';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Route path="/forgotpassword" component={ForgotPassword}></Route>
         <Route path="/series/:id" component={DetailsPage}></Route>
         <Route path="/:id/season-:seasonId/episodes" component={Episodes}></Route>
+        <Route path="/actor/:actorId" component={Person}></Route>
         <PrivateRoute path="/:profileId" component={ProfilePage}></PrivateRoute>
       </Switch>
     </AuthProvider>

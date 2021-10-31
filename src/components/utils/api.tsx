@@ -73,3 +73,21 @@ export async function getSuccessionRequest(id: any) {
 
     return episodesResult;
 }
+
+export async function getLolRequest(id: any) {
+    const url = `https://api.themoviedb.org/3/person/${id}/tv_credits?api_key=e333684dcb3e9eac6a70505572519a23&language=sv-SE`;
+    const responseSolo = await fetch(url);
+    const responseSoloJson = await responseSolo.json();
+    const castList = responseSoloJson.cast;
+
+    return castList;
+}
+
+export async function getSearchPersonRequest(id: any) {
+    const url = `https://api.themoviedb.org/3/search/person?api_key=e333684dcb3e9eac6a70505572519a23&language=sv-SE&query=${id}&page=1&include_adult=false`;
+    const responseSolo = await fetch(url);
+    const responseSoloJson = await responseSolo.json();
+    const personSearchList = responseSoloJson.results;
+
+    return personSearchList;
+}

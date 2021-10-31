@@ -166,8 +166,6 @@ function Dashboard() {
                     name={series[i - 1].name}
                     starHoverColor="#f59e0b"
                 /> */}
-                <p>{thisRating}</p>
-                <div onClick={() => getStars(series[i - 1].name)}>mrrrrrrrrgl</div>
             </div>
         )
     }
@@ -259,7 +257,9 @@ function Dashboard() {
             <div className=" w-screen flex justify-center relative">
                 <div className=" w-full max-w-6xl h-auto min-h-screen bg-gray-700 flex justify-center">
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
-                        <span onClick={() => { { getStars("Succession") } { console.log(thisRating) } }}><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
+                        <span 
+                        // onClick={() => { { getStars("Succession") } { console.log(thisRating) } }}
+                        ><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
                         <input type="text" placeholder="Sök efter en serie" value={query} onChange={onChange} />
                         <div className="flex mt-16 space-x-4">
 
