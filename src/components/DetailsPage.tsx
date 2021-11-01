@@ -136,7 +136,7 @@ function DetailsPage() {
                             <div className="flex flex-col items-center">
 
 
-                                <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-max h-72 p-1"></img>
+                                <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-72 p-1"></img>
 
                                 <StarRatings
                                     rating={lolmurloc}
