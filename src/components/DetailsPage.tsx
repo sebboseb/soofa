@@ -9,6 +9,7 @@ import { doc, updateDoc, setDoc, addDoc, arrayUnion, getDoc } from "firebase/fir
 import { useAuth } from './contexts/AuthContext';
 import Tilt from 'react-parallax-tilt';
 import Navbar from './Navbar';
+import ProgressBar from "@ramonak/react-progress-bar";
 
 function DetailsPage() {
 
@@ -84,7 +85,7 @@ function DetailsPage() {
                 // deleteField(),
             });
         } else {
-            await setDoc(userDocumentFav, {
+            await updateDoc(userDocumentFav, {
                 [murloc.name]:
                     murloc,
                 // deleteField(),
@@ -135,7 +136,7 @@ function DetailsPage() {
                             <div className="flex flex-col items-center">
 
 
-                                <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="w-44 min-w-max h-72 max-w-sm p-1"></img>
+                                <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-max h-72 p-1"></img>
 
                                 <StarRatings
                                     rating={lolmurloc}
@@ -170,6 +171,7 @@ function DetailsPage() {
                             <div className="flex flex-col max-w-4xl">
                                 <h1 className=" text-gray-300 font-semibold p-4">{succession.name}</h1>
                                 <p className=" text-gray-300 font-semibold pb-4 pl-4 pr-4">{succession.overview}</p>
+                                <ProgressBar completed={60} className="w-44" />
                                 <div className="flex flex-col items-center">
 
                                     <div className="flex flex-col items-center mt-44">

@@ -5,7 +5,7 @@ import StarRatings from 'react-star-ratings';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { getCreditsRequest, getCustomRequest, getEpisodesRequest, getPersonRequest, getSuccessionRequest, getSeasonsRequest, getSearchRequest } from './utils/api';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, addDoc, arrayUnion, getDoc } from "firebase/firestore";
+import { doc, updateDoc, setDoc, addDoc, arrayUnion, getDoc, query, collection, where } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import Tilt from 'react-parallax-tilt';
 import Navbar from './Navbar';
@@ -19,8 +19,10 @@ function Episodes() {
     const [season, setSeason] = useState([]);
     const [episodes, setEpisodes] = useState([]);
     const [lolmurloc, setLolmurloc] = useState(0);
+    const [isInFavourites, setIsInFavourites] = useState(false);
 
     useEffect(() => {
+
         async function getSeriesRequest() {
             const seriesList = await getSearchRequest(id.replaceAll('-', ' '));
             const seasonList = await getSeasonsRequest(seriesList[0].id);
@@ -30,6 +32,28 @@ function Episodes() {
             const episodeList = await getEpisodesRequest(seriesList[0].id, seasonId);
             console.log(episodeList);
             setEpisodes(episodeList);
+
+            const citiesRef = collection(db, "User");
+            const q = query(citiesRef, where("loka", "==", true));
+            console.log(q);
+
+
+            db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Season").get().then(doc => {
+                if (doc.data()) {
+                    setIsInFavourites(true);
+                    if (doc.data()[id.replaceAll('-', ' ') + " " + seasonList[seasonId - 1].name]) {
+                        if (doc.data()[id.replaceAll('-', ' ') + " " + seasonList[seasonId - 1].name]["star_rating"]) {
+                            console.log(doc.data()[id.replaceAll('-', ' ') + " " + seasonList[seasonId - 1].name]["star_rating"]);
+                            setLolmurloc(doc.data()[id.replaceAll('-', ' ') + " " + seasonList[seasonId - 1].name]["star_rating"]);
+                        }
+                    }
+                }
+                else {
+                    setIsInFavourites(false);
+                    setLolmurloc(0);
+                    console.log("lol");
+                }
+            });
         }
 
         getSeriesRequest();
@@ -45,8 +69,8 @@ function Episodes() {
         Object.assign(murlocSeason, starrating);
         console.log(murlocSeason);
 
-        await setDoc(userDocumentFavSeason, {
-            [murlocSeason.name]: murlocSeason
+        await updateDoc(userDocumentFavSeason, {
+            [id.replaceAll('-', ' ') + " " + murlocSeason.name]: murlocSeason
         });
     }
 
@@ -59,28 +83,28 @@ function Episodes() {
                 </Link>
                 <div className="flex">
                     <div className="flex flex-col">
-                    <div>
-                    <Link to={{
-                pathname: `/series/${id}`,
-            }}>
-                        <img className="w-96" src={`https://image.tmdb.org/t/p/original${season[seasonId - 1] && season[seasonId - 1].poster_path}`} alt="" />
-                        </Link>
+                        <div>
+                            <Link to={{
+                                pathname: `/series/${id}`,
+                            }}>
+                                <img className="w-96" src={`https://image.tmdb.org/t/p/original${season[seasonId - 1] && season[seasonId - 1].poster_path}`} alt="" />
+                            </Link>
+                        </div>
+                        <div className="p-1">
+                            <StarRatings
+                                rating={lolmurloc}
+                                starRatedColor="#f59e0b"
+                                numberOfStars={5}
+                                starDimension="24px"
+                                starSpacing="1px"
+                                changeRating={changeRating}
+                                name="rating"
+                                starHoverColor="#f59e0b"
+                            /></div>
+                        <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
+                            onClick={() => addSeason(season[seasonId - 1], { star_rating: lolmurloc })}
+                        >Logga</button>
                     </div>
-                    <div className="p-1">
-                    <StarRatings
-                                    rating={lolmurloc}
-                                    starRatedColor="#f59e0b"
-                                    numberOfStars={5}
-                                    starDimension="24px"
-                                    starSpacing="1px"
-                                    changeRating={changeRating}
-                                    name="rating"
-                                    starHoverColor="#f59e0b"
-                                /></div>
-                                <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
-                                    onClick={() => addSeason(season[seasonId - 1], { star_rating: lolmurloc })}
-                                >Logga</button>
-                                </div>
                     <p>{season[seasonId - 1] && season[seasonId - 1].overview}</p>
                 </div>
             </div>

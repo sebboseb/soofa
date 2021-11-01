@@ -61,8 +61,8 @@ function ProfilePage() {
         <>
             <Navbar username={username}></Navbar>
             <div className=" text-white font-semibold text-3xl">
-                <p>{username}</p>
-                <ul className="flex max-w-screen flex-wrap">
+                <p className="text-center md:text-left">{username}</p>
+                <ul className="flex max-w-screen flex-wrap justify-center md:justify-start">
                     {claimed.map((claims, index) => (
                         <div key={claims.id} className="flex flex-col items-center p-1">
                             <Link to={`/series/${(claims.name).replace(/\s/g, '-')}`}>

@@ -9,10 +9,12 @@ function Person() {
     const { actorId } = useParams();
 
     const [person, setPerson] = useState([]);
+    const [profile, setProfile] = useState([]);
 
     useEffect(() => {
         async function getSeriesRequest() {
             const personId = await getSearchPersonRequest(actorId.replaceAll('-', ' '));
+            setProfile(personId[0]);
             console.log(personId[0]);
 
 
@@ -25,6 +27,14 @@ function Person() {
     }, [])
 
     return (
+        <>
+        <div className="text-white">
+            <p>{profile.name}</p>
+            <div className="flex">
+            <img className="w-44" src={`https://image.tmdb.org/t/p/original${profile.profile_path}`} alt="" />
+            {/* <p>{person.overview}</p> */}
+            </div>
+        </div>
         <div className="flex flex-wrap">
       {
         person.filter(Boolean).map((thingy, index) => (
@@ -40,6 +50,7 @@ function Person() {
         ))
       }
         </div>
+        </>
     )
 }
 

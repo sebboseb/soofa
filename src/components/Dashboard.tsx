@@ -59,9 +59,12 @@ function Dashboard() {
         }
 
         async function getSeriesRequest() {
-            const seriesList = await getSearchRequest(query);
-            setSeries(seriesList);
-            console.log(seriesList);
+            // const seriesList = await getSearchRequest(query);
+            // setSeries(seriesList);
+            // console.log(seriesList);
+
+            const popularList = await getPopularRequest();
+            setSeries(popularList);
 
             const seasonList = await getSeasonsRequest(mainId);
             setSeason(seasonList);
@@ -259,7 +262,9 @@ function Dashboard() {
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
                         <span 
                         // onClick={() => { { getStars("Succession") } { console.log(thisRating) } }}
-                        ><h1 className="text-white mt-16 font-semibold text-xl">Welcome back {username} here is what your friends have been watching</h1></span>
+                        ><h1 className="text-white mt-16 font-semibold text-xl">Welcome back <Link to={{
+                            pathname: `/${username}`,
+                        }}>{username}</Link> here is what your friends have been watching</h1></span>
                         <input type="text" placeholder="Sök efter en serie" value={query} onChange={onChange} />
                         <div className="flex mt-16 space-x-4">
 
