@@ -1,35 +1,37 @@
 // @ts-nocheck
 
-// import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { useAuth } from './contexts/AuthContext';
 import { useHistory, Link } from 'react-router-dom';
 
 function Navbar({ username }) {
 
   const { currentUser, logout } = useAuth();
+  const [error, setError] = useState("");
   // const [error, setError] = useState("");
   const history = useHistory();
 
   async function handleLogout() {
-    // setError("");
-    // try {
-    await logout();
-    history.push("/login");
-    // } catch {
-    // setError("Error")
-    // }
+    setError("");
+    try {
+      await logout();
+      history.push("/login");
+    } catch {
+      setError("Error")
+    }
   }
 
   return (
     <div className="flex w-screen justify-center">
       <div id="back-nav" className="p-4 h-16 justify-center w-screen bg-gray-800 flex space-x-4 z-10"></div>
       <div id="nav" className="p-4 justify-center w-screen h-16 bg-gray-800 flex space-x-4 absolute max-w-6xl z-10">
-        <AvatarCircle userName={currentUser.email} />
-        <TailwindcssButton children={"Aktivitet"} />
-        <TailwindcssButton children={"Text"} />
+        <AvatarCircle userName={currentUser && currentUser.email} />
+        <TailwindcssButton children={"activity"} />
+        <TailwindcssButton children={"text"} />
         <TailwindcssButton children={username} />
         <button className="text-white font-semibold" onClick={handleLogout}>Log Out</button>
-      </div></div>
+      </div>
+    </div>
   )
 }
 
