@@ -14,6 +14,10 @@ import Testthing from './components/Testthing';
 import ProfilePage from './components/ProfilePage';
 import Episodes from './components/Episodes';
 import Person from './components/Person';
+import Mainpage from './components/Mainpage';
+import EpisodeLore from './components/EpisodeLore';
+import Activity from './components/Activity';
+import MainPageNavbar from './components/MainPageNavbar';
 
 function App() {
   return (
@@ -21,15 +25,20 @@ function App() {
     <div className="w-screen min-h-screen h-auto bg-gray-900 absolute" id="superBody">
     <Router>
     <AuthProvider>
+      <MainPageNavbar></MainPageNavbar>
       <Switch>
-        <PrivateRoute exact path="/" component={Dashboard}></PrivateRoute>
+        {/* <PrivateRoute exact path="/" component={Dashboard}></PrivateRoute> */}
         <PrivateRoute path="/updateprofile" component={UpdateProfile}></PrivateRoute>
         <Route path="/signup" component={Signup}></Route>
+        <Route path="/dashboard" component={Dashboard}></Route>
         <Route path="/login" component={LoginPage}></Route>
         <Route path="/forgotpassword" component={ForgotPassword}></Route>
         <Route path="/series/:id" component={DetailsPage}></Route>
         <Route path="/:id/season-:seasonId/episodes" component={Episodes}></Route>
         <Route path="/actor/:actorId" component={Person}></Route>
+        <Route path="/activity" component={Activity}></Route>
+        <Route exact path="/" component={Mainpage}></Route>
+        <Route path="/:id/season-:seasonId/episode/:episodeId" component={EpisodeLore}></Route>
         <PrivateRoute path="/:profileId" component={ProfilePage}></PrivateRoute>
       </Switch>
     </AuthProvider>

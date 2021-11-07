@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import StarRatings from 'react-star-ratings';
 import { Link, useLocation, useParams } from 'react-router-dom';
-import { getCreditsRequest, getCustomRequest, getEpisodesRequest, getPersonRequest, getSuccessionRequest, getSeasonsRequest, getSearchRequest } from './utils/api';
+import { getCreditsRequest, getCustomRequest, getEpisodesRequest, getPersonRequest, getSuccessionRequest, getSeasonsRequest, getSearchRequest, getEpisodeRequest } from './utils/api';
 import { db } from '../firebase';
 import { doc, updateDoc, setDoc, addDoc, arrayUnion, getDoc, query, collection, where } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
@@ -33,12 +33,15 @@ function Episodes() {
             console.log(episodeList);
             setEpisodes(episodeList);
 
+            const episodeLoreList = await getEpisodeRequest(seriesList[0].id, seasonId, 1);
+            console.log(episodeLoreList);
+
             const citiesRef = collection(db, "User");
             const q = query(citiesRef, where("loka", "==", true));
             console.log(q);
 
 
-            db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Season").get().then(doc => {
+            currentUser && db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Season").get().then(doc => {
                 if (doc.data()) {
                     setIsInFavourites(true);
                     if (doc.data()[id.replaceAll('-', ' ') + " " + seasonList[seasonId - 1].name]) {
@@ -63,7 +66,7 @@ function Episodes() {
         setLolmurloc(newRating);
     }
 
-    const userDocumentFavSeason = doc(db, "User", currentUser.uid, "Favourites", "Season");
+    const userDocumentFavSeason = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Season") : null;
 
     async function addSeason(murlocSeason, starrating) {
         Object.assign(murlocSeason, starrating);
@@ -91,7 +94,7 @@ function Episodes() {
                             </Link>
                         </div>
                         <div className="p-1">
-                            <StarRatings
+                            {currentUser && <StarRatings
                                 rating={lolmurloc}
                                 starRatedColor="#f59e0b"
                                 numberOfStars={5}
@@ -100,7 +103,8 @@ function Episodes() {
                                 changeRating={changeRating}
                                 name="rating"
                                 starHoverColor="#f59e0b"
-                            /></div>
+                            />}
+                        </div>
                         <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
                             onClick={() => addSeason(season[seasonId - 1], { star_rating: lolmurloc })}
                         >Logga</button>
@@ -119,10 +123,14 @@ function Episodes() {
                         episodes.filter(Boolean).map((thingy, index) => (
 
                             <div className="flex flex-col items-center">
-                                <li className="bg-black w-52 rounded mx-1 my-1 text-white">
-                                    <img className="" src={`https://image.tmdb.org/t/p/original${thingy.still_path}`}></img>
-                                </li>
-                                <h1 className="text-white font-semibold">{thingy.name}</h1>
+                                <Link to={{
+                                    pathname: `/${id}/season-${seasonId}/episode/${thingy.episode_number}`,
+                                }}>
+                                    <li className="bg-black w-52 rounded mx-1 my-1 text-white">
+                                        <img className="" src={`https://image.tmdb.org/t/p/original${thingy.still_path}`}></img>
+                                    </li>
+                                    <h1 className="text-white font-semibold">{thingy.name}</h1>
+                                </Link>
                             </div>
                         ))
                     }

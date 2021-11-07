@@ -1,11 +1,12 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, addDoc, arrayUnion, getDoc, orderBy } from "firebase/firestore";
+import { doc, updateDoc, setDoc, addDoc, arrayUnion, getDoc, orderBy, where } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import Navbar from './Navbar';
 import { Link, useParams } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
+import {Typography} from '@mui/material'
 
 function ProfilePage() {
 
@@ -20,11 +21,12 @@ function ProfilePage() {
         const getUsers = async () => {
             const docRef = doc(db, "User", currentUser.uid, "Favourites", "Series");
             const docSnap = await getDoc(docRef);
-            let mapData = Object.values(docSnap.data());
-            setMurlocWarleader(mapData);
-            console.log(murlocWarleader[0]);
+            
 
             if (docSnap.exists()) {
+                let mapData = Object.values(docSnap.data());
+            setMurlocWarleader(mapData);
+            console.log(murlocWarleader[0]);
                 console.log("Document data:", mapData[0]);
                 setClaimed(mapData);
             } else {
@@ -41,6 +43,7 @@ function ProfilePage() {
     }, []);
 
     const userDocumentFav = doc(db, "User", currentUser.uid, "Favourites", "Series");
+    const followDocument = doc(db, "Following", (currentUser.uid), "UserFollowing", ("aVys1udQtkhX8XD13rvVUQEr9l03"));
 
     async function changeRating(newRating, name) {
         const starrating = { star_rating: newRating }
@@ -59,9 +62,18 @@ function ProfilePage() {
 
     return (
         <>
-            <Navbar username={username}></Navbar>
             <div className=" text-white font-semibold text-3xl">
-                <p className="text-center md:text-left">{username}</p>
+                <Typography
+                variant="h4"
+                >{username}</Typography>
+                <button className="text-white font-semibold bg-green-400 rounded shadow p-3 text-sm hover:bg-green-500"
+                onClick={() => 
+                    setDoc(followDocument,{
+                        coldlight: "followed"
+                    })
+                }
+                >Follow</button>
+                {/* <p className="text-center md:text-left">{username}</p> */}
                 <ul className="flex max-w-screen flex-wrap justify-center md:justify-start">
                     {claimed.map((claims, index) => (
                         <div key={claims.id} className="flex flex-col items-center p-1">

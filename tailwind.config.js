@@ -23,6 +23,9 @@ module.exports = {
         'phone': '300px',
         // => @media (min-width: 640px) { ... }
       },
+      colors: {
+        'soofa-orange': '#F59E0B'
+      }
     },
   },
   variants: {

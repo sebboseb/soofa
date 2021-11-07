@@ -4,6 +4,7 @@ import React, {useRef} from 'react';
 import '../index.css';
 import { useAuth } from './contexts/AuthContext';
 import { Link, useHistory } from 'react-router-dom';
+import Navbar from './Navbar';
 
 export default function Signup() {
 
@@ -23,7 +24,7 @@ export default function Signup() {
 
     return (
         <>
-        <div className="w-screen flex items-center mt-96 flex-col">
+
         <div className="w-full max-w-xs">
   <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
     <div className="mb-4">
@@ -53,7 +54,7 @@ export default function Signup() {
       </a>
     </div>
   </form>
-</div><div className=" text-xl font-sans font-semibold text-gray-200">Already have an account? <Link to="/login">Log In</Link></div></div>
+</div>
         </>
     )
 }

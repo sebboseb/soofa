@@ -40,18 +40,18 @@ function Dashboard() {
                 setFavourites([doc.data().Favourites]);
             });
 
-            const docRef = doc(db, "User", currentUser.uid, "Favourites", "Series");
-            const docSnap = await getDoc(docRef);
-            let mapData = Object.values(docSnap.data());
-            setMurlocWarleader(mapData);
+            // const docRef = doc(db, "User", currentUser.uid, "Favourites", "Series");
+            // const docSnap = await getDoc(docRef);
+            // let mapData = Object.values(docSnap.data());
+            // setMurlocWarleader(mapData);
 
-            if (docSnap.exists()) {
-                console.log("Document data:", mapData[0]);
-                setClaimed(mapData);
-            } else {
-                // doc.data() will be undefined in this case
-                console.log("No such document!");
-            }
+            // if (docSnap.exists()) {
+            //     console.log("Document data:", mapData[0]);
+            //     setClaimed(mapData);
+            // } else {
+            //     // doc.data() will be undefined in this case
+            //     console.log("No such document!");
+            // }
 
             db.collection("User").doc(currentUser.uid).get().then(doc => {
                 setUsername(doc.data().Username);
@@ -65,6 +65,7 @@ function Dashboard() {
 
             const popularList = await getPopularRequest();
             setSeries(popularList);
+            console.log(popularList);
 
             const seasonList = await getSeasonsRequest(mainId);
             setSeason(seasonList);
@@ -88,16 +89,16 @@ function Dashboard() {
         return result;
     }
 
-    async function changeRating(newRating, name) {
-        const starrating = { star_rating: newRating }
-        Object.assign(murlocWarleader[name], starrating);
-        console.log(name);
-        console.log(murlocWarleader[name].name);
+    // async function changeRating(newRating, name) {
+    //     const starrating = { star_rating: newRating }
+    //     Object.assign(murlocWarleader[name], starrating);
+    //     console.log(name);
+    //     console.log(murlocWarleader[name].name);
 
-        await updateDoc(userDocumentFav, {
-            [murlocWarleader[name].name]: murlocWarleader[name]
-        });
-    }
+    //     await updateDoc(userDocumentFav, {
+    //         [murlocWarleader[name].name]: murlocWarleader[name]
+    //     });
+    // }
 
     //  async function getStars(coldlight) {
     //     let bagurgle = 0;
@@ -256,7 +257,6 @@ function Dashboard() {
 
     return (
         <>
-            <Navbar username={username}></Navbar>
             <div className=" w-screen flex justify-center relative">
                 <div className=" w-full max-w-6xl h-auto min-h-screen bg-gray-700 flex justify-center">
                     <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
@@ -275,6 +275,7 @@ function Dashboard() {
                                 series.filter(Boolean).map((thingy, index) => (
                                     thingy.poster_path &&
                                     <div>
+                                        {thingy.origin_country=='US' ?
                                         <Link key={makeid(5)} to={{
                                             pathname: `/series/${(thingy.name).replace(/\s/g, '-')}`,
                                         }}>
@@ -282,7 +283,7 @@ function Dashboard() {
                                             <li className="bg-black w-52 rounded mx-1 my-1 text-white">
                                                 <img className="" src={`https://image.tmdb.org/t/p/original${thingy.poster_path}`}></img>
                                             </li>
-                                        </Link>
+                                        </Link> : null}
                                     </div>
                                 ))
                             }
