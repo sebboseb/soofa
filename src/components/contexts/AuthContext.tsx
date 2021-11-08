@@ -17,7 +17,7 @@ const [loading, setLoading] = useState(true);
 function signup(email, password, usernameLol) {
     return auth.createUserWithEmailAndPassword(email, password).then(cred => {
         return db.collection("User").doc(cred.user.uid).set({
-            Name: "", Mana: 0, Email: cred.user.email, Username: usernameLol, Uid: cred.user.uid
+            Email: cred.user.email, Username: usernameLol, Uid: cred.user.uid
         })
     });
 }

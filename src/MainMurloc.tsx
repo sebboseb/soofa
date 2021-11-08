@@ -18,18 +18,15 @@ import Mainpage from './components/Mainpage';
 import EpisodeLore from './components/EpisodeLore';
 import Activity from './components/Activity';
 import MainPageNavbar from './components/MainPageNavbar';
-// import { Provider } from 'react-redux';
-// import { createStore, applyMiddleware } from 'redux';
-// import rootReducer from './redux/reducers';
-// import thunk from 'redux-thunk';
-// import Reduxmainpage from './components/Reduxmainpage';
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import rootReducer from './redux/reducers';
+import thunk from 'redux-thunk';
+import Reduxmainpage from './components/Reduxmainpage';
 
-// const store = createStore(rootReducer, applyMiddleware(thunk));
-
-function App() {
-  return (
-    <>
-    <div className="w-screen min-h-screen h-auto bg-gray-900 absolute" id="superBody">
+function MainMurloc() {
+    return (
+        <div className="w-screen min-h-screen h-auto bg-gray-900 absolute" id="superBody">
           <Router>
             <AuthProvider>
               <MainPageNavbar></MainPageNavbar>
@@ -51,11 +48,7 @@ function App() {
             </AuthProvider>
           </Router>
         </div>
-      {/* <Provider store={store}> */}
-        {/* <MainMurloc></MainMurloc> */}
-      {/* </Provider> */}
-    </>
-  );
+    )
 }
 
-export default App;
+export default MainMurloc;

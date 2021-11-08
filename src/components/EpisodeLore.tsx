@@ -15,19 +15,38 @@ function EpisodeLore() {
 
     const [seriesNr, setSeriesNr] = useState([]);
     const [episode, setEpisode] = useState([]);
+    const [lolmurloc, setLolmurloc] = useState(0);
 
     const { currentUser } = useAuth();
 
     useEffect(() => {
-
-        async function getSeriesRequest() {
+        const getUsers = async () => {
             const seriesList = await getSearchRequest(id.replaceAll('-', ' '));
             const episodeLoreList = await getEpisodeRequest(seriesList[0].id, seasonId, episodeId);
             setEpisode(episodeLoreList);
             console.log(episodeLoreList);
+
+            db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Episodes").get().then(doc => {
+                if (doc.data()) {
+                    // setIsInFavourites(true);
+                    if (doc.data()[id.replaceAll('-', ' ') + " " + episodeLoreList.name]) {
+                        if (doc.data()[id.replaceAll('-', ' ') + " " + episodeLoreList.name]["star_rating"]) {
+                            console.log(doc.data()[id.replaceAll('-', ' ') + " " + episodeLoreList.name]["star_rating"]);
+                            setLolmurloc(doc.data()[id.replaceAll('-', ' ') + " " + episodeLoreList.name]["star_rating"]);
+                        }
+                    }
+                }
+                else {
+                    // setIsInFavourites(false);
+                    setLolmurloc(0);
+                    console.log("lol");
+                }
+            });
         }
 
-        getSeriesRequest();
+  
+
+        currentUser && getUsers();
     }, []);
 
     const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Episodes") : null;
@@ -37,9 +56,10 @@ function EpisodeLore() {
         Object.assign(episode, starrating);
         console.log(name);
         console.log(episode.name);
+        setLolmurloc(newRating);
 
         await updateDoc(userDocumentFav, {
-            [id + " " + episode.name]: episode
+            [id.replaceAll('-', ' ') + " " + episode.name]: episode
         });
     }
 
@@ -57,7 +77,7 @@ function EpisodeLore() {
                 </Link>
             </div>
             {currentUser && <StarRatings
-                                    rating={5}
+                                    rating={lolmurloc}
                                     starRatedColor="#f59e0b"
                                     numberOfStars={5}
                                     starDimension="24px"

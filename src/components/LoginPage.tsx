@@ -21,7 +21,7 @@ export default function LoginPage() {
     setError("");
     // setLoading(true);
     await login(emailRef.current.value, passwordRef.current.value);
-    history.push("/");
+    // history.push("/");
     } catch {
     setError("Failed to log in");
     }
@@ -30,7 +30,7 @@ export default function LoginPage() {
   return (
     <>
 
-        <div className="w-full max-w-xs mt-96">
+        <div className="w-full max-w-xs">
           <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">

@@ -11,6 +11,7 @@ import Tilt from 'react-parallax-tilt';
 import Navbar from './Navbar';
 import ProgressBar from "@ramonak/react-progress-bar";
 import { Timeline, TimelineSeparator, TimelineItem, TimelineDot, TimelineConnector, TimelineContent } from '@mui/lab';
+import LoginPage from './LoginPage';
 
 function DetailsPage() {
 
@@ -24,6 +25,8 @@ function DetailsPage() {
     const [lolmurloc, setLolmurloc] = useState(0);
     const [isInFavourites, setIsInFavourites] = useState(false);
     const [username, setUsername] = useState([]);
+    const [inputClicked, setInputClicked] = useState(false);
+    const [reviews, setReviews] = useState([]);
 
     useEffect(() => {
         const getUsers = async () => {
@@ -61,7 +64,33 @@ function DetailsPage() {
             const castingList = await getCreditsRequest(seriesList[0].id);
             setCastList(castingList.cast);
             console.log(castingList);
+
+
+            const snapshot = await db.collection("Posts").doc(id.replaceAll('-', ' ')).collection("userPosts").get();
+            console.log(snapshot.docs.map(doc => doc.data()));
+            setReviews(snapshot.docs.map(doc => doc.data()));
+
+
+            // db.collection("Posts").doc(id.replaceAll('-', ' ')).collection("userPosts").doc(currentUser.uid).get().then(doc => {
+            //     if (doc.data()) {
+            //         setReviews(doc.data());
+            //     }
+
+
+            //     else {
+            //         console.log("lol");
+            //     }
+            // });
+
+            // db.collection("Posts").doc(seriesList[0].name).collection("userPosts").doc(currentUser.uid).get().then(doc => {
+            //     setReviews(doc.data());
+            //     console.log(doc.data());
+            // });
         }
+
+
+        console.log(succession.id)
+
 
         currentUser && getUsers();
         getSeriesRequest();
@@ -69,6 +98,7 @@ function DetailsPage() {
 
     //getstars if namn (id) matchar firebase get star rating annars gör ny star rating
     const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series") : null;
+    const reviewRef = doc(db, "Posts", id.replaceAll('-', ' '), "userPosts", currentUser.uid);
 
     async function addEpisode(murloc, starrating) {
         Object.assign(murloc, starrating);
@@ -92,7 +122,16 @@ function DetailsPage() {
                     murloc,
                 // deleteField(),
             });
+
+            
         }
+    }
+
+    async function addReview(reviewText) {
+        await setDoc(reviewRef, {
+            user: username,
+            review: reviewText
+        });
     }
 
     function changeRating(newRating, name) {
@@ -126,6 +165,11 @@ function DetailsPage() {
             <div className=" w-screen flex justify-center relative">
                 <div className=" w-full max-w-6xl min-h-screen h-auto bg-gray-700 flex">
                     <div className="flex flex-col items-center">
+                        {inputClicked && <div className="absolute h-44 mt-0 z-50">
+                            <div onClick={() => setInputClicked(false)} className="text-white font-semibold cursor-pointer">
+                                x</div>
+                            <LoginPage />
+                        </div>}
                         <div className="w-3/4 relative">
                             <div className=" bg-gradient-to-t via-transparent from-gray-700 h-full w-full absolute"></div>
                             <div className=" bg-gradient-to- via-transparent from-gray-700 h-full w-full absolute"></div>
@@ -146,9 +190,14 @@ function DetailsPage() {
                                     name="rating"
                                     starHoverColor="#f59e0b"
                                 />}
-                                <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
+                                <div className="flex space-x-1">
+                                {currentUser ? <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
                                     onClick={() => addEpisode(succession, { star_rating: lolmurloc })}
-                                >Logga</button>
+                                >Logga</button> : <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
+                                    onClick={() => setInputClicked(true)}
+                                >Logga in</button>}
+                                <div onClick={() => addReview("Best Show Ever!")} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600"></div>
+                                </div>
                                 <Link to="/" className="font-semibold text-white text-xl">Dashboard</Link>
                                 <div>
                                     {
@@ -184,11 +233,17 @@ function DetailsPage() {
                                 <p className=" text-gray-300 font-semibold pb-4 pl-4 pr-4">{succession.overview}</p>
                                 <ProgressBar completed={60} className="w-44" />
                                 <div className="flex flex-col items-center">
-
                                     <div className="flex flex-col items-center mt-44">
                                         <h1 className="font-semibold text-xl text-gray-300">Säsonger</h1>
                                         <ul className=" list-none flex max-w-5xl flex-wrap">
                                             {seasonsLOL}
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <ul>
+                                            {reviews.map((thingy) => (
+                                                <li className="flex space-x-4"><h1>{thingy.user}</h1><h1>{thingy.review}</h1></li>
+                                            ))}
                                         </ul>
                                     </div>
                                 </div>

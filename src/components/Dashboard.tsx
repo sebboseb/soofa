@@ -74,7 +74,7 @@ function Dashboard() {
         }
 
         // getStars("Succession");
-        getUsers();
+        currentUser && getUsers();
         getSeriesRequest();
     }, []);
 
@@ -200,9 +200,9 @@ function Dashboard() {
     //     )
     // }
 
-    const userDocument = doc(db, "User", currentUser.uid);
-    const userDocumentFav = doc(db, "User", currentUser.uid, "Favourites", "Series");
-    const userDocumentFavSeason = doc(db, "User", currentUser.uid, "Favourites", "Season");
+    const userDocument = currentUser ? doc(db, "User", currentUser.uid) : null;
+    const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series") : null;
+    const userDocumentFavSeason = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Season") : null;
 
     async function createUser() {
         await updateDoc(userDocument, {

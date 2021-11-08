@@ -1,11 +1,12 @@
 //@ts-nocheck
 
-import React, { useState, useEffect } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { ImageList, ImageListItem } from '@mui/material';
 import { getPopularRequest } from './utils/api';
 import { Link } from 'react-router-dom';
 import MainPageNavbar from './MainPageNavbar';
 import { useAuth } from './contexts/AuthContext';
+
 
 function Mainpage() {
 
@@ -20,8 +21,6 @@ function Mainpage() {
 
         getSeriesRequest();
     }, [])
-
-
 
     return (
         <>
@@ -52,7 +51,8 @@ function Mainpage() {
                                     </li>}
                             </Link>
                         ))}</ul></div>
-            </div></>
+            </div>
+        </>
     )
 }
 

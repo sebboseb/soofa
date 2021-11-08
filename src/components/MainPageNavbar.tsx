@@ -1,5 +1,5 @@
 //@ts-nocheck
-import React, { useEffect, useState } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
 import Dropdown from './Dropdown';
 import { useAuth } from './contexts/AuthContext';
@@ -50,7 +50,11 @@ function MainPageNavbar() {
                                 <div>
                                     {inputClicked ? <div>
                                         <h1 onClick={() => setInputClicked(false)} className="font-semibold text-white text-xl">Sign in</h1></div> : 
-                                        <LoginPage />}
+                                        <div className="mt-96">
+                                            <div onClick={() => setInputClicked(true)} className="text-white font-semibold cursor-pointer">
+                                            x</div>
+                                        <LoginPage />
+                                        </div>}
                                 </div>
                             }
                         </div>
