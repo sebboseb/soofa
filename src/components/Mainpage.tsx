@@ -1,11 +1,8 @@
 //@ts-nocheck
 
-import React, { Component, useState, useEffect } from 'react';
-import { ImageList, ImageListItem } from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import { getPopularRequest } from './utils/api';
 import { Link } from 'react-router-dom';
-import MainPageNavbar from './MainPageNavbar';
-import { useAuth } from './contexts/AuthContext';
 
 
 function Mainpage() {
@@ -30,7 +27,7 @@ function Mainpage() {
                     <div className=" bg-gradient-to- via-transparent from-gray-900 h-full w-full absolute"></div>
                     <div className=" bg-gradient-to-l via-transparent from-gray-900 h-full w-full absolute"></div>
                     <div className=" bg-gradient-to-r via-transparent from-gray-900 h-full w-full absolute"></div>
-                    <img src={`https://image.tmdb.org/t/p/original/rcA17r3hfHtRrk3Xs3hXrgGeSGT.jpg`}></img>
+                    <img src={`https://image.tmdb.org/t/p/original/rcA17r3hfHtRrk3Xs3hXrgGeSGT.jpg`} alt="poster"></img>
                 </div>
                 <h1 className="text-white font-semibold text-3xl p-16">Discover, log and discuss new series!</h1>
                 <div className="h-full flex">

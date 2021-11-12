@@ -1,11 +1,6 @@
 //@ts-nocheck
 
-import React, { Component, useState, useEffect } from 'react';
-import { ImageList, ImageListItem } from '@mui/material';
-import { getPopularRequest } from './utils/api';
-import { Link } from 'react-router-dom';
-import MainPageNavbar from './MainPageNavbar';
-import { useAuth } from './contexts/AuthContext';
+import React, { Component } from 'react';
 
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';

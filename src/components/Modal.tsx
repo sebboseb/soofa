@@ -2,15 +2,11 @@
 
 import React from 'react';
 import Signup from './Signup';
-import { Fragment, useRef, useState } from 'react'
-import { Dialog, Transition } from '@headlessui/react'
-import { ExclamationIcon } from '@heroicons/react/outline'
-import LoginPage from './LoginPage';
+import { useState } from 'react'
 
-export default function Modal({ children }) {
+export default function Modal() {
 
     const [showModal, setShowModal] = useState(false);
-    const [login, setLogin] = useState(false);
 
     return (
         <>

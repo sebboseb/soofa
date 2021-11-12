@@ -2,16 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import StarRatings from 'react-star-ratings';
-import { Link, useLocation, useParams } from 'react-router-dom';
-import { getCreditsRequest, getCustomRequest, getEpisodesRequest, getPersonRequest, getSuccessionRequest, getSeasonsRequest, getSearchRequest } from './utils/api';
+import { Link, useParams } from 'react-router-dom';
+import { getCreditsRequest, getSeasonsRequest, getSearchRequest } from './utils/api';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, addDoc, arrayUnion, getDoc } from "firebase/firestore";
+import { doc, updateDoc, setDoc } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import Tilt from 'react-parallax-tilt';
-import Navbar from './Navbar';
 import ProgressBar from "@ramonak/react-progress-bar";
-import { Timeline, TimelineSeparator, TimelineItem, TimelineDot, TimelineConnector, TimelineContent } from '@mui/lab';
 import LoginPage from './LoginPage';
+import Review from './Review';
 
 function DetailsPage() {
 
@@ -19,7 +18,6 @@ function DetailsPage() {
     const { currentUser } = useAuth();
     const [season, setSeason] = useState(6);
     const [castList, setCastList] = useState([]);
-    const [starlol, setStarlol] = useState(5);
     const seasonsLOL = [];
     const [succession, setSuccession] = useState([]);
     const [lolmurloc, setLolmurloc] = useState(0);
@@ -27,6 +25,8 @@ function DetailsPage() {
     const [username, setUsername] = useState([]);
     const [inputClicked, setInputClicked] = useState(false);
     const [reviews, setReviews] = useState([]);
+    const [reviewInput, setReviewInput] = useState(false);
+    const [query, setQuery] = useState("");
 
     useEffect(() => {
         const getUsers = async () => {
@@ -89,16 +89,13 @@ function DetailsPage() {
         }
 
 
-        console.log(succession.id)
-
-
         currentUser && getUsers();
         getSeriesRequest();
-    }, []);
+    }, [id, currentUser]);
 
     //getstars if namn (id) matchar firebase get star rating annars gör ny star rating
     const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series") : null;
-    const reviewRef = doc(db, "Posts", id.replaceAll('-', ' '), "userPosts", currentUser.uid);
+    const reviewRef = currentUser ? doc(db, "Posts", id.replaceAll('-', ' '), "userPosts", currentUser.uid) : null;
 
     async function addEpisode(murloc, starrating) {
         Object.assign(murloc, starrating);
@@ -123,14 +120,15 @@ function DetailsPage() {
                 // deleteField(),
             });
 
-            
+
         }
     }
 
-    async function addReview(reviewText) {
+    async function addReview(reviewText, starrating) {
         await setDoc(reviewRef, {
             user: username,
-            review: reviewText
+            review: reviewText,
+            starrating: starrating
         });
     }
 
@@ -148,13 +146,19 @@ function DetailsPage() {
             }}>
                 <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
                     <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
-                        <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`} className=" rounded-t"></img>
+                        <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`} className=" rounded-t" alt={season[i - 1].name}></img>
                         <p className="text-center font-bold">{season[i - 1].name}</p>
                     </li>
                 </Tilt>
             </Link>
             // : <div></div>
         )
+    }
+
+    const onChange = (e) => {
+        e.preventDefault();
+
+        setQuery(e.target.value);
     }
 
     return (
@@ -175,11 +179,11 @@ function DetailsPage() {
                             <div className=" bg-gradient-to- via-transparent from-gray-700 h-full w-full absolute"></div>
                             <div className=" bg-gradient-to-l via-transparent from-gray-700 h-full w-full absolute"></div>
                             <div className=" bg-gradient-to-r via-transparent from-gray-700 h-full w-full absolute"></div>
-                            <img src={`https://image.tmdb.org/t/p/original${succession.backdrop_path}`}></img>
+                            <img src={`https://image.tmdb.org/t/p/original${succession.backdrop_path}`} alt={succession.name}></img>
                         </div>
                         <div className="flex justify-between">
                             <div className="flex flex-col items-center">
-                                <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-72 p-1"></img>
+                                <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-72 p-1" alt={succession.name}></img>
                                 {currentUser && <StarRatings
                                     rating={lolmurloc}
                                     starRatedColor="#f59e0b"
@@ -191,13 +195,20 @@ function DetailsPage() {
                                     starHoverColor="#f59e0b"
                                 />}
                                 <div className="flex space-x-1">
-                                {currentUser ? <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
-                                    onClick={() => addEpisode(succession, { star_rating: lolmurloc })}
-                                >Logga</button> : <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
-                                    onClick={() => setInputClicked(true)}
-                                >Logga in</button>}
-                                <div onClick={() => addReview("Best Show Ever!")} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600"></div>
+                                    {currentUser ? <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
+                                        onClick={() => addEpisode(succession, { star_rating: lolmurloc })}
+                                    >Logga</button> : <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
+                                        onClick={() => setInputClicked(true)}
+                                    >Logga in</button>}
+                                    <div onClick={() => setReviewInput(!reviewInput)} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600"></div>
                                 </div>
+                                {reviewInput ?
+                                    <div>
+                                        <input className=" absolute" type="text" value={query} onChange={onChange} />
+                                        <div onClick={() => addReview(query, lolmurloc)} className="bg-red-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600 absolute">
+                                            <h1>Review</h1>
+                                        </div>
+                                    </div> : null}
                                 <Link to="/" className="font-semibold text-white text-xl">Dashboard</Link>
                                 <div>
                                     {
@@ -239,16 +250,25 @@ function DetailsPage() {
                                             {seasonsLOL}
                                         </ul>
                                     </div>
-                                    <div>
-                                        <ul>
-                                            {reviews.map((thingy) => (
-                                                <li className="flex space-x-4"><h1>{thingy.user}</h1><h1>{thingy.review}</h1></li>
-                                            ))}
-                                        </ul>
-                                    </div>
+
                                 </div>
+
                             </div>
                         </div>
+
+                        <div className="flex justify-center">
+                            <ul className="bg-white max-w-3xl w-screen rounded shadow mt-4 p-1">
+                            <div className="flex justify-end">
+                            <Link to={{
+                                                    pathname: `/${id.replace(/\s/g, '-')}/reviews`,
+                                                }}>More Reviews</Link>
+                            </div>
+                                {reviews.map((thingy) => (
+                                    <Review user={thingy.user} review={thingy.review} stars={thingy.starrating}></Review>
+                                ))}
+                            </ul>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -257,11 +277,3 @@ function DetailsPage() {
 }
 
 export default DetailsPage;
-
-function Review() {
-    return (
-        <>
-            <h1>Best show ever</h1>
-        </>
-    )
-}

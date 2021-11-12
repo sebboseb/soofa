@@ -10,7 +10,6 @@ import PrivateRoute from './components/PrivateRoute';
 import ForgotPassword from './components/ForgotPassword';
 import UpdateProfile from './components/UpdateProfile';
 import DetailsPage from './components/DetailsPage';
-import Testthing from './components/Testthing';
 import ProfilePage from './components/ProfilePage';
 import Episodes from './components/Episodes';
 import Person from './components/Person';
@@ -18,6 +17,7 @@ import Mainpage from './components/Mainpage';
 import EpisodeLore from './components/EpisodeLore';
 import Activity from './components/Activity';
 import MainPageNavbar from './components/MainPageNavbar';
+import ReviewPage from './components/ReviewPage';
 // import { Provider } from 'react-redux';
 // import { createStore, applyMiddleware } from 'redux';
 // import rootReducer from './redux/reducers';
@@ -41,6 +41,7 @@ function App() {
                 <Route path="/login" component={LoginPage}></Route>
                 <Route path="/forgotpassword" component={ForgotPassword}></Route>
                 <Route path="/series/:id" component={DetailsPage}></Route>
+                <Route path="/:id/reviews" component={ReviewPage}></Route>
                 <Route path="/:id/season-:seasonId/episodes" component={Episodes}></Route>
                 <Route path="/actor/:actorId" component={Person}></Route>
                 <Route path="/activity" component={Activity}></Route>

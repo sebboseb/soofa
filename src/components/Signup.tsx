@@ -3,8 +3,7 @@
 import React, {useRef} from 'react';
 import '../index.css';
 import { useAuth } from './contexts/AuthContext';
-import { Link, useHistory } from 'react-router-dom';
-import Navbar from './Navbar';
+import { useHistory } from 'react-router-dom';
 
 export default function Signup() {
 

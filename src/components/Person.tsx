@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React, {useState, useEffect} from 'react';
 import { useParams } from 'react-router';
-import { getCreditsRequest, getPersonRequest, getLolRequest, getSearchPersonRequest } from './utils/api';
+import { getLolRequest, getSearchPersonRequest } from './utils/api';
 import { Link } from 'react-router-dom';
 
 function Person() {
@@ -24,7 +24,7 @@ function Person() {
         }
 
         getSeriesRequest();
-    }, [])
+    }, [actorId])
 
     return (
         <>

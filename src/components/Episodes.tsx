@@ -1,14 +1,12 @@
 // @ts-nocheck
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import StarRatings from 'react-star-ratings';
-import { Link, useLocation, useParams } from 'react-router-dom';
-import { getCreditsRequest, getCustomRequest, getEpisodesRequest, getPersonRequest, getSuccessionRequest, getSeasonsRequest, getSearchRequest, getEpisodeRequest } from './utils/api';
+import { Link, useParams } from 'react-router-dom';
+import { getEpisodesRequest, getSeasonsRequest, getSearchRequest, getEpisodeRequest } from './utils/api';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, addDoc, arrayUnion, getDoc, query, collection, where } from "firebase/firestore";
+import { doc, updateDoc, query, collection, where } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
-import Tilt from 'react-parallax-tilt';
-import Navbar from './Navbar';
 
 function Episodes() {
 
@@ -19,7 +17,7 @@ function Episodes() {
     const [season, setSeason] = useState([]);
     const [episodes, setEpisodes] = useState([]);
     const [lolmurloc, setLolmurloc] = useState(0);
-    const [isInFavourites, setIsInFavourites] = useState(false);
+    // const [isInFavourites, setIsInFavourites] = useState(false);
 
     useEffect(() => {
 
@@ -60,7 +58,7 @@ function Episodes() {
         }
 
         getSeriesRequest();
-    }, []);
+    }, [currentUser, id, seasonId]);
 
     function changeRating(newRating, name) {
         setLolmurloc(newRating);
@@ -127,7 +125,7 @@ function Episodes() {
                                     pathname: `/${id}/season-${seasonId}/episode/${thingy.episode_number}`,
                                 }}>
                                     <li className="bg-black w-52 rounded mx-1 my-1 text-white">
-                                        <img className="" src={`https://image.tmdb.org/t/p/original${thingy.still_path}`}></img>
+                                        <img className="" src={`https://image.tmdb.org/t/p/original${thingy.still_path}`} alt={thingy.name}></img>
                                     </li>
                                     <h1 className="text-white font-semibold">{thingy.name}</h1>
                                 </Link>

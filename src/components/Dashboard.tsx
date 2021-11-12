@@ -3,41 +3,28 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, addDoc, arrayUnion, deleteDoc, deleteField, getDoc } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
-import Navbar from './Navbar';
+
 import Tilt from 'react-parallax-tilt';
-import StarRatings from 'react-star-ratings';
-import { getEpisodesRequest, getPopularRequest, getSearchRequest, getSeasonsRequest } from './utils/api';
+
+import { getPopularRequest } from './utils/api';
 
 function Dashboard() {
 
     const { currentUser } = useAuth();
-    const [addCard, setAddCard] = useState(20);
     const [series, setSeries] = useState([]);
-    const [favourites, setFavourites] = useState([]);
-    const [lol, setLol] = useState(1);
+    // const [favourites, setFavourites] = useState([]);
     const items = [];
     const [username, setUsername] = useState("");
-    const [descriptionText, setDescriptionText] = useState("Teawdawdawdawdawdawdawdawdxt");
-    const [episodes, setEpisodes] = useState([]);
-    const [seasonNr, setSeasonNr] = useState(6);
-    const [posters, setPosters] = useState("");
     const [query, setQuery] = useState("Succession");
-    const [season, setSeason] = useState([]);
-    const [mainId, setMainId] = useState(76331);
-    const seasonsLOL = [];
-    const [starlol, setStarlol] = useState(4.5);
-    const [seriesName, setSeriesName] = useState("");
-    const [claimed, setClaimed] = useState([]);
-    const [murlocWarleader, setMurlocWarleader] = useState([]);
-    const [thisRating, setThisRating] = useState(0);
+    // const [season, setSeason] = useState([]);
+    // const [mainId, setMainId] = useState(76331);
 
     useEffect(() => {
         const getUsers = async () => {
             db.collection("User").doc(currentUser.uid).get().then(doc => {
                 setUsername(doc.data().Username);
-                setFavourites([doc.data().Favourites]);
+                // setFavourites([doc.data().Favourites]);
             });
 
             // const docRef = doc(db, "User", currentUser.uid, "Favourites", "Series");
@@ -67,16 +54,16 @@ function Dashboard() {
             setSeries(popularList);
             console.log(popularList);
 
-            const seasonList = await getSeasonsRequest(mainId);
-            setSeason(seasonList);
-            console.log(seasonList);
+            // const seasonList = await getSeasonsRequest(mainId);
+            // setSeason(seasonList);
+            // console.log(seasonList);
 
         }
 
         // getStars("Succession");
         currentUser && getUsers();
         getSeriesRequest();
-    }, []);
+    }, [currentUser]);
 
     function makeid(length) {
         var result = '';
@@ -114,10 +101,6 @@ function Dashboard() {
     //     setThisRating(bagurgle);
     // }
 
-    function inteAsync() {
-
-    }
-
     for (let i = 1; i <= 20; i++) {
         // {getStars((series[i - 1].name))}
         // {console.log(thisRating)}
@@ -147,7 +130,7 @@ function Dashboard() {
             }> */}
                 <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
                     <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
-                        <img src={`https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`}></img>
+                        <img src={`https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`} alt={series[i - 1].name}></img>
                         <p className="text-center font-bold">{series[i - 1].name}</p>
                     </li>
                 </Tilt>
@@ -200,40 +183,40 @@ function Dashboard() {
     //     )
     // }
 
-    const userDocument = currentUser ? doc(db, "User", currentUser.uid) : null;
-    const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series") : null;
-    const userDocumentFavSeason = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Season") : null;
+    // const userDocument = currentUser ? doc(db, "User", currentUser.uid) : null;
+    // const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series") : null;
+    // const userDocumentFavSeason = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Season") : null;
 
-    async function createUser() {
-        await updateDoc(userDocument, {
-            Name: "Bagurgle"
-        });
-    }
+    // async function createUser() {
+    //     await updateDoc(userDocument, {
+    //         Name: "Bagurgle"
+    //     });
+    // }
 
-    const stars = { starslol: 5 }
+    // const stars = { starslol: 5 }
 
-    async function addEpisode(murloc, starrating) {
-        Object.assign(murloc, starrating);
-        console.log(murloc);
-        setFavourites([...favourites, murloc]);
-        console.log(favourites);
+    // async function addEpisode(murloc, starrating) {
+    //     Object.assign(murloc, starrating);
+    //     console.log(murloc);
+    //     setFavourites([...favourites, murloc]);
+    //     console.log(favourites);
 
-        await updateDoc(userDocumentFav, {
-            [murloc.name]:
-                [murloc],
-        });
-    }
+    //     await updateDoc(userDocumentFav, {
+    //         [murloc.name]:
+    //             [murloc],
+    //     });
+    // }
 
-    async function addSeason(murlocSeason, starrating) {
-        Object.assign(murlocSeason, starrating);
-        console.log(murlocSeason);
-        setFavourites([...favourites, murlocSeason]);
-        console.log(favourites);
+    // async function addSeason(murlocSeason, starrating) {
+    //     Object.assign(murlocSeason, starrating);
+    //     console.log(murlocSeason);
+    //     setFavourites([...favourites, murlocSeason]);
+    //     console.log(favourites);
 
-        await setDoc(userDocumentFavSeason, {
-            Favourites: [murlocSeason],
-        });
-    }
+    //     await setDoc(userDocumentFavSeason, {
+    //         Favourites: [murlocSeason],
+    //     });
+    // }
 
     const onChange = (e) => {
         e.preventDefault();
@@ -275,13 +258,13 @@ function Dashboard() {
                                 series.filter(Boolean).map((thingy, index) => (
                                     thingy.poster_path &&
                                     <div>
-                                        {thingy.origin_country=='US' ?
+                                        {thingy.origin_country==='US' ?
                                         <Link key={makeid(5)} to={{
                                             pathname: `/series/${(thingy.name).replace(/\s/g, '-')}`,
                                         }}>
 
                                             <li className="bg-black w-52 rounded mx-1 my-1 text-white">
-                                                <img className="" src={`https://image.tmdb.org/t/p/original${thingy.poster_path}`}></img>
+                                                <img className="" src={`https://image.tmdb.org/t/p/original${thingy.poster_path}`} alt={thingy.name}></img>
                                             </li>
                                         </Link> : null}
                                     </div>

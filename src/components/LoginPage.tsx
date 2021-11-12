@@ -3,7 +3,7 @@
 import React, { useRef, useState } from 'react';
 import '../index.css';
 import { useAuth } from './contexts/AuthContext';
-import { Link, useHistory } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function LoginPage() {
 
@@ -11,7 +11,6 @@ export default function LoginPage() {
   const passwordRef = useRef() as React.MutableRefObject<HTMLInputElement>;
   // const passwordConfirmRef = useRef() as React.MutableRefObject<HTMLInputElement>;
   const { login } = useAuth();
-  const history = useHistory();
   const [error, setError] = useState("");
 
   async function handleSubmit(e: any) {

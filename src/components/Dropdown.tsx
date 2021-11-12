@@ -1,7 +1,6 @@
 //@ts-nocheck
-import react, { useState, Fragment } from 'react';
+import { useState, Fragment } from 'react';
 import { Menu, Transition } from '@headlessui/react';
-import { ChevronDownIcon } from '@heroicons/react/solid';
 import { Link } from 'react-router-dom';
 
 function Dropdown() {
@@ -51,7 +50,7 @@ function Dropdown() {
                         <Menu.Item>
                             {({ active }) => (
                                 <a
-                                    href="#"
+                              
                                     className={classNames(
                                         active ? ' text-gray-900' : 'text-gray-700',
                                         'block px-4 py-2 text-sm'
@@ -67,7 +66,7 @@ function Dropdown() {
                                                 }}>
                                                     <div className="flex">
                                                         <li className="bg-black w-16 rounded mx-1 my-1 text-white">
-                                                            <img className=" rounded" src={`https://image.tmdb.org/t/p/original${thingy.poster_path}`}></img>
+                                                            <img className=" rounded" src={`https://image.tmdb.org/t/p/original${thingy.poster_path}`} alt={thingy.name}></img>
                                                         </li>
                                                         <p>{thingy.name}</p>
                                                     </div>

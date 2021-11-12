@@ -1,12 +1,11 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, addDoc, arrayUnion, getDoc, orderBy, where } from "firebase/firestore";
+import { doc, updateDoc, setDoc, onSnapshot } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
-import Navbar from './Navbar';
 import { Link, useParams } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
-import {Typography} from '@mui/material'
+import { Typography } from '@mui/material'
 
 function ProfilePage() {
 
@@ -15,23 +14,65 @@ function ProfilePage() {
     const { currentUser } = useAuth();
     const [username, setUsername] = useState("");
     const [claimed, setClaimed] = useState([]);
-    const [murlocWarleader, setMurlocWarleader] = useState([]);
+    const [currentUid, setCurrentUid] = useState("");
+    const [followed, setFollowed] = useState([]);
+    const [thisUser, setThisUser] = useState([]);
 
     useEffect(() => {
         const getUsers = async () => {
-            const docRef = doc(db, "User", currentUser.uid, "Favourites", "Series");
-            const docSnap = await getDoc(docRef);
-            
 
-            if (docSnap.exists()) {
-                let mapData = Object.values(docSnap.data());
-            setMurlocWarleader(mapData);
-            console.log(murlocWarleader[0]);
-                console.log("Document data:", mapData[0]);
-                setClaimed(mapData);
-            } else {
-                // doc.data() will be undefined in this case
-                console.log("No such document!");
+            db.collection("User").where("Username", "==", profileId).onSnapshot((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.data()); // For data inside doc
+                    console.log(doc.id); // For doc name
+                    setCurrentUid(doc.id);
+                });
+            });
+
+            if (currentUid !== "") {
+                const docRef = doc(db, "User", currentUid, "Favourites", "Series");
+                // const docSnap = await getDoc(docRef);
+                onSnapshot(docRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        let mapData = Object.values(snapshot.data());
+                        console.log("Document data:", mapData);
+                        setClaimed(mapData);
+                    } else {
+                        // doc.data() will be undefined in this case
+                        console.log("No such document!");
+                    }
+                });
+
+                //Get current profiles followed
+                db.collection("Following").doc(currentUid).collection("UserFollowing").onSnapshot((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        console.log(doc.id); // For doc name
+                        setFollowed(prevFollowed => prevFollowed.concat(doc.data().username));
+                    });
+                });
+
+                db.collection("UserFollowing").where("username", "==", profileId).onSnapshot((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        console.log("Murloc" + doc.data()); // For data inside doc
+                        console.log("Murloc" + doc.id); // For doc name
+                    });
+                });
+
+                
+
+                // if (docSnap.exists()) {
+                //     let mapData = Object.values(docSnap.data());
+                //     console.log("Document data:", mapData);
+                //     setClaimed(mapData);
+                // } else {
+                //     // doc.data() will be undefined in this case
+                //     console.log("No such document!");
+                // }
+
+                db.collection("User").doc(currentUid).get().then(doc => {
+                    setThisUser([doc.data()]);
+                    console.log([doc.data()]);
+                });
             }
 
             db.collection("User").doc(currentUser.uid).get().then(doc => {
@@ -40,38 +81,35 @@ function ProfilePage() {
         }
 
         getUsers();
-    }, []);
+    }, [currentUser, profileId, currentUid]);
 
     const userDocumentFav = doc(db, "User", currentUser.uid, "Favourites", "Series");
-    const followDocument = doc(db, "Following", (currentUser.uid), "UserFollowing", ("aVys1udQtkhX8XD13rvVUQEr9l03"));
+    const followDocument = currentUid !== "" ? doc(db, "Following", (currentUser.uid), "UserFollowing", (currentUid)) : null;
 
     async function changeRating(newRating, name) {
         const starrating = { star_rating: newRating }
-        Object.assign(murlocWarleader[name], starrating);
+        Object.assign(claimed[name], starrating);
         console.log(name);
-        console.log(murlocWarleader[name].name);
+        console.log(claimed[name].name);
 
         await updateDoc(userDocumentFav, {
-            [murlocWarleader[name].name]: murlocWarleader[name]
+            [claimed[name].name]: claimed[name]
         });
-    }
-
-    function changeRatingLol() {
-        console.log("lol");
     }
 
     return (
         <>
             <div className=" text-white font-semibold text-3xl">
+                {currentUid}
                 <Typography
-                variant="h4"
-                >{username}</Typography>
+                    variant="h4"
+                >{profileId}</Typography>
                 <button className="text-white font-semibold bg-green-400 rounded shadow p-3 text-sm hover:bg-green-500"
-                onClick={() => 
-                    setDoc(followDocument,{
-                        coldlight: "followed"
-                    })
-                }
+                    onClick={() =>
+                        setDoc(followDocument, {
+                            username: thisUser[0].Username
+                        })
+                    }
                 >Follow</button>
                 {/* <p className="text-center md:text-left">{username}</p> */}
                 <ul className="flex max-w-screen flex-wrap justify-center md:justify-start">
@@ -87,12 +125,21 @@ function ProfilePage() {
                                 numberOfStars={5}
                                 starDimension="24px"
                                 starSpacing="1px"
-                                changeRating={changeRating}
+                                changeRating={username === profileId ? changeRating : null}
                                 name={index}
                                 starHoverColor="#f59e0b"
                             />
                         </div>
-                    ))}</ul>
+                    ))}
+                </ul>
+                <div>
+                    <h1>Following</h1>
+                    <ul>
+                        {
+                            followed.map((follow) => <li>{follow}</li>)
+                        }
+                    </ul>
+                </div>
             </div>
         </>
     )

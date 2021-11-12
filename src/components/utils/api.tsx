@@ -1,10 +1,8 @@
 export async function getPopularRequest() {
     const url = "https://api.themoviedb.org/3/tv/popular?api_key=e333684dcb3e9eac6a70505572519a23&language=sv-SE";
-    const searchUrl = `https://api.themoviedb.org/3/search/tv?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US&query=alla%20mot%20alla`;
     const response = await fetch(url);
     const responseJson = await response.json();
     const seriesResults = responseJson.results;
-    const posters = responseJson.poster_path;
 
     return seriesResults;
 }
