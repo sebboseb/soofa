@@ -125,7 +125,7 @@ function DetailsPage() {
         // console.log(favourites);
 
         if (isInFavourites) {
-            await updateDoc(userDocumentFav, {
+            await setDoc(userDocumentFav, {
                 [murloc.name]:
                     murloc,
                 // deleteField(),
