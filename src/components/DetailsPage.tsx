@@ -48,6 +48,15 @@ function DetailsPage() {
                 }
             });
 
+            db.collection("Posts").doc(currentUser.uid).get().then(doc => {
+                if (doc.data()) {
+                    setIsInFavourites(true);
+                }
+                else {
+                    setIsInFavourites(false);
+                }
+            });
+
             db.collection("User").doc(currentUser.uid).get().then(doc => {
                 setUsername(doc.data().Username);
             });
@@ -109,9 +118,9 @@ function DetailsPage() {
     const reviewRef = currentUser ? doc(db, "Posts", id.replaceAll('-', ' ')
         //  + " " + makeid(9)
         , "userPosts", currentUser.uid) : null;
-        const reviewRefMurloc = currentUser ? doc(db, "Posts", currentUser.uid) : null
-        //  + " " + makeid(9)
-        // , "userPosts", currentUser.uid) : null;
+    const reviewRefMurloc = currentUser ? doc(db, "Posts", currentUser.uid) : null
+    //  + " " + makeid(9)
+    // , "userPosts", currentUser.uid) : null;
     const postRef = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", (id.replaceAll('-', ' ') + " " + postId)) : null;
 
     async function addEpisode(murloc, starrating) {
@@ -125,7 +134,7 @@ function DetailsPage() {
         // console.log(favourites);
 
         if (isInFavourites) {
-            await setDoc(userDocumentFav, {
+            await updateDoc(userDocumentFav, {
                 [murloc.name]:
                     murloc,
                 // deleteField(),
@@ -143,15 +152,15 @@ function DetailsPage() {
 
     async function addReview(reviewText, starrating, murloc) {
         setPostId(makeid(9));
-        Object.assign(murloc, {review: reviewText}, {star_rating: starrating}, {user: username});
-        // await setDoc(reviewRef, {
-        //     user: username,
-        //     review: reviewText,
-        //     starrating: starrating,
-        //     // date: Timestamp.toDateTime().toString()
-        // });
+        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username });
+        await setDoc(reviewRef, {
+            user: username,
+            review: reviewText,
+            starrating: starrating,
+            // date: Timestamp.toDateTime().toString()
+        });
 
-        
+
 
         if (isInFavourites) {
             await updateDoc(reviewRefMurloc, {
@@ -288,7 +297,7 @@ function DetailsPage() {
                                 </div>
                                 <div className="flex justify-center">
                                     <ul className="bg-white max-w-xl w-screen rounded shadow mt-16 p-1">
-                                        {reviews.length !== 0 ?<div>
+                                        {reviews.length !== 0 ? <div>
                                             <div className="flex justify-end">
                                                 <Link to={{
                                                     pathname: `/reviews/${id.replace(/\s/g, '-')}`,
@@ -298,7 +307,7 @@ function DetailsPage() {
                                                 reviews.map((thingy) => (
                                                     <Review user={thingy.user} review={thingy.review} stars={thingy.starrating}></Review>
                                                 ))}
-                                        </div>: <h1>Be the first one to leave a review!</h1>}
+                                        </div> : <h1>Be the first one to leave a review!</h1>}
                                     </ul>
 
                                 </div>
