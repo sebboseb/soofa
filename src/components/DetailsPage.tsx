@@ -151,13 +151,27 @@ function DetailsPage() {
         //     // date: Timestamp.toDateTime().toString()
         // });
 
-        await updateDoc(reviewRefMurloc, {
-            [murloc.name]: murloc,
-            // user: username,
-            // review: reviewText,
-            // starrating: starrating,
-            // date: Timestamp.toDateTime().toString()
-        });
+        
+
+        if (isInFavourites) {
+            await updateDoc(reviewRefMurloc, {
+                [murloc.name]: murloc,
+                // user: username,
+                // review: reviewText,
+                // starrating: starrating,
+                // date: Timestamp.toDateTime().toString()
+            });
+        } else {
+            await setDoc(reviewRefMurloc, {
+                [murloc.name]: murloc,
+                // user: username,
+                // review: reviewText,
+                // starrating: starrating,
+                // date: Timestamp.toDateTime().toString()
+            });
+
+
+        }
     }
 
     function changeRating(newRating, name) {
