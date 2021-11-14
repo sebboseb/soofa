@@ -29,7 +29,7 @@ import ReviewPage from './components/ReviewPage';
 function App() {
   return (
     <>
-    <div className="w-screen min-h-screen h-auto bg-gray-900 absolute" id="superBody">
+    <div className="w-screen min-h-screen h-auto bg-letterboxd-bg absolute" id="superBody">
           <Router>
             <AuthProvider>
               <MainPageNavbar></MainPageNavbar>
@@ -41,13 +41,13 @@ function App() {
                 <Route path="/login" component={LoginPage}></Route>
                 <Route path="/forgotpassword" component={ForgotPassword}></Route>
                 <Route path="/series/:id" component={DetailsPage}></Route>
-                <Route path="/:id/reviews" component={ReviewPage}></Route>
+                <Route path="/reviews/:id" component={ReviewPage}></Route>
                 <Route path="/:id/season-:seasonId/episodes" component={Episodes}></Route>
                 <Route path="/actor/:actorId" component={Person}></Route>
                 <Route path="/activity" component={Activity}></Route>
                 <Route exact path="/" component={Mainpage}></Route>
                 <Route path="/:id/season-:seasonId/episode/:episodeId" component={EpisodeLore}></Route>
-                <PrivateRoute path="/:profileId" component={ProfilePage}></PrivateRoute>
+                <Route path="/:profileId" component={ProfilePage}></Route>
               </Switch>
             </AuthProvider>
           </Router>

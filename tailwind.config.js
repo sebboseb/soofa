@@ -24,7 +24,11 @@ module.exports = {
         // => @media (min-width: 640px) { ... }
       },
       colors: {
-        'soofa-orange': '#F59E0B'
+        'soofa-orange': '#F59E0B',
+        'letterboxd-bg': '#14181C'
+      },
+      height: {
+        'extra-height': '600px'
       }
     },
   },

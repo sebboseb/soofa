@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, updateDoc, setDoc, onSnapshot, documentId, query, collection, where, getDocs } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import { Link, useParams } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
@@ -17,10 +17,10 @@ function ProfilePage() {
     const [currentUid, setCurrentUid] = useState("");
     const [followed, setFollowed] = useState([]);
     const [thisUser, setThisUser] = useState([]);
+    const [isFollowing, setIsFollowing] = useState(false);
 
     useEffect(() => {
         const getUsers = async () => {
-
             db.collection("User").where("Username", "==", profileId).onSnapshot((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                     console.log(doc.data()); // For data inside doc
@@ -47,7 +47,16 @@ function ProfilePage() {
                 db.collection("Following").doc(currentUid).collection("UserFollowing").onSnapshot((querySnapshot) => {
                     querySnapshot.forEach((doc) => {
                         console.log(doc.id); // For doc name
-                        setFollowed(prevFollowed => prevFollowed.concat(doc.data().username));
+                        setFollowed(prevFollowed => prevFollowed.concat(doc.id
+                            // data().username
+                        ));
+                    });
+                });
+
+                db.collection("Following").doc(currentUser.uid).collection("UserFollowing").where(documentId(), "==", currentUid).onSnapshot((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        setIsFollowing(true);
+                        console.log("Following"); // For doc name
                     });
                 });
 
@@ -57,8 +66,6 @@ function ProfilePage() {
                         console.log("Murloc" + doc.id); // For doc name
                     });
                 });
-
-                
 
                 // if (docSnap.exists()) {
                 //     let mapData = Object.values(docSnap.data());
@@ -97,6 +104,44 @@ function ProfilePage() {
         });
     }
 
+    function followFunction() {
+        setIsFollowing(true);
+        db.collection("Following")
+            .doc(currentUser.uid)
+            .collection("UserFollowing")
+            .doc(currentUid)
+            .set({})
+    }
+
+    function unfollowFunction() {
+        setIsFollowing(false);
+        db.collection("Following")
+            .doc(currentUser.uid)
+            .collection("UserFollowing")
+            .doc(currentUid)
+            .delete()
+    }
+
+    async function loadFeed() {
+        // db.collection("Posts").where(documentId(),'in',followed).onSnapshot((querySnapshot) => {
+        //     querySnapshot.forEach((doc) => {
+        //         console.log("LETS GOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+        //         console.log(doc.data().legolas);
+        //         // setFeed(doc.data());
+        //     });
+        // });
+
+        const q = query(collection(db, "Posts"), where(documentId(), 'in', followed));
+
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            // doc.data() is never undefined for query doc snapshots
+            let murlocdata = Object.values(doc.data());
+            console.log(murlocdata);
+            console.log(doc.id, " => ", doc.data());
+        });
+    }
+
     return (
         <>
             <div className=" text-white font-semibold text-3xl">
@@ -104,13 +149,18 @@ function ProfilePage() {
                 <Typography
                     variant="h4"
                 >{profileId}</Typography>
-                <button className="text-white font-semibold bg-green-400 rounded shadow p-3 text-sm hover:bg-green-500"
-                    onClick={() =>
-                        setDoc(followDocument, {
-                            username: thisUser[0].Username
-                        })
-                    }
-                >Follow</button>
+                {currentUid !== currentUser.uid &&
+                    <button className="text-white font-semibold bg-green-400 rounded shadow p-3 text-sm hover:bg-green-500"
+                        onClick={() =>
+                            isFollowing ?
+                                unfollowFunction() :
+                                followFunction()
+                            // setDoc(followDocument, {
+                            //     username: thisUser[0].Username
+                            // })
+                        }
+                    >
+                        {isFollowing ? <h1>Unfollow</h1> : <h1>Follow</h1>}</button>}
                 {/* <p className="text-center md:text-left">{username}</p> */}
                 <ul className="flex max-w-screen flex-wrap justify-center md:justify-start">
                     {claimed.map((claims, index) => (
@@ -132,6 +182,7 @@ function ProfilePage() {
                         </div>
                     ))}
                 </ul>
+                <button onClick={() => loadFeed()}>Load feed</button>
                 <div>
                     <h1>Following</h1>
                     <ul>

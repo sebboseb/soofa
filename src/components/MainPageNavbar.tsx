@@ -39,7 +39,7 @@ function MainPageNavbar() {
     return (
         <>
         {error}
-            <div className=" min-w-full w-screen bg-green-500 h-16">
+            <div className=" min-w-full w-screen bg-transparent h-16 z-50 relative">
                 <div className="flex justify-end w-screen items-center h-16 absolute">
                     <ul className="flex space-x-8 mr-16 h-16 items-center z-10">
                         <div>
@@ -62,7 +62,7 @@ function MainPageNavbar() {
                         {/* {currentUser ? null : <h1 onClick={() => {setClicked(true)}} className="font-semibold text-white text-xl">Create account</h1>} */}
                         {currentUser ? null : <Modal>Text</Modal>}
                         <Link to="/dashboard"><h1 className="font-semibold text-white text-xl">Series</h1></Link>
-                        <Link className="font-semibold text-white text-xl">Activity</Link>
+                        <Link to="/activity" className="font-semibold text-white text-xl">Activity</Link>
                         <Dropdown></Dropdown>
                         {/* <input className="rounded shadow h-8 w-56 p-4 z-10" type="text" placeholder="Search a series" /> */}
                         {currentUser && <button className="text-white font-semibold" onClick={handleLogout}>Log Out</button>}
