@@ -5,10 +5,9 @@ import StarRatings from 'react-star-ratings';
 import { Link, useParams } from 'react-router-dom';
 import { getCreditsRequest, getSeasonsRequest, getSearchRequest } from './utils/api';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, onSnapshot } from "firebase/firestore";
+import { doc, updateDoc, setDoc } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import Tilt from 'react-parallax-tilt';
-import ProgressBar from "@ramonak/react-progress-bar";
 import LoginPage from './LoginPage';
 import Review from './Review';
 
@@ -27,7 +26,8 @@ function DetailsPage() {
     const [reviews, setReviews] = useState([]);
     const [reviewInput, setReviewInput] = useState(false);
     const [query, setQuery] = useState("");
-    const [postId, setPostId] = useState(makeid(9))
+    const [postId, setPostId] = useState(makeid(9));
+    const [crewList, setCrewList] = useState([]);
 
     useEffect(() => {
         const getUsers = async () => {
@@ -73,7 +73,9 @@ function DetailsPage() {
 
             const castingList = await getCreditsRequest(seriesList[0].id);
             setCastList(castingList.cast);
+            setCrewList(castingList.crew);
             console.log(castingList);
+            console.log(castingList.crew);
 
 
             const snapshot = await db.collection("Posts").doc(id.replaceAll('-', ' ')).collection("userPosts").get();
@@ -217,18 +219,18 @@ function DetailsPage() {
             <p className="text-white font-semibold">{id.replaceAll('-', ' ')}</p>
             <p className="text-white">{window.location.pathname}</p> */}
             <div className=" w-screen flex justify-center relative">
-                <div className=" w-full max-w-6xl min-h-screen h-auto bg-letterboxd-bg flex">
+                <div className=" w-full max-w-6xl min-h-screen h-auto dark:bg-letterboxd-bg flex">
                     <div className="flex flex-col items-center">
                         {inputClicked && <div className="absolute h-44 mt-0 z-50">
                             <div onClick={() => setInputClicked(false)} className="text-white font-semibold cursor-pointer">
                                 x</div>
                             <LoginPage />
                         </div>}
-                        <div className="w-full relative -mt-16">
-                            <div className=" bg-gradient-to-t via-transparent from-letterboxd-bg h-full w-full absolute"></div>
-                            <div className=" bg-gradient-to- via-transparent from-letterboxd-bg h-full w-full absolute"></div>
-                            <div className=" bg-gradient-to-l via-transparent from-letterboxd-bg h-full w-full absolute"></div>
-                            <div className=" bg-gradient-to-r via-transparent from-letterboxd-bg h-full w-full absolute"></div>
+                        <div className="w-full relative -mt-24">
+                            <div className=" bg-gradient-to-t dark:via-transparent via-transparent dark:from-letterboxd-bg from-youtube-white-bg h-full w-full absolute"></div>
+                            <div className=" bg-gradient-to-l dark:via-transparent via-transparent dark:from-letterboxd-bg from-youtube-white-bg h-full w-full absolute"></div>
+                            <div className=" bg-gradient-to-r dark:via-transparent via-transparent dark:from-letterboxd-bg from-youtube-white-bg h-full w-full absolute"></div>
+                            <div className=" bg-gradient-to- dark:via-transparent via-transparent dark:from-letterboxd-bg from-youtube-white-bg h-full w-full absolute"></div>
                             <div className=" overflow-hidden h-extra-height">
                                 <img src={`https://image.tmdb.org/t/p/original${succession.backdrop_path}`} alt={succession.name}></img>
                             </div>
@@ -247,9 +249,9 @@ function DetailsPage() {
                                     starHoverColor="#f59e0b"
                                 />}
                                 <div className="flex space-x-1">
-                                    {currentUser ? <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
+                                    {currentUser ? <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
                                         onClick={() => addEpisode(succession, { star_rating: lolmurloc })}
-                                    >Logga</button> : <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 text-white font-semibold mt-2"
+                                    >Logga</button> : <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
                                         onClick={() => setInputClicked(true)}
                                     >Logga in</button>}
                                     <div onClick={() => setReviewInput(!reviewInput)} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600"></div>
@@ -279,36 +281,67 @@ function DetailsPage() {
 </Timeline> */}
                             </div>
                             <div className="flex flex-col max-w-4xl">
-                                <h1 className=" text-gray-300 font-semibold p-4 text-xl">{succession.name}</h1>
-                                <p className=" text-gray-300 font-semibold pb-4 pl-4 pr-4">{succession.overview}</p>
-                                <ProgressBar completed={60} className="w-44" />
-                                <div>
-                                    {
-                                        castList.filter(Boolean).map((thingy, index) => (
-                                            <div className="flex flex-col items-center">
-                                                <Link to={{
-                                                    pathname: `/actor/${(thingy.name).replace(/\s/g, '-')}`,
-                                                }}>
-                                                    <h1 className="text-white font-semibold min-w-max">{thingy.name} - {thingy.character}</h1>
-                                                </Link>
-                                            </div>
-                                        ))
-                                    }
+                                <div className="flex items-end">
+                                    <h1 className=" dark:text-white font-semibold p-4 text-3xl">{succession.name}</h1>
+                                    <h1 className=" dark:text-gray-500 font-semibold p-4 text-md -ml-3"><u>{succession.first_air_date && succession.first_air_date.split('-')[0]}</u></h1>
+                                    <h1 className=" dark:text-white font-semibold p-4 text-md -ml-3">
+                                        <ul className="flex">
+                                            {
+                                                (crewList.filter(kuk => kuk.department === 'Directing')).map((directors) => (
+                                                    <Link to={{
+                                                        pathname: `/director/${(directors.name).replace(/\s/g, '-')}`,
+                                                    }}><li className="hover:text-gray-300 cursor-pointer"><u>{directors.name}</u>&nbsp;</li>
+                                                    </Link>
+                                                ))
+                                            }
+
+                                        </ul>
+                                    </h1>
+                                </div>
+                                <p className=" dark:text-gray-300 font-semibold pb-4 pl-4 pr-4">{succession.overview}</p>
+                                {/* <ProgressBar completed={60} className="w-44" /> */}
+                                <div className="flex max-w-3xl justify-center">
+                                    <div className="flex flex-wrap max-w-xl mt-32 border-t border-white pt-8">
+                                        {
+                                            castList.filter(Boolean).map((thingy, index) => (
+                                                <div className=" my-1 mx-1">
+                                                    <Link to={{
+                                                        pathname: `/actor/${(thingy.name).replace(/\s/g, '-')}`,
+                                                    }}>
+                                                        <h1 className="dark:text-white font-semibold min-w-max bg-gray-500 p-1 rounded">
+                                                            {thingy.name} - {thingy.character}
+                                                        </h1>
+                                                    </Link>
+                                                </div>
+                                            ))
+                                        }
+                                    </div>
                                 </div>
                                 <div className="flex justify-center">
-                                    <ul className="bg-white max-w-xl w-screen rounded shadow mt-16 p-1">
-                                        {reviews.length !== 0 ? <div>
-                                            <div className="flex justify-end">
+                                    {/* <ul className="bg-white max-w-xl w-screen rounded shadow mt-16 p-1"> */}
+                                    {reviews.length !== 0 ?
+                                        <ul className="space-y-4 max-w-xl w-screen mt-16">
+                                            <div className="flex justify-between dark:text-white">
+                                                <h1>Reviews</h1>
                                                 <Link to={{
                                                     pathname: `/reviews/${id.replace(/\s/g, '-')}`,
                                                 }}>More Reviews</Link>
                                             </div>
-                                            {
-                                                reviews.map((thingy) => (
-                                                    <Review user={thingy.user} review={thingy.review} stars={thingy.starrating}></Review>
-                                                ))}
-                                        </div> : <h1>Be the first one to leave a review!</h1>}
-                                    </ul>
+                                            {reviews.map((thingy) => (
+                                                <li className=" dark:text-white border-t dark:border-white border-black">
+                                                    <div className="flex justify-between mt-4">
+                                                        <div className="flex">
+                                                            <div className="flex flex-col">
+                                                                <Review user={thingy.user} review={thingy.review} stars={thingy.starrating}></Review>
+                                                            </div>
+                                                        </div>
+                                                        <div>1h</div>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                        : <h1>Be the first one to leave a review!</h1>}
+                                    {/* </ul> */}
 
                                 </div>
                             </div>
@@ -319,13 +352,8 @@ function DetailsPage() {
                                         {seasonsLOL}
                                     </ul>
                                 </div>
-
                             </div>
-
                         </div>
-
-
-
                     </div>
                 </div>
             </div>

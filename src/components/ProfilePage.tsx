@@ -1,15 +1,17 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, onSnapshot, documentId, query, collection, where, getDocs } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot, documentId, query, collection, where, getDocs } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useHistory } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
 import { Typography } from '@mui/material'
 
 function ProfilePage() {
 
     const { profileId } = useParams();
+
+    const history = useHistory();
 
     const { currentUser } = useAuth();
     const [username, setUsername] = useState("");
@@ -44,14 +46,9 @@ function ProfilePage() {
                 });
 
                 //Get current profiles followed
-                db.collection("Following").doc(currentUid).collection("UserFollowing").onSnapshot((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        console.log(doc.id); // For doc name
-                        setFollowed(prevFollowed => prevFollowed.concat(doc.id
-                            // data().username
-                        ));
-                    });
-                });
+            const snapshot = await db.collection('Following').doc(currentUser.uid).collection("UserFollowing").get()
+            const followingMurloc = snapshot.docs.map(doc => doc.id);
+            setFollowed(followingMurloc);
 
                 db.collection("Following").doc(currentUser.uid).collection("UserFollowing").where(documentId(), "==", currentUid).onSnapshot((querySnapshot) => {
                     querySnapshot.forEach((doc) => {
@@ -91,7 +88,7 @@ function ProfilePage() {
     }, [currentUser, profileId, currentUid]);
 
     const userDocumentFav = doc(db, "User", currentUser.uid, "Favourites", "Series");
-    const followDocument = currentUid !== "" ? doc(db, "Following", (currentUser.uid), "UserFollowing", (currentUid)) : null;
+    // const followDocument = currentUid !== "" ? doc(db, "Following", (currentUser.uid), "UserFollowing", (currentUid)) : null;
 
     async function changeRating(newRating, name) {
         const starrating = { star_rating: newRating }
@@ -142,15 +139,26 @@ function ProfilePage() {
         });
     }
 
+    async function handleLogout() {
+        setError("");
+        try {
+            await logout();
+            history.push("/");
+        } catch {
+            setError("Error")
+        }
+    }
+
     return (
         <>
-            <div className=" text-white font-semibold text-3xl">
+            <div className=" dark:text-white font-semibold text-3xl">
                 {currentUid}
                 <Typography
                     variant="h4"
                 >{profileId}</Typography>
+                {currentUser && <button className="dark:text-white font-semibold" onClick={handleLogout}>Log Out</button>}
                 {currentUid !== currentUser.uid &&
-                    <button className="text-white font-semibold bg-green-400 rounded shadow p-3 text-sm hover:bg-green-500"
+                    <button className="dark:text-white font-semibold bg-green-400 rounded shadow p-3 text-sm hover:bg-green-500"
                         onClick={() =>
                             isFollowing ?
                                 unfollowFunction() :

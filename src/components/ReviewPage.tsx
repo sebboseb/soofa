@@ -36,7 +36,7 @@ function ReviewPage() {
 
     return (
         <div className="flex justify-center">
-            <ul className="bg-white max-w-3xl w-screen rounded shadow mt-4 p-1">
+            <ul className="bg-white max-w-3xl w-screen rounded dark:shadow mt-4 p-1">
                 {reviews.map((thingy) => (
                     <Review user={thingy.user} review={thingy.review} stars={thingy.starrating}></Review>
                 ))}

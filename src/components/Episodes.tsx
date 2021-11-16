@@ -17,6 +17,7 @@ function Episodes() {
     const [season, setSeason] = useState([]);
     const [episodes, setEpisodes] = useState([]);
     const [lolmurloc, setLolmurloc] = useState(0);
+    const [isInFavourites, setIsInFavourites] = useState(false)
     // const [isInFavourites, setIsInFavourites] = useState(false);
 
     useEffect(() => {
@@ -37,7 +38,6 @@ function Episodes() {
             const citiesRef = collection(db, "User");
             const q = query(citiesRef, where("loka", "==", true));
             console.log(q);
-
 
             currentUser && db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Season").get().then(doc => {
                 if (doc.data()) {

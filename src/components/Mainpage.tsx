@@ -23,13 +23,13 @@ function Mainpage() {
         <>
             <div className="w-screen flex flex-col items-center">
                 <div className="w-3/4 relative">
-                    <div className=" bg-gradient-to-t via-transparent from-gray-900 h-full w-full absolute"></div>
-                    <div className=" bg-gradient-to- via-transparent from-gray-900 h-full w-full absolute"></div>
-                    <div className=" bg-gradient-to-l via-transparent from-gray-900 h-full w-full absolute"></div>
-                    <div className=" bg-gradient-to-r via-transparent from-gray-900 h-full w-full absolute"></div>
+                    <div className=" bg-gradient-to-t dark:via-transparent via-transparent dark:from-letterboxd-bg from-youtube-white-bg h-full w-full absolute"></div>
+                    <div className=" bg-gradient-to- dark:via-transparent via-transparent dark:from-letterboxd-bg from-youtube-white-bg h-full w-full absolute"></div>
+                    <div className=" bg-gradient-to-l dark:via-transparent via-transparent dark:from-letterboxd-bg from-youtube-white-bg h-full w-full absolute"></div>
+                    <div className=" bg-gradient-to-r dark:via-transparent via-transparent dark:from-letterboxd-bg from-youtube-white-bg h-full w-full absolute"></div>
                     <img src={`https://image.tmdb.org/t/p/original/rcA17r3hfHtRrk3Xs3hXrgGeSGT.jpg`} alt="poster"></img>
                 </div>
-                <h1 className="text-white font-semibold text-3xl p-16">Discover, log and discuss new series!</h1>
+                <h1 className="dark:text-white font-semibold text-3xl p-16">Discover, log and discuss new series!</h1>
                 <div className="h-full flex">
                     <ul className="w-3/4 flex h-auto list-none">
                         {series.map((thingy, index) => (

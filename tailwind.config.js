@@ -1,6 +1,6 @@
 module.exports = {
   purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: 'class', // or 'media' or 'class'
   theme: {
     screens: {
       'sm': '640px',
@@ -25,10 +25,12 @@ module.exports = {
       },
       colors: {
         'soofa-orange': '#F59E0B',
-        'letterboxd-bg': '#14181C'
+        'letterboxd-bg': '#14181C',
+        'letterboxd-navbar-bg': '#14181C',
+        'youtube-white-bg': '#F9F9F9'
       },
       height: {
-        'extra-height': '600px'
+        'extra-height': '500px'
       }
     },
   },

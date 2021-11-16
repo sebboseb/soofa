@@ -66,10 +66,10 @@ function EpisodeLore() {
                 <Link to={{
                     pathname: `/${id}/season-${seasonId}/episodes`,
                 }}>
-                    <div className=" bg-gradient-to-t via-transparent from-gray-900 h-full w-full absolute"></div>
-                    <div className=" bg-gradient-to- via-transparent from-gray-900 h-full w-full absolute"></div>
-                    <div className=" bg-gradient-to-l via-transparent from-gray-900 h-full w-full absolute"></div>
-                    <div className=" bg-gradient-to-r via-transparent from-gray-900 h-full w-full absolute"></div>
+                    <div className=" bg-gradient-to-t via-transparent from-letterboxd-bg h-full w-full absolute"></div>
+                    <div className=" bg-gradient-to- via-transparent from-letterboxd-bg h-full w-full absolute"></div>
+                    <div className=" bg-gradient-to-l via-transparent from-letterboxd-bg h-full w-full absolute"></div>
+                    <div className=" bg-gradient-to-r via-transparent from-letterboxd-bg h-full w-full absolute"></div>
                     <img src={`https://image.tmdb.org/t/p/original${episode.still_path}`} alt="" />
                 </Link>
             </div>

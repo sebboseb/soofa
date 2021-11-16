@@ -4,7 +4,7 @@ import StarRatings from 'react-star-ratings';
 
 function Review(props: any) {
     return (
-        <li key="1" className="flex space-x-4 bg-gray-500 mb-4 rounded shadow justify-between">
+        <li key="1" className="flex space-x-4 mb-4 rounded dark:shadow justify-between">
             <div>
                 <div className="flex"><span>Review by</span>&nbsp;<Link to={`/${props.user}`}>{props.user}</Link>&nbsp;
                     <StarRatings

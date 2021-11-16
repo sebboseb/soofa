@@ -29,7 +29,7 @@ import ReviewPage from './components/ReviewPage';
 function App() {
   return (
     <>
-    <div className="w-screen min-h-screen h-auto bg-letterboxd-bg absolute" id="superBody">
+    <div className="w-screen min-h-screen h-auto dark:bg-letterboxd-bg bg-youtube-white-bg absolute" id="superBody">
           <Router>
             <AuthProvider>
               <MainPageNavbar></MainPageNavbar>
@@ -43,7 +43,7 @@ function App() {
                 <Route path="/series/:id" component={DetailsPage}></Route>
                 <Route path="/reviews/:id" component={ReviewPage}></Route>
                 <Route path="/:id/season-:seasonId/episodes" component={Episodes}></Route>
-                <Route path="/actor/:actorId" component={Person}></Route>
+                <Route path="/:knownforId/:actorId" component={Person}></Route>
                 <Route path="/activity" component={Activity}></Route>
                 <Route exact path="/" component={Mainpage}></Route>
                 <Route path="/:id/season-:seasonId/episode/:episodeId" component={EpisodeLore}></Route>
