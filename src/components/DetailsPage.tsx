@@ -356,12 +356,13 @@ function DetailsPage() {
                                     {reviews.length !== 0 ?
                                         <ul className="space-y-4 max-w-xl w-screen mt-16">
                                             <div className="flex justify-between dark:text-white">
-                                                <h1>Reviews</h1>
+                                                <h1>Popular Reviews</h1>
                                                 <Link to={{
                                                     pathname: `/reviews/${id.replace(/\s/g, '-')}`,
                                                 }}>More Reviews</Link>
                                             </div>
-                                            {reviews.map((thingy) => (
+                                            {reviews.map((thingy, index) => (
+                                                index <= 4 &&
                                                 <li className=" dark:text-white border-t dark:border-white border-black">
                                                     <div className="flex justify-between mt-4">
                                                         <div className="flex">
