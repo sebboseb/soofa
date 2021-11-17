@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { documentId, query, collection, where, getDocs } from "firebase/firestore";
+import { documentId, query, collection, where, getDocs, listCollections } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import { Link } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
@@ -18,14 +18,21 @@ function Activity() {
             const followingMurloc = snapshot.docs.map(doc => doc.id);
             console.log(followingMurloc);
 
-            const q = query(collection(db, "Posts"), where(documentId(), 'in', followingMurloc));
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                let murlocdata = Object.values(doc.data());
-                console.log(murlocdata);
-                console.log(doc.id, " => ", doc.data());
-                setFeed(prevFollowed => prevFollowed.concat(murlocdata
-                ));
+            // const q = query(collection(db, "Posts"), where(documentId(), 'in', followingMurloc));
+            // const querySnapshot = await getDocs(q);
+            // querySnapshot.forEach((doc) => {
+            //     let murlocdata = Object.values(doc.data());
+            //     console.log(murlocdata);
+            //     console.log(doc.id, " => ", doc.data());
+            //     setFeed(prevFollowed => prevFollowed.concat(murlocdata));
+            // });
+
+            
+            followingMurloc.forEach(async murloc => {
+                const qk = await db.collection('Posts').doc(murloc).collection("userPosts").doc("Logs").get()
+                console.log(qk.data());
+                let murlocdata = Object.values(qk.data());
+                setFeed(prevFollowed => prevFollowed.concat(murlocdata));
             });
         }
 
@@ -36,6 +43,7 @@ function Activity() {
         <>
             <div className="w-screen flex justify-center">
                 <div className="flex flex-col max-w-xl w-screen">
+                    <button onClick={() => ollon()}>kuk</button>
                     <ul className="space-y-4">
                         {feed.map((thingy) => (
                             <li className=" dark:text-white border-t dark:border-white border-black">

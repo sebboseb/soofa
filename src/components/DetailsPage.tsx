@@ -77,10 +77,21 @@ function DetailsPage() {
             console.log(castingList);
             console.log(castingList.crew);
 
+            // const snapshot = await db.collection("Posts").doc(id.replaceAll('-', ' ')).collection("userPosts").get();
+            // console.log(snapshot.docs.map(doc => doc.data()));
+            // setReviews(snapshot.docs.map(doc => doc.data()));
 
-            const snapshot = await db.collection("Posts").doc(id.replaceAll('-', ' ')).collection("userPosts").get();
-            console.log(snapshot.docs.map(doc => doc.data()));
-            setReviews(snapshot.docs.map(doc => doc.data()));
+            const snapshot = await db.collection("Posts").doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).get();
+            if (snapshot.data()) {
+                setIsInFavourites(true);
+            console.log(snapshot.data());
+            let murlocdata = Object.values(snapshot.data());
+            setReviews(murlocdata);
+            // setReviews(snapshot.docs.map(doc => doc.data()));
+            }
+
+            const qk = await db.collection('Posts').doc(id).collection("userPosts").doc("Logs").get()
+            console.log(qk.data());
 
             // db.collection("Posts").doc(id.replaceAll('-', ' ')).collection("userPosts").doc(currentUser.uid).get().then(doc => {
             //     if (doc.data()) {
@@ -120,10 +131,21 @@ function DetailsPage() {
     const reviewRef = currentUser ? doc(db, "Posts", id.replaceAll('-', ' ')
         //  + " " + makeid(9)
         , "userPosts", currentUser.uid) : null;
-    const reviewRefMurloc = currentUser ? doc(db, "Posts", currentUser.uid) : null
+    const reviewRefMurloc = currentUser ? doc(db, "Posts", currentUser.uid, id, "Logs") : null
     //  + " " + makeid(9)
     // , "userPosts", currentUser.uid) : null;
     const postRef = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", (id.replaceAll('-', ' ') + " " + postId)) : null;
+
+
+
+
+    const reviewRefMurlocMrrrgl = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs") : null
+    const reviewRefSuccession = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '));
+
+
+
+
+
 
     async function addEpisode(murloc, starrating) {
         Object.assign(murloc, starrating);
@@ -147,41 +169,53 @@ function DetailsPage() {
                     murloc,
                 // deleteField(),
             });
-
-
         }
     }
 
     async function addReview(reviewText, starrating, murloc) {
         setPostId(makeid(9));
-        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username });
-        await setDoc(reviewRef, {
-            user: username,
-            review: reviewText,
-            starrating: starrating,
-            // date: Timestamp.toDateTime().toString()
-        });
-
-
-
+        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: makeid(9) });
+        
         if (isInFavourites) {
-            await updateDoc(reviewRefMurloc, {
-                [murloc.name]: murloc,
+            await updateDoc(reviewRefSuccession, {
+                [postId]: {
+                    user: username,
+                    review: reviewText,
+                    starrating: starrating,
+                    comments: {username: "Username"},
+                    likes: 1,
+                    reviewId: postId,
+                }
+                // date: Timestamp.toDateTime().toString()
+            });
+
+            await updateDoc(reviewRefMurlocMrrrgl, {
+                [murloc.name + " " + makeid(9)]: murloc,
                 // user: username,
                 // review: reviewText,
                 // starrating: starrating,
                 // date: Timestamp.toDateTime().toString()
             });
         } else {
-            await setDoc(reviewRefMurloc, {
-                [murloc.name]: murloc,
+            await setDoc(reviewRefSuccession, {
+                [postId]: {
+                    user: username,
+                    review: reviewText,
+                    starrating: starrating,
+                    comments: {username: "Username"},
+                    likes: 1,
+                    reviewId: postId,
+                }
+                // date: Timestamp.toDateTime().toString()
+            });
+
+            await setDoc(reviewRefMurlocMrrrgl, {
+                [murloc.name + " " + makeid(9)]: murloc,
                 // user: username,
                 // review: reviewText,
                 // starrating: starrating,
                 // date: Timestamp.toDateTime().toString()
             });
-
-
         }
     }
 
@@ -308,7 +342,7 @@ function DetailsPage() {
                                                     <Link to={{
                                                         pathname: `/actor/${(thingy.name).replace(/\s/g, '-')}`,
                                                     }}>
-                                                        <h1 className="dark:text-white font-semibold min-w-max bg-gray-500 p-1 rounded">
+                                                        <h1 className="dark:text-white font-semibold min-w-max bg-gray-500 hover:bg-gray-600 ease-linear transition-all duration-75 p-1 rounded">
                                                             {thingy.name} - {thingy.character}
                                                         </h1>
                                                     </Link>
@@ -342,7 +376,6 @@ function DetailsPage() {
                                         </ul>
                                         : <h1>Be the first one to leave a review!</h1>}
                                     {/* </ul> */}
-
                                 </div>
                             </div>
                             <div className="flex flex-col items-center">

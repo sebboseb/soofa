@@ -7,6 +7,7 @@ function Review(props: any) {
         <li key="1" className="flex space-x-4 mb-4 rounded dark:shadow justify-between">
             <div>
                 <div className="flex"><span>Review by</span>&nbsp;<Link to={`/${props.user}`}>{props.user}</Link>&nbsp;
+                <div className=" -top-0.5 relative">
                     <StarRatings
                         rating={props.stars}
                         starRatedColor="#f59e0b"
@@ -16,6 +17,7 @@ function Review(props: any) {
                         name="rating"
                         starHoverColor="#f59e0b"
                     />
+                    </div>
                 </div>
                 <h1>{props.review}</h1>
             </div>

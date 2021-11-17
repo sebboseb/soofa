@@ -18,12 +18,11 @@ export default function Signup() {
         e.preventDefault();
 
         await signup(emailRef.current.value, passwordRef.current.value, usernameRef.current.value);
-        history.push("/");
+        // history.push("/");
     }
 
     return (
         <>
-
         <div className="w-full max-w-xs">
   <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" onSubmit={handleSubmit}>
     <div className="mb-4">

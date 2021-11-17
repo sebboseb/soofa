@@ -99,3 +99,14 @@ export async function getEpisodeRequest(id: any, seasonNr: any, episodeNr: any) 
 
     return personSearchList;
 }
+
+export async function getYearRequest() {
+    const url = `https://api.themoviedb.org/3/search/tv?api_key=e333684dcb3e9eac6a70505572519a23&query=m&year=2013`;
+    const responseSolo = await fetch(url);
+    const responseSoloJson = await responseSolo.json();
+    const personSearchList = responseSoloJson.results;
+
+    return personSearchList;
+}
+
+

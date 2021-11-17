@@ -7,7 +7,7 @@ import { useAuth } from './contexts/AuthContext';
 
 import Tilt from 'react-parallax-tilt';
 
-import { getPopularRequest } from './utils/api';
+import { getPopularRequest, getYearRequest } from './utils/api';
 
 function Dashboard() {
 
@@ -50,7 +50,7 @@ function Dashboard() {
             // setSeries(seriesList);
             // console.log(seriesList);
 
-            const popularList = await getPopularRequest();
+            const popularList = await getYearRequest();
             setSeries(popularList);
             console.log(popularList);
 
@@ -258,7 +258,7 @@ function Dashboard() {
                                 series.filter(Boolean).map((thingy, index) => (
                                     thingy.poster_path &&
                                     <div>
-                                        {thingy.origin_country==='US' ?
+                                        {thingy.origin_country == 'US' ?
                                         <Link key={makeid(5)} to={{
                                             pathname: `/series/${(thingy.name).replace(/\s/g, '-')}`,
                                         }}>

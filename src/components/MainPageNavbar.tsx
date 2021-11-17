@@ -12,7 +12,7 @@ function MainPageNavbar() {
     const location = useLocation();
 
     const [username, setUsername] = useState("");
-    const { currentUser, logout } = useAuth();
+    const { currentUser } = useAuth();
     const [error, setError] = useState("");
     // const [clicked, setClicked] = useState(false);
     const [inputClicked, setInputClicked] = useState(true);
@@ -47,8 +47,9 @@ function MainPageNavbar() {
                                     :
                                     <div>
                                         {inputClicked ? <div>
-                                            <h1 onClick={() => setInputClicked(false)} className="font-semibold dark:text-white text-xl">Sign in</h1></div> :
-                                            <div className="mt-96">
+                                            <h1 onClick={() => setInputClicked(false)} className="font-semibold dark:text-white text-xl">Sign in</h1>
+                                            </div> :
+                                            <div className="mt-80">
                                                 <div onClick={() => setInputClicked(true)} className="dark:text-white font-semibold cursor-pointer">
                                                     x</div>
                                                 <LoginPage />
@@ -57,7 +58,7 @@ function MainPageNavbar() {
                                 }
                             </div>
                             {/* {currentUser ? null : <h1 onClick={() => {setClicked(true)}} className="font-semibold text-white text-xl">Create account</h1>} */}
-                            {currentUser ? null : <Modal>Text</Modal>}
+                            {currentUser ? null : <Modal></Modal>}
                             <Link to="/dashboard"><h1 className="font-semibold dark:text-white text-xl">Series</h1></Link>
                             <Link to="/activity" className="font-semibold dark:text-white text-xl">Activity</Link>
                             <Dropdown></Dropdown>

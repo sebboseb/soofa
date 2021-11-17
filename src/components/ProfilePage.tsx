@@ -5,7 +5,6 @@ import { doc, updateDoc, onSnapshot, documentId, query, collection, where, getDo
 import { useAuth } from './contexts/AuthContext';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
-import { Typography } from '@mui/material'
 
 function ProfilePage() {
 
@@ -13,13 +12,14 @@ function ProfilePage() {
 
     const history = useHistory();
 
-    const { currentUser } = useAuth();
+    const { currentUser, logout } = useAuth();
     const [username, setUsername] = useState("");
     const [claimed, setClaimed] = useState([]);
     const [currentUid, setCurrentUid] = useState("");
     const [followed, setFollowed] = useState([]);
     const [thisUser, setThisUser] = useState([]);
     const [isFollowing, setIsFollowing] = useState(false);
+    const [error, setError] = useState("")
 
     useEffect(() => {
         const getUsers = async () => {
@@ -46,23 +46,25 @@ function ProfilePage() {
                 });
 
                 //Get current profiles followed
-            const snapshot = await db.collection('Following').doc(currentUser.uid).collection("UserFollowing").get()
-            const followingMurloc = snapshot.docs.map(doc => doc.id);
-            setFollowed(followingMurloc);
+                if (currentUser) {
+                    const snapshot = await db.collection('Following').doc(currentUser.uid).collection("UserFollowing").get()
+                    const followingMurloc = snapshot.docs.map(doc => doc.id);
+                    setFollowed(followingMurloc);
 
-                db.collection("Following").doc(currentUser.uid).collection("UserFollowing").where(documentId(), "==", currentUid).onSnapshot((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        setIsFollowing(true);
-                        console.log("Following"); // For doc name
+                    db.collection("Following").doc(currentUser.uid).collection("UserFollowing").where(documentId(), "==", currentUid).onSnapshot((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            setIsFollowing(true);
+                            console.log("Following"); // For doc name
+                        });
                     });
-                });
 
-                db.collection("UserFollowing").where("username", "==", profileId).onSnapshot((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        console.log("Murloc" + doc.data()); // For data inside doc
-                        console.log("Murloc" + doc.id); // For doc name
+                    db.collection("UserFollowing").where("username", "==", profileId).onSnapshot((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            console.log("Murloc" + doc.data()); // For data inside doc
+                            console.log("Murloc" + doc.id); // For doc name
+                        });
                     });
-                });
+                }
 
                 // if (docSnap.exists()) {
                 //     let mapData = Object.values(docSnap.data());
@@ -77,9 +79,15 @@ function ProfilePage() {
                     setThisUser([doc.data()]);
                     console.log([doc.data()]);
                 });
+
+
+                const qk = await db.collection('Posts').doc("xIWP3ymOjkWYjO6YgZbP4807FqR2").collection("userPosts").doc("Logs").get()
+                console.log(qk.data())
+
+
             }
 
-            db.collection("User").doc(currentUser.uid).get().then(doc => {
+            currentUser && db.collection("User").doc(currentUser.uid).get().then(doc => {
                 setUsername(doc.data().Username);
             });
         }
@@ -87,7 +95,7 @@ function ProfilePage() {
         getUsers();
     }, [currentUser, profileId, currentUid]);
 
-    const userDocumentFav = doc(db, "User", currentUser.uid, "Favourites", "Series");
+    const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series") : null;
     // const followDocument = currentUid !== "" ? doc(db, "Following", (currentUser.uid), "UserFollowing", (currentUid)) : null;
 
     async function changeRating(newRating, name) {
@@ -144,20 +152,21 @@ function ProfilePage() {
         try {
             await logout();
             history.push("/");
-        } catch {
-            setError("Error")
+        } catch (err) {
+            setError(err.message);
         }
     }
 
     return (
         <>
             <div className=" dark:text-white font-semibold text-3xl">
-                {currentUid}
-                <Typography
-                    variant="h4"
-                >{profileId}</Typography>
-                {currentUser && <button className="dark:text-white font-semibold" onClick={handleLogout}>Log Out</button>}
-                {currentUid !== currentUser.uid &&
+                {/* {currentUid} */}
+                {error}
+                <div className="flex justify-between">
+                    {profileId}
+                    {currentUser && <button className="dark:text-white font-semibold" onClick={handleLogout}>Log Out</button>}
+                </div>
+                {(currentUser && (currentUid !== currentUser.uid)) &&
                     <button className="dark:text-white font-semibold bg-green-400 rounded shadow p-3 text-sm hover:bg-green-500"
                         onClick={() =>
                             isFollowing ?
@@ -172,9 +181,9 @@ function ProfilePage() {
                 {/* <p className="text-center md:text-left">{username}</p> */}
                 <ul className="flex max-w-screen flex-wrap justify-center md:justify-start">
                     {claimed.map((claims, index) => (
-                        <div key={claims.id} className="flex flex-col items-center p-1">
+                        <div key={claims.id} className="flex flex-col items-center mx-1 my-1">
                             <Link to={`/series/${(claims.name).replace(/\s/g, '-')}`}>
-                                <img src={`https://image.tmdb.org/t/p/original${claims.poster_path}`} alt="" className=" w-40" />
+                                <img src={`https://image.tmdb.org/t/p/original${claims.poster_path}`} alt="" className=" w-40 rounded border-white border" />
                             </Link>
                             {/* <div>{claims.star_rating}</div> */}
                             <StarRatings
@@ -190,7 +199,7 @@ function ProfilePage() {
                         </div>
                     ))}
                 </ul>
-                <button onClick={() => loadFeed()}>Load feed</button>
+                {/* <button onClick={() => loadFeed()}>Load feed</button>
                 <div>
                     <h1>Following</h1>
                     <ul>
@@ -198,7 +207,7 @@ function ProfilePage() {
                             followed.map((follow) => <li>{follow}</li>)
                         }
                     </ul>
-                </div>
+                </div> */}
             </div>
         </>
     )
