@@ -61,11 +61,12 @@ function MainPageNavbar() {
                             {currentUser ? null : <Modal></Modal>}
                             <Link to="/dashboard"><h1 className="font-semibold dark:text-white text-xl">Series</h1></Link>
                             <Link to="/activity" className="font-semibold dark:text-white text-xl">Activity</Link>
+                            <Link to="/users"><h1 className="font-semibold dark:text-white text-xl">Users</h1></Link>
                             <Dropdown></Dropdown>
                             {/* <input className="rounded shadow h-8 w-56 p-4 z-10" type="text" placeholder="Search a series" /> */}
                         </ul>
                     </div>
-                    <Link className="flex justify-start w-screen items-center h-16 absolute" to="/"><img className="w-20 h-auto" src="https://i.imgur.com/4dBDNkO.png" alt="Soofa Logo" />
+                    <Link className="flex justify-start items-center h-16 absolute" to="/"><img className="w-20 h-auto" src="https://i.imgur.com/4dBDNkO.png" alt="Soofa Logo" />
                         <h1 className="dark:text-white font-semibold ml-4 text-4xl">Soofa</h1></Link>
                 </div>
             </div>

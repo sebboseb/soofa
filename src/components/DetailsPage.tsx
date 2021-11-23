@@ -5,11 +5,12 @@ import StarRatings from 'react-star-ratings';
 import { Link, useParams } from 'react-router-dom';
 import { getCreditsRequest, getSeasonsRequest, getSearchRequest } from './utils/api';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc } from "firebase/firestore";
+import { doc, updateDoc, setDoc, deleteField } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import Tilt from 'react-parallax-tilt';
 import LoginPage from './LoginPage';
 import Review from './Review';
+import Histogram from 'react-chart-histogram';
 
 function DetailsPage() {
 
@@ -28,6 +29,10 @@ function DetailsPage() {
     const [query, setQuery] = useState("");
     const [postId, setPostId] = useState(makeid(9));
     const [crewList, setCrewList] = useState([]);
+    const [reviewsUpdate, setReviewsUpdate] = useState([]);
+    const [hasSpecial, setHasSpecial] = useState(false);
+    const [ratings, setRatings] = useState([]);
+    const [average, setAverage] = useState([]);
 
     useEffect(() => {
         const getUsers = async () => {
@@ -68,6 +73,7 @@ function DetailsPage() {
             console.log(seriesList[0]);
 
             const seasonList = await getSeasonsRequest(seriesList[0].id);
+            if (seasonList[0].name === "Specials") { setHasSpecial(true) }
             setSeason(seasonList);
             console.log(seasonList);
 
@@ -84,15 +90,25 @@ function DetailsPage() {
             const snapshot = await db.collection("Posts").doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).get();
             if (snapshot.data()) {
                 setIsInFavourites(true);
-            console.log(snapshot.data());
-            let murlocdata = Object.values(snapshot.data());
-            setReviews(murlocdata);
-            // setReviews(snapshot.docs.map(doc => doc.data()));
+                console.log(snapshot.data());
+                let murlocdata = Object.values(snapshot.data());
+                const murl = murlocdata.sort((b, c) => b.date - c.date);
+                setReviews(murl);
+                // setReviews(snapshot.docs.map(doc => doc.data()));
             }
 
             const qk = await db.collection('Posts').doc(id).collection("userPosts").doc("Logs").get()
             console.log(qk.data());
 
+            const snapshotqk = await db.collection('Posts').doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).collection("post").get()
+            const followingMurloc = snapshotqk.docs.map(doc => doc.data());
+            console.log(followingMurloc);
+            setReviewsUpdate(followingMurloc);
+
+            const starsSnapshot = await db.collection('Series').doc("SeriesStars").collection(id).doc("rating").get();
+            console.log(starsSnapshot.data());
+            setRatings(starsSnapshot.data());
+            //
             // db.collection("Posts").doc(id.replaceAll('-', ' ')).collection("userPosts").doc(currentUser.uid).get().then(doc => {
             //     if (doc.data()) {
             //         setReviews(doc.data());
@@ -142,103 +158,184 @@ function DetailsPage() {
     const reviewRefMurlocMrrrgl = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs") : null
     const reviewRefSuccession = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '));
 
+    const starsRef = doc(db, "Series", "SeriesStars", id.replaceAll('-', ' '), "rating");
 
-
-
-
-
-    async function addEpisode(murloc, starrating) {
-        Object.assign(murloc, starrating);
-        console.log(murloc);
-        if ((murloc.name).includes(".")) {
-            (murloc.name) = (murloc.name).replace(/\./g, '');
-            console.log(murloc.name);
-        }
-        // setFavourites([...favourites, murloc]);
-        // console.log(favourites);
-
-        if (isInFavourites) {
-            await updateDoc(userDocumentFav, {
-                [murloc.name]:
-                    murloc,
-                // deleteField(),
-            });
-        } else {
-            await setDoc(userDocumentFav, {
-                [murloc.name]:
-                    murloc,
-                // deleteField(),
-            });
-        }
+    async function addEpisode(murloclog, starrating) {
+        setPostId(makeid(9));
+        let date = Date().toLocaleLowerCase();
+        Object.assign(murloclog, starrating, { date: date });
+        const logRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "logSeries", postId) : null;
+        await setDoc(logRefMurlocMrrrglUpdate, {
+            review: murloclog,
+            date: date
+        });
     }
 
     async function addReview(reviewText, starrating, murloc) {
         setPostId(makeid(9));
-        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: makeid(9) });
-        
-        if (isInFavourites) {
-            await updateDoc(reviewRefSuccession, {
-                [postId]: {
-                    user: username,
-                    review: reviewText,
-                    starrating: starrating,
-                    comments: {username: "Username"},
-                    likes: 1,
-                    reviewId: postId,
-                }
-                // date: Timestamp.toDateTime().toString()
-            });
+        const reviewRefUpdated = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "post", postId);
+        const reviewRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "postSeries", postId) : null
+        let date = Date().toLocaleLowerCase();
+        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: postId }, { date: date });
 
-            await updateDoc(reviewRefMurlocMrrrgl, {
-                [murloc.name + " " + makeid(9)]: murloc,
-                // user: username,
-                // review: reviewText,
-                // starrating: starrating,
-                // date: Timestamp.toDateTime().toString()
+        await setDoc(reviewRefUpdated, {
+            user: username,
+            review: reviewText,
+            starrating: starrating,
+            comments: { username: "Username" },
+            likes: 3,
+            reviewId: postId,
+            date: date,
+            // date: Timestamp.toDateTime().toString()
+        });
+
+        await setDoc(reviewRefMurlocMrrrglUpdate, {
+            review: murloc
+        });
+
+
+        // if (isInFavourites) {
+        //     // await updateDoc(reviewRefSuccession, {
+        //     //     [postId]: {
+        //     //         user: username,
+        //     //         review: reviewText,
+        //     //         starrating: starrating,
+        //     //         comments: { username: "Username" },
+        //     //         likes: 3,
+        //     //         reviewId: postId,
+        //     //         date: date,
+        //     //     }
+        //     //     // date: Timestamp.toDateTime().toString()
+        //     // });
+
+        //     await updateDoc(reviewRefMurlocMrrrglUpdate, {
+        //         [murloc.name + " " + makeid(9)]: murloc,
+        //         // user: username,
+        //         // review: reviewText,
+        //         // starrating: starrating,
+        //         // date: Timestamp.toDateTime().toString()
+        //     });
+        // } else {
+        //     // await setDoc(reviewRefSuccession, {
+        //     //     [postId]: {
+        //     //         user: username,
+        //     //         review: reviewText,
+        //     //         starrating: starrating,
+        //     //         comments: { username: "Username" },
+        //     //         likes: 3,
+        //     //         reviewId: postId,
+        //     //         date: date,
+        //     //     }
+        //     //     // date: Timestamp.toDateTime().toString()
+        //     // });
+
+        //     await setDoc(reviewRefMurlocMrrrglUpdate, {
+        //         [murloc.name + " " + makeid(9)]: murloc,
+        //         // user: username,
+        //         // review: reviewText,
+        //         // starrating: starrating,
+        //         // date: Timestamp.toDateTime().toString()
+        //     });
+        // }
+    }
+
+    function sortArray(reviewDate) {
+        let date = new Date();
+        let date3 = new Date(reviewDate);
+
+        let murlocMinute = parseInt((Math.abs(date3.getTime() - date.getTime())) / 360000);
+        let murlocHour = parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000);
+        let murlocDay = parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000 / 24);
+        let murlocDayText = (murlocDay + " day ago");
+        let murlocDaysText = (murlocDay + " days ago");
+        let murlocHourText = (murlocHour + "h ago");
+        let murlocMinuteText = (murlocMinute + "min ago");
+
+        if (murlocDay > 1) { return murlocDaysText }
+        if (murlocHour <= 23) { return murlocHourText }
+        if (murlocHour >= 24) { return murlocDayText }
+        if (murlocHour <= 1) { return murlocMinuteText }
+    }
+
+    async function changeRating(newRating, name) {
+        setLolmurloc(newRating);
+        Object.assign(succession, { star_rating: newRating });
+        console.log(succession);
+        if ((succession.name).includes(".")) {
+            (succession.name) = (succession.name).replace(/\./g, '');
+            console.log(succession.name);
+        }
+        // setFavourites([...favourites, succession]);
+        // console.log(favourites);
+
+        if (isInFavourites) {
+            await updateDoc(userDocumentFav, {
+                [succession.name]:
+                    succession,
+                // deleteField(),
             });
         } else {
-            await setDoc(reviewRefSuccession, {
-                [postId]: {
-                    user: username,
-                    review: reviewText,
-                    starrating: starrating,
-                    comments: {username: "Username"},
-                    likes: 1,
-                    reviewId: postId,
-                }
-                // date: Timestamp.toDateTime().toString()
+            await setDoc(userDocumentFav, {
+                [succession.name]:
+                    succession,
+                // deleteField(),
             });
+        }
 
-            await setDoc(reviewRefMurlocMrrrgl, {
-                [murloc.name + " " + makeid(9)]: murloc,
-                // user: username,
-                // review: reviewText,
-                // starrating: starrating,
-                // date: Timestamp.toDateTime().toString()
+        await setDoc(starsRef, {
+
+        })
+    }
+
+    async function deleteRating() {
+        setLolmurloc(0);
+        if (isInFavourites) {
+            await updateDoc(userDocumentFav, {
+                [succession.name]:
+                    deleteField(),
+            });
+        } else {
+            await setDoc(userDocumentFav, {
+                [succession.name]:
+                    deleteField(),
             });
         }
     }
 
-    function changeRating(newRating, name) {
-        setLolmurloc(newRating);
-    }
-
-    for (let i = 1; i <= 20; i++) {
-        seasonsLOL.push(
+    if (hasSpecial) {
+        for (let i = 0; i <= 20; i++) {
+            (season[i] && (season[i].name !== "Specials")) &&
+                seasonsLOL.push(
+                    // (season[i].name !== "Specials") ?
+                    <Link key={season[i].id} to={{
+                        pathname: `/${id}/season-${i}/episodes`,
+                    }}>
+                        <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
+                            <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
+                                <img src={`https://image.tmdb.org/t/p/original${season[i].poster_path}`} className=" rounded" alt={season[i].name}></img>
+                            </li>
+                        </Tilt>
+                    </Link>
+                    // : <div></div>
+                )
+        }
+    } else {
+        for (let i = 0; i <= 20; i++) {
             season[i - 1] &&
-            // (season[i - 1].name !== "Specials") ?
-            <Link key={season[i - 1].id} to={{
-                pathname: `/${id}/season-${season[i - 1].season_number}/episodes`,
-            }}>
-                <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
-                    <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
-                        <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`} className=" rounded-t" alt={season[i - 1].name}></img>
-                        <p className="text-center font-bold">{season[i - 1].name}</p>
-                    </li>
-                </Tilt>
-            </Link>
-            // : <div></div>
-        )
+                seasonsLOL.push(
+                    // (season[i - 1].name !== "Specials") ?
+                    <Link key={season[i - 1].id} to={{
+                        pathname: `/${id}/season-${season[i - 1].season_number}/episodes`,
+                    }}>
+                        <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
+                            <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
+                                <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`} className=" rounded" alt={season[i - 1].name}></img>
+                            </li>
+                        </Tilt>
+                    </Link>
+                    // : <div></div>
+                )
+        }
     }
 
     const onChange = (e) => {
@@ -271,33 +368,45 @@ function DetailsPage() {
                         </div>
                         <div className="flex justify-between">
                             <div className="flex flex-col items-center">
-                                <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-80 rounded m-1 border-gray-50 border shadow" alt={succession.name}></img>
-                                {currentUser && <StarRatings
-                                    rating={lolmurloc}
-                                    starRatedColor="#f59e0b"
-                                    numberOfStars={5}
-                                    starDimension="24px"
-                                    starSpacing="1px"
-                                    changeRating={changeRating}
-                                    name="rating"
-                                    starHoverColor="#f59e0b"
-                                />}
-                                <div className="flex space-x-1">
-                                    {currentUser ? <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
-                                        onClick={() => addEpisode(succession, { star_rating: lolmurloc })}
-                                    >Logga</button> : <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
-                                        onClick={() => setInputClicked(true)}
-                                    >Logga in</button>}
-                                    <div onClick={() => setReviewInput(!reviewInput)} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600"></div>
+                                <div className=" sticky top-10 flex flex-col items-center">
+                                    <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-80 rounded m-1 border-gray-50 border shadow in" alt={succession.name}></img>
+                                    {currentUser &&
+                                        <div className="flex items-center space-x-1 cursor-pointer"><h1 className="text-white" onClick={() => deleteRating()}>x</h1>
+                                            <StarRatings
+                                                rating={lolmurloc}
+                                                starRatedColor="#f59e0b"
+                                                numberOfStars={5}
+                                                starDimension="24px"
+                                                starSpacing="1px"
+                                                changeRating={changeRating}
+                                                name="rating"
+                                                starHoverColor="#f59e0b"
+                                            /></div>}
+                                    <div className="flex space-x-1">
+                                        {currentUser ? <button className=" w-32 h-12 bg bg-soofa-orange rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
+                                            onClick={() => addEpisode(succession, { star_rating: lolmurloc })}
+                                        >Logga</button> : <button className=" w-32 h-12bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
+                                            onClick={() => setInputClicked(true)}
+                                        >Logga in</button>}
+                                        <div onClick={() => setReviewInput(!reviewInput)} className="bg-soofa-orange w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600"></div>
+                                    </div>
+                                    <div className=" flex flex-col text-white">
+                                        {/* {ratings !== 0 ? Object.values(ratings).reduce((b, c) => b + c) : null}
+              <h1>{Object.keys(ratings)}</h1>
+              <h1>{Object.entries(ratings)}</h1>
+              <h1>1 4 9 36 25</h1>
+              <h1>75</h1>
+              <h1>75/20</h1>
+              <h1>3,75</h1> */}
+                                    </div>
+                                    {reviewInput ?
+                                        <div>
+                                            <input className=" absolute" type="text" value={query} onChange={onChange} />
+                                            <div onClick={() => addReview(query, lolmurloc, succession)} className="bg-red-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600 absolute">
+                                                <h1>Review</h1>
+                                            </div>
+                                        </div> : null}
                                 </div>
-                                {reviewInput ?
-                                    <div>
-                                        <input className=" absolute" type="text" value={query} onChange={onChange} />
-                                        <div onClick={() => addReview(query, lolmurloc, succession)} className="bg-red-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600 absolute">
-                                            <h1>Review</h1>
-                                        </div>
-                                    </div> : null}
-
                                 {/* <Timeline>
   <TimelineItem>
     <TimelineSeparator>
@@ -314,36 +423,36 @@ function DetailsPage() {
   </TimelineItem>
 </Timeline> */}
                             </div>
-                            <div className="flex flex-col max-w-4xl">
+                            <div className="flex flex-col max-w-4xl px-14">
                                 <div className="flex items-end">
-                                    <h1 className=" dark:text-white font-semibold p-4 text-3xl">{succession.name}</h1>
-                                    <h1 className=" dark:text-gray-500 font-semibold p-4 text-md -ml-3"><u>{succession.first_air_date && succession.first_air_date.split('-')[0]}</u></h1>
-                                    <h1 className=" dark:text-white font-semibold p-4 text-md -ml-3">
-                                        <ul className="flex">
-                                            {
-                                                (crewList.filter(kuk => kuk.department === 'Directing')).map((directors) => (
-                                                    <Link to={{
-                                                        pathname: `/director/${(directors.name).replace(/\s/g, '-')}`,
-                                                    }}><li className="hover:text-gray-300 cursor-pointer"><u>{directors.name}</u>&nbsp;</li>
-                                                    </Link>
-                                                ))
-                                            }
-
-                                        </ul>
-                                    </h1>
+                                    <div className="flex space-x-4 items-end">
+                                        <h1 onClick={() => sortArray()} className=" dark:text-white font-semibold mt-1 mb-7 text-3xl">{succession.name}</h1>
+                                        <h1 className=" dark:text-gray-500 font-semibold mb-7 text-md"><u>{succession.first_air_date && succession.first_air_date.split('-')[0]}</u></h1>
+                                        <h1 className=" dark:text-white font-semibold mb-7 text-md">
+                                            <ul className="flex">
+                                                {
+                                                    (crewList.filter(kuk => kuk.department === 'Directing')).map((directors) => (
+                                                        <Link to={{
+                                                            pathname: `/director/${(directors.name).replace(/\s/g, '-')}`,
+                                                        }}><li className="hover:text-gray-300 cursor-pointer"><u>{directors.name}</u>&nbsp;</li>
+                                                        </Link>
+                                                    ))
+                                                }
+                                            </ul>
+                                        </h1></div>
                                 </div>
-                                <p className=" dark:text-gray-300 font-semibold pb-4 pl-4 pr-4">{succession.overview}</p>
+                                <p className=" dark:text-gray-300 font-semibold pb-4 max-w-xl">{succession.overview}</p>
                                 {/* <ProgressBar completed={60} className="w-44" /> */}
                                 <div className="flex max-w-3xl justify-center">
-                                    <div className="flex flex-wrap max-w-xl mt-32 border-t border-white pt-8">
+                                    <div className="flex flex-wrap max-w-xl mt-24 border-t border-white pt-8">
                                         {
-                                            castList.filter(Boolean).map((thingy, index) => (
+                                            castList.filter(Boolean).map((thingy) => (
                                                 <div className=" my-1 mx-1">
                                                     <Link to={{
                                                         pathname: `/actor/${(thingy.name).replace(/\s/g, '-')}`,
                                                     }}>
-                                                        <h1 className="dark:text-white font-semibold min-w-max bg-gray-500 hover:bg-gray-600 ease-linear transition-all duration-75 p-1 rounded">
-                                                            {thingy.name} - {thingy.character}
+                                                        <h1 className="dark:text-white font-semibold min-w-max dark:bg-gray-500 bg-gray-300 hover:bg-gray-400 dark:hover:bg-gray-600 ease-linear transition-all duration-75 p-1 rounded">
+                                                            {thingy.name} - <span className="text-gray-300">{thingy.character}</span>
                                                         </h1>
                                                     </Link>
                                                 </div>
@@ -353,16 +462,18 @@ function DetailsPage() {
                                 </div>
                                 <div className="flex justify-center">
                                     {/* <ul className="bg-white max-w-xl w-screen rounded shadow mt-16 p-1"> */}
-                                    {reviews.length !== 0 ?
+                                    {reviewsUpdate.length !== 0 ?
                                         <ul className="space-y-4 max-w-xl w-screen mt-16">
                                             <div className="flex justify-between dark:text-white">
                                                 <h1>Popular Reviews</h1>
                                                 <Link to={{
                                                     pathname: `/reviews/${id.replace(/\s/g, '-')}`,
-                                                }}>More Reviews</Link>
+                                                }}>
+                                                    <u>More Reviews</u>
+                                                </Link>
                                             </div>
-                                            {reviews.map((thingy, index) => (
-                                                index <= 4 &&
+                                            {reviewsUpdate.map((thingy, index) => (
+                                                index <= 40 &&
                                                 <li className=" dark:text-white border-t dark:border-white border-black">
                                                     <div className="flex justify-between mt-4">
                                                         <div className="flex">
@@ -370,12 +481,16 @@ function DetailsPage() {
                                                                 <Review user={thingy.user} review={thingy.review} stars={thingy.starrating}></Review>
                                                             </div>
                                                         </div>
-                                                        <div>1h</div>
+                                                        <div>{sortArray(thingy.date)}</div>
                                                     </div>
                                                 </li>
                                             ))}
                                         </ul>
-                                        : <h1>Be the first one to leave a review!</h1>}
+                                        :
+                                        <div className="dark:text-white border-t dark:border-white border-black max-w-xl w-screen mt-16">
+                                            <h1 className="mt-4 ml-2">Be the first one to leave a review!</h1>
+                                        </div>
+                                    }
                                     {/* </ul> */}
                                 </div>
                             </div>

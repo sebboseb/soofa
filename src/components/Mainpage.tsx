@@ -47,7 +47,20 @@ function Mainpage() {
                                         />
                                     </li>}
                             </Link>
-                        ))}</ul></div>
+                        ))}</ul>
+                </div>
+                <div>
+                    <div>
+                        <ul className="grid grid-cols-3 gap-4 mt-16">
+                            <li className="bg-soofa-orange w-64 h-32 rounded flex items-center justify-center"><h1 className="text-white font-semibold text-3xl">Track</h1></li>
+                            <li className="bg-soofa-blue w-64 h-32 rounded flex items-center justify-center"><h1 className="text-white font-semibold text-3xl">Like</h1></li>
+                            <li className="bg-soofa-orange w-64 h-32 rounded flex items-center justify-center"><h1 className="text-white font-semibold text-3xl">Review</h1></li>
+                            <li className="bg-soofa-orange w-64 h-32 rounded flex items-center justify-center"><h1 className="text-white font-semibold text-3xl">Rate</h1></li>
+                            <li className="bg-soofa-orange w-64 h-32 rounded flex items-center justify-center"><h1 className="text-white font-semibold text-3xl">Diary</h1></li>
+                            <li className="bg-soofa-orange w-64 h-32 rounded flex items-center justify-center"><h1 className="text-white font-semibold text-3xl">List</h1></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </>
     )

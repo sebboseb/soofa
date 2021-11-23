@@ -27,7 +27,8 @@ module.exports = {
         'soofa-orange': '#F59E0B',
         'letterboxd-bg': '#14181C',
         'letterboxd-navbar-bg': '#14181C',
-        'youtube-white-bg': '#F9F9F9'
+        'youtube-white-bg': '#F9F9F9',
+        'soofa-blue': '#016BA5'
       },
       height: {
         'extra-height': '500px'
