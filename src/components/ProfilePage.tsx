@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { doc, updateDoc, onSnapshot, documentId, collectionGroup, collection, query, limit, getDocs, orderBy, deleteDoc } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot, documentId, collection, query, limit, getDocs, orderBy, deleteDoc } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
@@ -188,8 +188,8 @@ function ProfilePage() {
     return (
         <>
             <div className=" w-screen flex justify-center relative">
-                <div className=" w-full max-w-6xl min-h-screen h-auto dark:bg-letterboxd-bg flex">
-                    <div className=" dark:text-white font-semibold text-3xl">
+                <div className=" w-full max-w-6xl min-h-screen h-auto dark:bg-letterboxd-bg flex justify-center">
+                    <div className=" dark:text-white font-semibold text-3xl flex flex-col">
                         {/* {currentUid} */}
                         {error}
                         <div className="flex justify-between">
@@ -210,73 +210,78 @@ function ProfilePage() {
                                 {isFollowing ? <h1>Unfollow</h1> : <h1>Follow</h1>}</button>}
                         {/* <p className="text-center md:text-left">{username}</p> */}
                         <div>
-                        <ul className="flex max-w-screen flex-wrap justify-center md:justify-start">
-                            {claimed.map((claims, index) => (
-                                <div key={claims.id} className="flex flex-col items-center mx-1 my-1">
-                                    <Link to={`/series/${(claims.name).replace(/\s/g, '-')}`}>
-                                        <img src={`https://image.tmdb.org/t/p/original${claims.poster_path}`} alt="" className=" w-40 rounded border-white border" />
-                                    </Link>
-                                    {/* <div>{claims.star_rating}</div> */}
-                                    <StarRatings
-                                        rating={claims.star_rating}
-                                        starRatedColor="#f59e0b"
-                                        numberOfStars={5}
-                                        starDimension="24px"
-                                        starSpacing="1px"
-                                        changeRating={username === profileId ? changeRating : null}
-                                        name={index.toString()}
-                                        starHoverColor="#f59e0b"
-                                    />
-                                </div>
-                            ))}
-                        </ul>
-                        </div>
-                        <div className="flex space-x-8">
-                            <div className=" flex flex-col">
-                                Following {followed.length}
-                                {followed.map((user) => (
-                                    <ul key={user.Uid} className="list-none">
-                                        <li>{user.Username}</li>
-                                    </ul>
-                                ))}
-                            </div>
-                            <div className=" flex flex-col">
-                                Followers {followers.length}
-                                {followers.map((user) => (
-                                    <ul key={user.Uid} className="list-none">
-                                        <li>
-                                            <Link to={`/${user.Username}`}>
-                                                {user.Username}
+                            <div>
+                                <ul className="flex max-w-screen flex-wrap justify-center md:justify-start">
+                                    {claimed.map((claims, index) => (
+                                        <div key={claims.id} className="flex flex-col items-center mx-1 my-1">
+                                            <Link to={`/series/${(claims.name).replace(/\s/g, '-')}`}>
+                                                <img src={`https://image.tmdb.org/t/p/original${claims.poster_path}`} alt="" className=" w-40 rounded border-white border" />
                                             </Link>
-                                        </li>
-                                    </ul>
-                                ))}
+                                            {/* <div>{claims.star_rating}</div> */}
+                                            <StarRatings
+                                                rating={claims.star_rating}
+                                                starRatedColor="#f59e0b"
+                                                numberOfStars={5}
+                                                starDimension="24px"
+                                                starSpacing="1px"
+                                                changeRating={username === profileId ? changeRating : null}
+                                                name={index.toString()}
+                                                starHoverColor="#f59e0b"
+                                            />
+                                        </div>
+                                    ))}
+                                </ul>
                             </div>
+                            <div className="flex space-x-8">
+                                <div className=" flex flex-col">
+                                    Following {followed.length}
+                                    {followed.map((user) => (
+                                        <ul key={user.Uid} className="list-none">
+                                            <li>{user.Username}</li>
+                                        </ul>
+                                    ))}
+                                </div>
+                                <div className=" flex flex-col">
+                                    Followers {followers.length}
+                                    {followers.map((user) => (
+                                        <ul key={user.Uid} className="list-none">
+                                            <li>
+                                                <Link to={`/${user.Username}`}>
+                                                    {user.Username}
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <div className=" mt-24">
+                            <h1 className="text-white font-semibold text-xl">Recent Activity</h1>
+                            <div className="border-t border-white mb-1"></div>
+                            <ul className="flex max-w-screen flex-wrap justify-center md:justify-start">
+                                {recentSeries.map((recentClaims, index) => (
+                                    <div className="flex flex-col items-center mx-1 my-1">
+                                        <Link to={`/series/${(recentClaims.review.name).replace(/\s/g, '-')}`}>
+                                            <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.poster_path}`} alt="" className=" w-40 rounded border-white border" />
+                                        </Link>
+                                        {/* <div>{recentClaims.review.star_rating}</div> */}
+                                        <div className="flex items-center">
+                                            <StarRatings
+                                                rating={recentClaims.review.star_rating}
+                                                starRatedColor="#f59e0b"
+                                                numberOfStars={5}
+                                                starDimension="24px"
+                                                starSpacing="1px"
+                                                name={index.toString()}
+                                                starHoverColor="#f59e0b"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </ul>
+                            
                         </div>
                     </div>
-                    <div>
-                    <h1 className="text-white font-semibold mt-24 text-3xl">Recent Activity</h1>
-                    <ul className="flex max-w-screen flex-wrap justify-center md:justify-start">
-                        {recentSeries.map((recentClaims, index) => (
-                            <div className="flex flex-col items-center mx-1 my-1">
-                                <Link to={`/series/${(recentClaims.review.name).replace(/\s/g, '-')}`}>
-                                    <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.poster_path}`} alt="" className=" w-40 rounded border-white border" />
-                                </Link>
-                                {/* <div>{recentClaims.review.star_rating}</div> */}
-                                <div className="flex items-center">
-                                    <StarRatings
-                                        rating={recentClaims.review.star_rating}
-                                        starRatedColor="#f59e0b"
-                                        numberOfStars={5}
-                                        starDimension="24px"
-                                        starSpacing="1px"
-                                        name={index.toString()}
-                                        starHoverColor="#f59e0b"
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </ul></div>
                 </div>
             </div>
         </>
