@@ -32,6 +32,10 @@ module.exports = {
       },
       height: {
         'extra-height': '500px'
+      },
+      transitionDuration: {
+        '50': '50ms',
+        '25': '25ms'
       }
     },
   },

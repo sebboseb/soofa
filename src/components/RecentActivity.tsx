@@ -5,38 +5,38 @@ import { useAuth } from './contexts/AuthContext';
 import { Link, useParams } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
 
-function Activity() {
+
+function RecentActivity() {
+
+    const { profileId, activityId } = useParams();
 
     const { currentUser } = useAuth();
     const [feed, setFeed] = useState([]);
-
-    const [username, setUsername] = useState("");
-
-    const { activityId } = useParams();
+    const [currentUid, setCurrentUid] = useState("");
 
     useEffect(() => {
         const getUsers = async () => {
-            setFeed([])
-            const snapshot = await db.collection('Following').doc(currentUser.uid).collection("UserFollowing").get();
-            const followingMurloc = snapshot.docs.map(doc => doc.id);
-            console.log(followingMurloc);
+            db.collection("User").where("Username", "==", profileId).onSnapshot((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.data()); // For data inside doc
+                    console.log(doc.id); // For doc name
+                    setCurrentUid(doc.id);
+                });
+            });
 
-            followingMurloc.forEach(async murloc => {
-                const qk = await db.collection('Posts').doc(murloc).collection("userPosts").doc("Logs").collection(`post${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`).get();
-                const qklol = await db.collection('Posts').doc(murloc).collection("userPosts").doc("Logs").collection(`log${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`).get();
+            if (currentUid !== "") {
+                setFeed([])
+                const qk = await db.collection('Posts').doc(currentUid).collection("userPosts").doc("Logs").collection(`post${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`).get();
+                const qklol = await db.collection('Posts').doc(currentUid).collection("userPosts").doc("Logs").collection(`log${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`).get();
                 let murlocdata = Object.values(qk.docs.map(doc => doc.data()));
                 let murlocdatalol = Object.values(qklol.docs.map(doc => doc.data()));
                 console.log(murlocdata)
                 setFeed(prevFollowed => prevFollowed.concat(murlocdata, murlocdatalol));
-
-                currentUser && db.collection("User").doc(currentUser.uid).get().then(doc => {
-                    setUsername(doc.data().Username);
-                });
-            });
+            }
         }
 
         getUsers();
-    }, [currentUser.uid, activityId]);
+    }, [currentUid, activityId]);
 
     function sortArray(reviewDate) {
         let date = new Date();
@@ -63,20 +63,20 @@ function Activity() {
             <div className="w-screen flex justify-center">
                 <div className="flex flex-col max-w-xl w-screen">
                     <div className="flex space-x-4">
-                        <u className=" text-soofa-orange">Friends</u>
-                        <Link to={`/${username}/activity/${activityId}`} className=" text-soofa-orange">You</Link>
+                        <Link to={`/activity/${activityId}`} className=" text-soofa-orange">Friends</Link>
+                        <u className=" text-soofa-orange">You</u>
                     </div>
                     <div className="flex max-w-xl w-screen justify-between text-white font-semibold text-xl">
-                        <Link to={`/activity/series`}>{activityId === "series" ? <u>Shows</u> : <h1>Shows</h1>}</Link>
-                        <Link to={`/activity/season`}>{activityId === "season" ? <u>Seasons</u> : <h1>Seasons</h1>}</Link>
-                        <Link to={`/activity/episode`}>{activityId === "episode" ? <u>Episodes</u> : <h1>Episodes</h1>}</Link>
+                        <Link to={`/${profileId}/activity/series`}>{activityId === "series" ? <u>Shows</u> : <h1>Shows</h1>}</Link>
+                        <Link to={`/${profileId}/activity/season`}>{activityId === "season" ? <u>Seasons</u> : <h1>Seasons</h1>}</Link>
+                        <Link to={`/${profileId}/activity/episode`}>{activityId === "episode" ? <u>Episodes</u> : <h1>Episodes</h1>}</Link>
                     </div>
                     <ul className="space-y-4">
                         {feed.map((thingy) => (
                             <li className=" dark:text-white border-t dark:border-white border-black">
                                 <div className="flex justify-between mt-4">
                                     <div className="flex">
-                                        <Link to={activityId === "series" ? `/series/${thingy.review.name && (thingy.review.name).replace(/\s/g, '-')}` : activityId === "season" ? `/${thingy.review.seriesname && (thingy.review.seriesname).replace(/\s/g, '-')}/season-${thingy.review.season_number}/episodes` : `/${thingy.review.seriesname && (thingy.review.seriesname).replace(/\s/g, '-')}/season-${thingy.review.season_number}/episode/${thingy.review.episode_number}`}>
+                                        <Link to={activityId === "series" ? `/series/${(thingy.review.name && thingy.review.name).replace(/\s/g, '-')}` : activityId === "season" ? `/${thingy.review.seriesname && (thingy.review.seriesname).replace(/\s/g, '-')}/season-${thingy.review.season_number}/episodes` : `/${thingy.review.seriesname && (thingy.review.seriesname).replace(/\s/g, '-')}/season-${thingy.review.season_number}/episode/${thingy.review.episode_number}`}>
                                             {/* <Link to={thingy.review.name && `/series/${(thingy.review.name).replace(/\s/g, '-')}`}> */}
                                             <img src={
                                                 activityId === "series" ? `https://image.tmdb.org/t/p/original${thingy.review.poster_path}` : activityId === "season" ? `https://image.tmdb.org/t/p/original${thingy.review.poster_path}` : `https://image.tmdb.org/t/p/original${thingy.review.still_path}`} alt="" className=" w-20 max-w-none rounded mr-8"
@@ -90,7 +90,7 @@ function Activity() {
                                                 watched
                                                 <Link to={activityId === "series" ? `/series/${thingy.review.name}` : activityId === "season" ? `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episodes` : `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episode/${thingy.review.episode_number}`}>
                                                     <h1 className=" text-xl dark:text-white">
-                                                    {activityId === "series" ? `${thingy.review.name}` : activityId === "season" ? `${thingy.review.seriesname}` + " " + `${thingy.review.name}` : `${thingy.review.name}`}
+                                                        {activityId === "series" ? `${thingy.review.name}` : activityId === "season" ? `${thingy.review.seriesname}` + " " + `${thingy.review.name}` : `${thingy.review.name}`}
                                                     </h1>
                                                 </Link>
                                                 <div className="-mt-1 -ml-1">
@@ -118,4 +118,4 @@ function Activity() {
     )
 }
 
-export default Activity;
+export default RecentActivity;

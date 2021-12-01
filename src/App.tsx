@@ -19,6 +19,8 @@ import Activity from './components/Activity';
 import MainPageNavbar from './components/MainPageNavbar';
 import ReviewPage from './components/ReviewPage';
 import Users from './components/Users';
+import RecentActivity from './components/RecentActivity';
+import PersonReview from './components/PersonReview';
 // import { Provider } from 'react-redux';
 // import { createStore, applyMiddleware } from 'redux';
 // import rootReducer from './redux/reducers';
@@ -44,8 +46,10 @@ function App() {
                 <Route path="/series/:id" component={DetailsPage}></Route>
                 <Route path="/reviews/:id" component={ReviewPage}></Route>
                 <Route path="/:id/season-:seasonId/episodes" component={Episodes}></Route>
+                <Route path="/activity/:activityId" component={Activity}></Route>
+                <Route exact path="/:profileId/activity/:activityId" component={RecentActivity}></Route>
+                <Route exact path="/:profileId/:id/:indexId/" component={PersonReview}></Route>
                 <Route exact path="/:knownforId/:actorId" component={Person}></Route>
-                <Route path="/activity" component={Activity}></Route>
                 <Route exact path="/" component={Mainpage}></Route>
                 <Route path="/:id/season-:seasonId/episode/:episodeId" component={EpisodeLore}></Route>
                 <Route exact path="/users" component={Users}></Route>

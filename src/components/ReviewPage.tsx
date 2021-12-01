@@ -14,7 +14,7 @@ function ReviewPage() {
 
     useEffect(() => {
         async function getReviews() {
-            const snapshotqk = await db.collection('Posts').doc("Reviews").collection("userPosts").doc(id).collection("post").get()
+            const snapshotqk = await db.collection('Posts').doc("Reviews").collection("userPosts").doc(id).collection("postSeries").get()
             const followingMurloc = snapshotqk.docs.map(doc => doc.data());
             console.log(followingMurloc);
             setReviewsUpdate(followingMurloc);
@@ -52,7 +52,7 @@ function ReviewPage() {
                 <Link to={`/series/${succession.name && succession.name.replaceAll(' ', '-')}`}>
                 <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-80 rounded m-1 border-gray-50 border shadow sticky" alt={succession.name}></img></Link>
             </div>
-            <div className=" w-full max-w-6xl min-h-screen h-auto dark:bg-letterboxd-bg flex items-center justify-center">
+            <div className=" w-full max-w-6xl min-h-screen h-auto dark:bg-letterboxd-bg flex justify-center">
                 {reviewsUpdate.length !== 0 ?
                     <ul className="space-y-4 max-w-xl w-screen mt-16">
                         <div className="flex justify-between dark:text-white">

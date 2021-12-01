@@ -58,7 +58,6 @@ function Person() {
                                 pathname: `/series/${(thingy.name).replace(/\s/g, '-')}`,
                             }}>
                                 <img className=" rounded border border-white" src={`https://image.tmdb.org/t/p/original${thingy.poster_path}`} alt="" />
-                                <p className="text-white">{thingy.name}</p>
                             </Link>
                         </div>
                     ))

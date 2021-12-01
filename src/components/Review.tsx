@@ -7,7 +7,7 @@ function Review(props: any) {
         <li key="1" className="flex space-x-4 mb-4 rounded dark:shadow justify-between">
             <Link to={`/${props.user}`} className="bg-gradient-to-br from-transparent via-green-300 to-blue-200 rounded-full w-12 h-12"></Link>
             <div>
-                <div className="flex"><span>Review by</span>&nbsp;<Link to={`/${props.user}`}>{props.user}</Link>&nbsp;
+                <div className="flex"><span><Link to ={`/${props.user}/${props.series}/${props.reviewIndex}/`}>Review by</Link></span>&nbsp;<Link to={`/${props.user}`}>{props.user}</Link>&nbsp;
                 <div className=" -top-0.5 relative">
                     <StarRatings
                         rating={props.stars}

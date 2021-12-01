@@ -60,7 +60,7 @@ function MainPageNavbar() {
                             {/* {currentUser ? null : <h1 onClick={() => {setClicked(true)}} className="font-semibold text-white text-xl">Create account</h1>} */}
                             {currentUser ? null : <Modal></Modal>}
                             <Link to="/dashboard"><h1 className="font-semibold dark:text-white text-xl">Series</h1></Link>
-                            <Link to="/activity" className="font-semibold dark:text-white text-xl">Activity</Link>
+                            {currentUser && <Link to="/activity/series" className="font-semibold dark:text-white text-xl">Activity</Link>}
                             <Link to="/users"><h1 className="font-semibold dark:text-white text-xl">Users</h1></Link>
                             <Dropdown></Dropdown>
                             {/* <input className="rounded shadow h-8 w-56 p-4 z-10" type="text" placeholder="Search a series" /> */}

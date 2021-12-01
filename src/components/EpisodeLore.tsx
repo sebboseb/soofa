@@ -4,7 +4,7 @@ import StarRatings from 'react-star-ratings';
 import { Link, useParams } from 'react-router-dom';
 import { getSearchRequest, getEpisodeRequest } from './utils/api';
 import { db } from '../firebase';
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, setDoc } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 
 function EpisodeLore() {
@@ -15,6 +15,15 @@ function EpisodeLore() {
     const [lolmurloc, setLolmurloc] = useState(0);
 
     const { currentUser } = useAuth();
+    
+
+    const [season, setSeason] = useState([]);
+    const [episodes, setEpisodes] = useState([]);
+    const [isInFavourites, setIsInFavourites] = useState(false);
+    const [postId, setPostId] = useState(makeid(9));
+    const [reviewInput, setReviewInput] = useState(false);
+    const [reviewQuery, setQuery] = useState("");
+    const [username, setUsername] = useState([]);
 
     useEffect(() => {
         const getUsers = async () => {
@@ -23,7 +32,7 @@ function EpisodeLore() {
             setEpisode(episodeLoreList);
             console.log(episodeLoreList);
 
-            db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Episodes").get().then(doc => {
+            currentUser && db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Episode").get().then(doc => {
                 if (doc.data()) {
                     // setIsInFavourites(true);
                     if (doc.data()[id.replaceAll('-', ' ') + " " + episodeLoreList.name]) {
@@ -39,25 +48,106 @@ function EpisodeLore() {
                     console.log("lol");
                 }
             });
+
+            currentUser && db.collection("User").doc(currentUser.uid).get().then(doc => {
+                setUsername(doc.data().Username);
+            });
         }
 
-  
-
-        currentUser && getUsers();
+        getUsers();
     }, [currentUser, id, seasonId, episodeId]);
 
-    const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Episodes") : null;
+    const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Episode") : null;
+    
+    async function addEpisode(murlocEpisode, starrating) {
+        setPostId(makeid(9));
+        let date = Date().toLocaleLowerCase();
+        Object.assign(murlocEpisode, starrating, { date: date }, {user: username}, {seriesname: id});
+        const logRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "logEpisode", postId) : null;
+        await setDoc(logRefMurlocMrrrglUpdate, {
+            review: murlocEpisode,
+            date: date,
+        });
+    }
+
+    async function addReviewEpisode(reviewText, starrating, murloc, episodeName) {
+        setPostId(makeid(9));
+        const reviewRefUpdated = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' ') + " " + episodeName, "post", postId);
+        const reviewRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "postEpisode", postId) : null
+        let date = Date().toLocaleLowerCase();
+        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: postId }, { date: date }, { fullName: id.replaceAll('-', ' ') + " " + episodeName }, {seriesname: id});
+
+        await setDoc(reviewRefUpdated, {
+            user: username,
+            review: reviewText,
+            starrating: starrating,
+            comments: { username: "Username" },
+            likes: 3,
+            reviewId: postId,
+            date: date,
+        });
+
+        await setDoc(reviewRefMurlocMrrrglUpdate, {
+            review: murloc
+        });
+    }
 
     async function changeRating(newRating, name) {
-        const starrating = { star_rating: newRating }
-        Object.assign(episode, starrating);
-        console.log(name);
-        console.log(episode.name);
         setLolmurloc(newRating);
+        Object.assign(episode, { star_rating: newRating });
+        console.log(episode);
+        if ((episode.name).includes(".")) {
+            (episode.name) = (episode.name).replace(/\./g, '');
+            console.log(episode.name);
+        }
 
-        await updateDoc(userDocumentFav, {
-            [id.replaceAll('-', ' ') + " " + episode.name]: episode
-        });
+        if (isInFavourites) {
+            await updateDoc(userDocumentFav, {
+                [id.replaceAll('-', ' ') + " " + episode.name]:
+                    episode,
+            });
+        } else {
+            await setDoc(userDocumentFav, {
+                [id.replaceAll('-', ' ') + " " + episode.name]:
+                    episode,
+            });
+        }
+
+        // await setDoc(starsRef, {
+
+        // })
+    }
+
+    async function deleteRating() {
+        setLolmurloc(0);
+        if (isInFavourites) {
+            await updateDoc(userDocumentFav, {
+                [id.replaceAll('-', ' ') + " " + episode.name]:
+                    deleteField(),
+            });
+        } else {
+            await setDoc(userDocumentFav, {
+                [id.replaceAll('-', ' ') + " " + episode.name]:
+                    deleteField(),
+            });
+        }
+    }
+
+    const onChange = (e) => {
+        e.preventDefault();
+
+        setQuery(e.target.value);
+    }
+
+    function makeid(length) {
+        var result = '';
+        var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var charactersLength = characters.length;
+        for (var i = 0; i < length; i++) {
+            result += characters.charAt(Math.floor(Math.random() *
+                charactersLength));
+        }
+        return result;
     }
 
     return (
@@ -80,9 +170,23 @@ function EpisodeLore() {
                                     starDimension="24px"
                                     starSpacing="1px"
                                     changeRating={changeRating}
-                                    name={seasonId}
+                                    name={episodeId}
                                     starHoverColor="#f59e0b"
                                 />}
+                                <div className="flex space-x-1">
+                            <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
+                                onClick={() => addEpisode(episode, { star_rating: lolmurloc })}
+                            >Logga</button>
+                            <div onClick={() => setReviewInput(!reviewInput)} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600">
+                            </div>
+                        </div>
+                        {reviewInput ?
+                            <div>
+                                <input className=" absolute text-black" type="text" value={reviewQuery} onChange={onChange} />
+                                <div onClick={() => addReviewEpisode(reviewQuery, lolmurloc, episode, episode.name)} className="bg-red-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600 absolute">
+                                    <h1>Review</h1>
+                                </div>
+                            </div> : null}
             <div className="text-white">
                 <p>{episode.name}</p>
                 <p>{episode.overview}</p>
