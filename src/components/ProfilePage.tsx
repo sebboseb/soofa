@@ -5,6 +5,7 @@ import { doc, updateDoc, onSnapshot, documentId, collection, query, limit, getDo
 import { useAuth } from './contexts/AuthContext';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
+import { GrTextAlignFull } from 'react-icons/gr'
 
 function ProfilePage() {
 
@@ -20,6 +21,8 @@ function ProfilePage() {
     const [error, setError] = useState("");
     const [followers, setFollowers] = useState([]);
     const [recentSeries, setRecentSeries] = useState([]);
+    const [recentSeason, setRecentSeason] = useState([]);
+    const [recentEpisode, setRecentEpisode] = useState([]);
 
     useEffect(() => {
         const getUsers = async () => {
@@ -110,13 +113,27 @@ function ProfilePage() {
                     setFollowed(prevFollowed => prevFollowed.concat(qk.data()));
                 });
 
-                //sorterar stars??????????
                 const usersReference = collection(db, "Posts", (currentUid), "userPosts", "Logs", "logSeries");
-                const qkn = query(usersReference, orderBy("date", "desc"), limit(4));
+                const qkn = query(usersReference, orderBy("review.dateseconds", "desc"));
+                const usersReferencePost = collection(db, "Posts", (currentUid), "userPosts", "Logs", "postSeries");
+                const qknPost = query(usersReferencePost, orderBy("review.dateseconds", "desc"));
                 const qreturn = await getDocs(qkn)
+                const qreturnPost = await getDocs(qknPost)
                 const followingMurlocq = qreturn.docs.map(doc => doc.data());
-                console.log(followingMurlocq);
-                setRecentSeries(followingMurlocq);
+                const followingMurlocqPost = qreturnPost.docs.map(doc => doc.data());
+                setRecentSeries(followingMurlocq.concat(followingMurlocqPost).sort((b, c) => parseFloat(c.review.dateseconds) - parseFloat(b.review.dateseconds)).slice(0, 4));
+
+                const usersReferenceSeason = collection(db, "Posts", (currentUid), "userPosts", "Logs", "logSeason");
+                const qknSeason = query(usersReferenceSeason, orderBy("review.dateseconds", "desc"), limit(4));
+                const qreturnSeason = await getDocs(qknSeason)
+                const followingMurlocqSeason = qreturnSeason.docs.map(doc => doc.data());
+                setRecentSeason(followingMurlocqSeason);
+
+                const usersReferenceEpisode = collection(db, "Posts", (currentUid), "userPosts", "Logs", "logEpisode");
+                const qknEpisode = query(usersReferenceEpisode, orderBy("review.dateseconds", "desc"), limit(8));
+                const qreturnEpisode = await getDocs(qknEpisode)
+                const followingMurlocqEpisode = qreturnEpisode.docs.map(doc => doc.data());
+                setRecentEpisode(followingMurlocqEpisode);
             }
 
             currentUser && db.collection("User").doc(currentUser.uid).get().then(doc => {
@@ -127,6 +144,8 @@ function ProfilePage() {
         getUsers();
     }, [currentUser, profileId, currentUid]);
 
+
+    console.log(recentSeries);
 
     async function changeRating(newRating, name) {
         const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series", "ratings", (claimed[name].name).replaceAll('-', ' ')) : null;
@@ -173,7 +192,8 @@ function ProfilePage() {
             <div className="flex w-screen justify-center mt-24">
                 <div className="w-screen flex max-w-4xl">
                     <div className="flex justify-between dark:text-white font-semibold text-3xl w-full relative mb-4">
-                        {profileId}
+                        <h1>{profileId}</h1>
+                        
                         {(currentUser && (currentUid === currentUser.uid)) && <button onClick={handleLogout}>Log Out</button>}
                     </div>
                     {(currentUser && (currentUid !== currentUser.uid)) &&
@@ -188,8 +208,82 @@ function ProfilePage() {
             <div className=" w-screen flex justify-center relative">
                 <div className=" w-full max-w-5xl min-h-screen h-auto dark:bg-letterboxd-bg flex justify-center">
                     <div className=" dark:text-white font-semibold text-3xl flex flex-col">
+                        <div className=" mt-4 max-w-2xl">
+                            <Link to={`/${username}/activity/episode`} className="text-white font-semibold text-xl">Recent Episode Activity</Link>
+                            <div className="border-t border-white mb-1"></div>
+                            <ul className="flex flex-wrap justify-center md:justify-start">
+                                {recentEpisode.map((recentClaims, index) => (
+                                    <div className="flex flex-col items-center mx-1 my-1">
+                                        <Link to={`/${recentClaims.review.seriesname && (recentClaims.review.seriesname).replace(/\s/g, '-')}/season-${recentClaims.review.season_number}/episode/${recentClaims.review.episode_number}`}>
+                                            <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.still_path}`} alt="" className=" w-40 rounded border-white border" />
+                                        </Link>
+                                        <div className="flex items-center">
+                                            <StarRatings
+                                                rating={recentClaims.review.star_rating}
+                                                starRatedColor="#f59e0b"
+                                                numberOfStars={5}
+                                                starDimension="24px"
+                                                starSpacing="1px"
+                                                name={index.toString()}
+                                                starHoverColor="#f59e0b"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className=" mt-4 max-w-2xl">
+                            <Link to={`/${username}/activity/season`} className="text-white font-semibold text-xl">Recent Season Activity</Link>
+                            <div className="border-t border-white mb-1"></div>
+                            <ul className="flex flex-wrap justify-center md:justify-start">
+                                {recentSeason.map((recentClaims, index) => (
+                                    <div className="flex flex-col items-center mx-1 my-1">
+                                        <Link to={`/${recentClaims.review.seriesname && (recentClaims.review.seriesname).replace(/\s/g, '-')}/season-${recentClaims.review.season_number}/episodes`}>
+                                            <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.poster_path}`} alt="" className=" w-40 rounded border-white border" />
+                                        </Link>
+                                        <div className="flex items-center">
+                                            <StarRatings
+                                                rating={recentClaims.review.star_rating}
+                                                starRatedColor="#f59e0b"
+                                                numberOfStars={5}
+                                                starDimension="24px"
+                                                starSpacing="1px"
+                                                name={index.toString()}
+                                                starHoverColor="#f59e0b"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className=" mt-4 max-w-2xl">
+                            <Link to={`/${username}/activity/series`} className="text-white font-semibold text-xl">Recent Series Activity</Link>
+                            <div className="border-t border-white mb-1"></div>
+                            <ul className="flex flex-wrap justify-center md:justify-start">
+                                {recentSeries.map((recentClaims, index) => (
+                                    <div className="flex flex-col items-center mx-1 my-1">
+                                        <Link to={recentClaims.review.review === undefined ? `/series/${(recentClaims.review.name).replace(/\s/g, '-')}` : `/${recentClaims.review.user}/${recentClaims.review.seriesname.replaceAll(' ', '-')}/${recentClaims.review.index}/`}>
+                                            <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.poster_path}`} alt="" className=" w-40 rounded border-white border" />
+                                        </Link>
+                                        <div className="flex items-center">
+                                        {recentClaims.review.review !== undefined ? <GrTextAlignFull size={24} className=" mt-3 pr-1"/> : null}
+                                            <StarRatings
+                                                rating={recentClaims.review.star_rating}
+                                                starRatedColor="#f59e0b"
+                                                numberOfStars={5}
+                                                starDimension="24px"
+                                                starSpacing="1px"
+                                                name={index.toString()}
+                                                starHoverColor="#f59e0b"
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </ul>
+                        </div>
                         {error}
-                        <div>
+                        <div className="mt-24">
+                            <h1>All Series</h1>
                             <div>
                                 <ul className="flex max-w-screen flex-wrap justify-center md:justify-start max-w-2xl">
                                     {claimed.map((claims, index) => (
@@ -211,30 +305,6 @@ function ProfilePage() {
                                     ))}
                                 </ul>
                             </div>
-                        </div>
-                        <div className=" mt-24 max-w-2xl">
-                            <Link to={`/${username}/activity/series`} className="text-white font-semibold text-xl">Recent Activity</Link>
-                            <div className="border-t border-white mb-1"></div>
-                            <ul className="flex flex-wrap justify-center md:justify-start">
-                                {recentSeries.map((recentClaims, index) => (
-                                    <div className="flex flex-col items-center mx-1 my-1">
-                                        <Link to={`/series/${(recentClaims.review.name).replace(/\s/g, '-')}`}>
-                                            <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.poster_path}`} alt="" className=" w-40 rounded border-white border" />
-                                        </Link>
-                                        <div className="flex items-center">
-                                            <StarRatings
-                                                rating={recentClaims.review.star_rating}
-                                                starRatedColor="#f59e0b"
-                                                numberOfStars={5}
-                                                starDimension="24px"
-                                                starSpacing="1px"
-                                                name={index.toString()}
-                                                starHoverColor="#f59e0b"
-                                            />
-                                        </div>
-                                    </div>
-                                ))}
-                            </ul>
                         </div>
                     </div>
                     {/* FOLLOWING */}
