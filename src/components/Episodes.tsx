@@ -21,9 +21,9 @@ function Episodes() {
     const [postId, setPostId] = useState(makeid(9));
     const [reviewInput, setReviewInput] = useState(false);
     const [reviewQuery, setQuery] = useState("");
-    const [username, setUsername] = useState([]);
+    const [username, setUsername] = useState("");
     const [minusNumber, setMinusNumber] = useState(1);
-    const [succession, setSuccession] = useState("")
+    const [succession, setSuccession] = useState("");
 
     useEffect(() => {
         async function getSeriesRequest() {
@@ -82,15 +82,15 @@ function Episodes() {
     }
 
     const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Season") : null;
-    
+
     async function addSeason(murlocSeason, starrating) {
         setPostId(makeid(9));
         let date = Date().toLocaleLowerCase();
-        Object.assign(murlocSeason, starrating, { date: date }, {user: username});
+        let datelol = new Date();
+        Object.assign(murlocSeason, starrating, { dateseconds: datelol.getTime() / 360000 }, { user: username }, { date: date }, { seriesname: id.replaceAll('-', ' ') });
         const logRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "logSeason", postId) : null;
         await setDoc(logRefMurlocMrrrglUpdate, {
             review: murlocSeason,
-            date: date,
         });
     }
 
@@ -99,20 +99,24 @@ function Episodes() {
         const reviewRefUpdated = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' ') + " " + seasonName, "post", postId);
         const reviewRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "postSeason", postId) : null
         let date = Date().toLocaleLowerCase();
-        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: postId }, { date: date }, { fullName: id.replaceAll('-', ' ') + " " + seasonName }, {seriesname: id.replaceAll('-', ' ')});
+        let datelol = new Date();
+        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: postId }, { date: date }, { seriesname: id.replaceAll('-', ' ') }, { dateseconds: datelol.getTime() / 360000 });
 
         await setDoc(reviewRefUpdated, {
             user: username,
             review: reviewText,
             starrating: starrating,
-            comments: { username: "Username" },
-            likes: 3,
+            likes: [],
+            comments: [],
             reviewId: postId,
             date: date,
+            dateNumbers: datelol.getTime() / 360000,
+            seriesname: id.replaceAll('-', ' '),
+            // index: reviewsUpdate.filter(x => x.user === username).length.toString(), //index === reviews where(username == sebboseb).length + 1
         });
 
         await setDoc(reviewRefMurlocMrrrglUpdate, {
-            review: murloc
+            review: murloc,
         });
     }
 
@@ -167,69 +171,103 @@ function Episodes() {
 
     return (
         <>
-            <div className="w-screen bg-gray-800 text-white font-semibold">
-                <Link to="/">
-                    {
-                        season[seasonId - minusNumber] && season[seasonId - minusNumber].name}
-                </Link>
-                <div className="flex">
-                    <div className="flex flex-col">
-                        <div>
-                            <Link to={{
-                                pathname: `/series/${id}`,
-                            }}>
-                                <img className="w-96 rounded" src={`https://image.tmdb.org/t/p/original${season[seasonId - minusNumber] && season[seasonId - minusNumber].poster_path}`} alt="" />
-                            </Link>
-                        </div>
-                        <div className="p-1">
-                            {currentUser && <StarRatings
-                                rating={lolmurloc}
-                                starRatedColor="#f59e0b"
-                                numberOfStars={5}
-                                starDimension="24px"
-                                starSpacing="1px"
-                                changeRating={changeRating}
-                                name="rating"
-                                starHoverColor="#f59e0b"
-                            />}
-                        </div>
-                        <div className="flex space-x-1">
-                            <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
-                                onClick={() => addSeason(season[seasonId - minusNumber], { star_rating: lolmurloc })}
-                            >Logga</button>
-                            <div onClick={() => setReviewInput(!reviewInput)} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600">
-                            </div>
-                        </div>
-                        {reviewInput ?
+            <div className="w-screen flex items-center flex-col">
+                <div className="w-screen bg-gray-800 text-white font-semibold max-w-6xl">
+
+                    {minusNumber === 0 ?
+                        (season.slice(1, season.length).concat(season.slice(season.length + 1))).map((seasons) => (
                             <div>
-                                <input className=" absolute text-black" type="text" value={reviewQuery} onChange={onChange} />
-                                <div onClick={() => addReviewSeason(reviewQuery, lolmurloc, season[seasonId - minusNumber], season[seasonId - minusNumber].name)} className="bg-red-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600 absolute">
-                                    <h1>Review</h1>
-                                </div>
-                            </div> : null}
-                    </div>
-                    <p>{season[seasonId - minusNumber] && season[seasonId - minusNumber].overview}</p>
-                </div>
-            </div>
-            {id} {seasonId}
-            <div className=" w-screen flex flex-wrap">
-                {
-                    //onClick upp med meny kolla starrating
-                    episodes.map((thingy, index) => (
-                        <ul className="flex flex-wrap w-min">
-                            <div className="flex flex-col items-center">
+                                {
+                                    <Link to={`/${id}/season-${seasons.season_number}/episodes`}>
+                                        {seasons.name === season[seasonId - minusNumber].name ?
+                                            <u>{seasons.name}</u> : <h1>{seasons.name}</h1>}
+                                    </Link>
+                                }
+                            </div>
+                        ))
+                        :
+                        (season.map((seasons) => (
+                            <div>
+                                {
+                                    <Link to={`/${id}/season-${seasons.season_number}/episodes`}>
+                                        {seasons.name === season[seasonId - minusNumber].name ?
+                                            <u>{seasons.name}</u> : <h1>{seasons.name}</h1>}
+                                    </Link>
+                                }
+                            </div>
+                        )))
+                    }
+
+                    {/* {season.map((seasons) => (
+                    <Link to="/">
+                        {
+                            seasons.name
+                        }
+                    </Link>
+                ))} */}
+
+
+                    <div className="flex">
+                        <div className="flex flex-col">
+                            <div>
                                 <Link to={{
-                                    pathname: `/${id}/season-${seasonId}/episode/${thingy.episode_number}`,
+                                    pathname: `/series/${id}`,
                                 }}>
-                                    <li className="bg-black w-52 rounded mx-1 my-1 dark:text-white">
-                                        <img className="rounded" src={thingy.still_path === null ? `https://image.tmdb.org/t/p/original${succession}` : `https://image.tmdb.org/t/p/original${thingy.still_path}`} alt={thingy.name}></img>
-                                    </li>
-                                    <h1 className="text-white font-semibold">{thingy.name}</h1>
+                                    <img className="w-44 rounded" src={`https://image.tmdb.org/t/p/original${season[seasonId - minusNumber] && season[seasonId - minusNumber].poster_path}`} alt="" />
                                 </Link>
                             </div>
-                        </ul>
-                    ))
-                }
+                            <div className="p-1">
+                                {currentUser && <StarRatings
+                                    rating={lolmurloc}
+                                    starRatedColor="#f59e0b"
+                                    numberOfStars={5}
+                                    starDimension="24px"
+                                    starSpacing="1px"
+                                    changeRating={changeRating}
+                                    name="rating"
+                                    starHoverColor="#f59e0b"
+                                />}
+                            </div>
+                            <div className="flex space-x-1">
+                                <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
+                                    onClick={() => addSeason(season[seasonId - minusNumber], { star_rating: lolmurloc })}
+                                >Logga</button>
+                                <div onClick={() => setReviewInput(!reviewInput)} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600">
+                                </div>
+                            </div>
+                            {reviewInput ?
+                                <div>
+                                    <input className=" absolute text-black" type="text" value={reviewQuery} onChange={onChange} />
+                                    <div onClick={() => addReviewSeason(reviewQuery, lolmurloc, season[seasonId - minusNumber], season[seasonId - minusNumber].name)} className="bg-red-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600 absolute">
+                                        <h1>Review</h1>
+                                    </div>
+                                </div> : null}
+                        </div>
+                        <p>{season[seasonId - minusNumber] && season[seasonId - minusNumber].overview}</p>
+                    </div>
+                </div>
+                {/* {id} {seasonId} */}
+                <div className="w-screen flex justify-center">
+                    <div className=" w-screen max-w-5xl flex flex-wrap justify-center">
+                        {
+                            //onClick upp med meny kolla starrating
+                            episodes.map((thingy, index) => (
+                                <ul className="flex flex-wrap w-min">
+                                    <div className="flex flex-col items-center">
+                                        <Link to={{
+                                            pathname: `/${id}/season-${seasonId}/episode/${thingy.episode_number}`,
+                                        }}>
+                                            <li className="bg-black w-52 rounded mx-1 my-1 dark:text-white">
+                                                <img className="rounded" src={thingy.still_path === null ? `https://image.tmdb.org/t/p/original${succession}` : `https://image.tmdb.org/t/p/original${thingy.still_path}`} alt={thingy.name}></img>
+                                            </li>
+                                            <h1 className="text-white font-semibold">{thingy.name}</h1>
+                                        </Link>
+                                    </div>
+                                </ul>
+                            ))
+                        }
+                    </div>
+                </div>
             </div>
         </>
     )

@@ -62,11 +62,11 @@ function EpisodeLore() {
     async function addEpisode(murlocEpisode, starrating) {
         setPostId(makeid(9));
         let date = Date().toLocaleLowerCase();
-        Object.assign(murlocEpisode, starrating, { date: date }, {user: username}, {seriesname: id});
+        let datelol = new Date();
+        Object.assign(murlocEpisode, starrating, { dateseconds: datelol.getTime() / 360000 }, { user: username }, { date: date }, {seriesname: id.replaceAll('-', ' ')});
         const logRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "logEpisode", postId) : null;
         await setDoc(logRefMurlocMrrrglUpdate, {
             review: murlocEpisode,
-            date: date,
         });
     }
 
@@ -75,20 +75,24 @@ function EpisodeLore() {
         const reviewRefUpdated = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' ') + " " + episodeName, "post", postId);
         const reviewRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "postEpisode", postId) : null
         let date = Date().toLocaleLowerCase();
-        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: postId }, { date: date }, { fullName: id.replaceAll('-', ' ') + " " + episodeName }, {seriesname: id});
+        let datelol = new Date();
+        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: postId }, { date: date }, { seriesname: id.replaceAll('-', ' ') }, { dateseconds: datelol.getTime() / 360000 });
 
         await setDoc(reviewRefUpdated, {
             user: username,
             review: reviewText,
             starrating: starrating,
-            comments: { username: "Username" },
-            likes: 3,
+            likes: [],
+            comments: [],
             reviewId: postId,
             date: date,
+            dateNumbers: datelol.getTime() / 360000,
+            seriesname: id.replaceAll('-', ' '),
+            // index: reviewsUpdate.filter(x => x.user === username).length.toString(), //index === reviews where(username == sebboseb).length + 1
         });
 
         await setDoc(reviewRefMurlocMrrrglUpdate, {
-            review: murloc
+            review: murloc,
         });
     }
 

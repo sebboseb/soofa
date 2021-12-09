@@ -19,15 +19,15 @@ function Activity() {
             setFeed([])
             const snapshot = await db.collection('Following').doc(currentUser.uid).collection("UserFollowing").get();
             const followingMurloc = snapshot.docs.map(doc => doc.id);
-            console.log(followingMurloc);
+            // console.log(followingMurloc);
 
             followingMurloc.forEach(async murloc => {
                 const qk = await db.collection('Posts').doc(murloc).collection("userPosts").doc("Logs").collection(`post${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`).get();
                 const qklol = await db.collection('Posts').doc(murloc).collection("userPosts").doc("Logs").collection(`log${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`).get();
                 let murlocdata = Object.values(qk.docs.map(doc => doc.data()));
                 let murlocdatalol = Object.values(qklol.docs.map(doc => doc.data()));
-                console.log(murlocdata)
-                setFeed(prevFollowed => prevFollowed.concat(murlocdata, murlocdatalol));
+                // console.log(murlocdata)
+                setFeed(prevFollowed => prevFollowed.concat(murlocdata, murlocdatalol).sort((b, c) => parseFloat(c.review.dateseconds) - parseFloat(b.review.dateseconds)));
 
                 currentUser && db.collection("User").doc(currentUser.uid).get().then(doc => {
                     setUsername(doc.data().Username);
@@ -37,25 +37,23 @@ function Activity() {
 
         getUsers();
     }, [currentUser.uid, activityId]);
-
+    //
     function sortArray(reviewDate) {
         let date = new Date();
         let date3 = new Date(reviewDate);
 
-        console.log(parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000));
-        let murlocMinute = parseInt((Math.abs(date3.getTime() - date.getTime())) / 360000);
+        let murlocMinute = parseInt((Math.abs((date3.getMinutes() - date.getMinutes()))));
         let murlocHour = parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000);
         let murlocDay = parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000 / 24);
-        console.log(murlocDay);
         let murlocDayText = (murlocDay + " day ago");
         let murlocDaysText = (murlocDay + " days ago");
         let murlocHourText = (murlocHour + "h ago");
-        let murlocMinuteText = (murlocMinute + "min ago");
+        let murlocMinuteText = (murlocMinute + " min ago");
 
+        if (murlocHour <= 1) { return murlocMinuteText }
         if (murlocDay > 1) { return murlocDaysText }
         if (murlocHour <= 23) { return murlocHourText }
         if (murlocHour >= 24) { return murlocDayText }
-        if (murlocHour <= 1) { return murlocMinuteText }
     }
 
     return (
@@ -72,14 +70,14 @@ function Activity() {
                         <Link to={`/activity/episode`}>{activityId === "episode" ? <u>Episodes</u> : <h1>Episodes</h1>}</Link>
                     </div>
                     <ul className="space-y-4">
-                        {feed.map((thingy) => (
+                        {feed.length !== 0 ? feed.map((thingy) => (
                             <li className=" dark:text-white border-t dark:border-white border-black">
                                 <div className="flex justify-between mt-4">
                                     <div className="flex">
                                         <Link to={activityId === "series" ? `/series/${thingy.review.name && (thingy.review.name).replace(/\s/g, '-')}` : activityId === "season" ? `/${thingy.review.seriesname && (thingy.review.seriesname).replace(/\s/g, '-')}/season-${thingy.review.season_number}/episodes` : `/${thingy.review.seriesname && (thingy.review.seriesname).replace(/\s/g, '-')}/season-${thingy.review.season_number}/episode/${thingy.review.episode_number}`}>
                                             {/* <Link to={thingy.review.name && `/series/${(thingy.review.name).replace(/\s/g, '-')}`}> */}
                                             <img src={
-                                                activityId === "series" ? `https://image.tmdb.org/t/p/original${thingy.review.poster_path}` : activityId === "season" ? `https://image.tmdb.org/t/p/original${thingy.review.poster_path}` : `https://image.tmdb.org/t/p/original${thingy.review.still_path}`} alt="" className=" w-20 max-w-none rounded mr-8"
+                                                activityId === "series" ? `https://image.tmdb.org/t/p/original${thingy.review.poster_path}` : activityId === "season" ? `https://image.tmdb.org/t/p/original${thingy.review.poster_path}` : `https://image.tmdb.org/t/p/original${thingy.review.still_path}`} alt="" className={activityId !== "episode" ? "w-20 max-w-none rounded mr-8" : "w-32 max-w-none rounded mr-8"}
                                             />
                                         </Link>
                                         <div className="flex flex-col">
@@ -90,7 +88,7 @@ function Activity() {
                                                 watched
                                                 <Link to={activityId === "series" ? `/series/${thingy.review.name}` : activityId === "season" ? `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episodes` : `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episode/${thingy.review.episode_number}`}>
                                                     <h1 className=" text-xl dark:text-white">
-                                                    {activityId === "series" ? `${thingy.review.name}` : activityId === "season" ? `${thingy.review.seriesname}` + " " + `${thingy.review.name}` : `${thingy.review.name}`}
+                                                        {activityId === "series" ? `${thingy.review.name}` : activityId === "season" ? `${thingy.review.seriesname}` + " " + `${thingy.review.name}` : `${thingy.review.name}`}
                                                     </h1>
                                                 </Link>
                                                 <div className="-mt-1 -ml-1">
@@ -110,7 +108,7 @@ function Activity() {
                                     <div>{sortArray(thingy.review.date)}</div>
                                 </div>
                             </li>
-                        ))}
+                        )) : <div><h1 className="text-white font-semibold text-center">No activity yet</h1></div>}
                     </ul>
                 </div>
             </div>

@@ -5,13 +5,14 @@ import StarRatings from 'react-star-ratings';
 import { Link, useParams } from 'react-router-dom';
 import { getCreditsRequest, getSeasonsRequest, getSearchRequest } from './utils/api';
 import { db } from '../firebase';
-import { doc, updateDoc, setDoc, deleteDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { doc, updateDoc, setDoc, deleteDoc, arrayUnion, arrayRemove, increment } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import Tilt from 'react-parallax-tilt';
 import LoginPage from './LoginPage';
 import Review from './Review';
-import { FaCommentAlt } from 'react-icons/fa'
-import { BsHeart, BsHeartFill, BsEye, BsEyeFill } from 'react-icons/bs'
+import { FaCommentAlt } from 'react-icons/fa';
+import { BsHeart, BsHeartFill, BsEye, BsEyeFill } from 'react-icons/bs';
+import Chart from "react-google-charts";
 
 function DetailsPage() {
 
@@ -33,11 +34,14 @@ function DetailsPage() {
     const [reviewsUpdate, setReviewsUpdate] = useState([]);
     const [hasSpecial, setHasSpecial] = useState(false);
     const [friendsRatings, setFriendsRatings] = useState([]);
-    const [style, setStyle] = useState({display: 'none'});
-    // const [ratings, setRatings] = useState([]);
+    const [style, setStyle] = useState({ display: 'none' });
+    const [ratings, setRatings] = useState(0);
+    const [stars, setStars] = useState([]);
     // const [average, setAverage] = useState([]);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
+        setFriendsRatings([]);
         const getUsers = async () => {
             db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Series").collection("ratings").doc(id.replaceAll('-', ' ')).get().then(doc => {
                 if (doc.data()) {
@@ -53,6 +57,15 @@ function DetailsPage() {
                     setIsInFavourites(false);
                     setLolmurloc(0);
                     console.log("lol");
+                }
+            });
+
+            db.collection("Posts").doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).collection("ratings").doc("5").get().then(doc => {
+                if (doc.exists) {
+                    console.log("hasData");
+                }
+                else {
+                    setNewRatings();
                 }
             });
 
@@ -103,7 +116,6 @@ function DetailsPage() {
 
             const snapshot = await db.collection("Posts").doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).get();
             if (snapshot.data()) {
-                setIsInFavourites(true);
                 console.log(snapshot.data());
                 let murlocdata = Object.values(snapshot.data());
                 const murl = murlocdata.sort((b, c) => b.date - c.date);
@@ -116,15 +128,23 @@ function DetailsPage() {
 
             const snapshotqk = await db.collection('Posts').doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).collection("postSeries").get()
             const followingMurloc = snapshotqk.docs.map(doc => doc.data());
-            const jenny = followingMurloc.sort((b, c) => c.date.localeCompare(b.date));
+            // const jenny = followingMurloc.sort((b, c) => c.date.localeCompare(b.date));
+            const jenny = followingMurloc.sort((b, c) => parseFloat(c.dateNumbers) - parseFloat(b.dateNumbers));
             console.log(jenny);
             setReviewsUpdate(jenny);
 
-            const starsSnapshot = await db.collection('Series').doc("SeriesStars").collection(id).doc("rating").get();
-            console.log(starsSnapshot.data());
-            // setRatings(starsSnapshot.data());
+            const starsSnapshot = await db.collection('Posts').doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).collection("ratings").get();
+            // const stars = starsSnapshot.docs.map(doc => (doc.id + ":" + doc.data()["rating"] + " "));
+            setStars(starsSnapshot.docs.map(doc => (doc.data()["rating"])));
+            const starsTotal = starsSnapshot.docs.map(doc => (parseInt(doc.id) * doc.data()["rating"])).reduce((b, c) => b + c, 0);
+            const starsAverage = starsSnapshot.docs.map(doc => (doc.data()["rating"])).reduce((b, c) => b + c, 0);
+            // console.log(stars);
+            // console.log("average:" + starsAverage);
+            // console.log("total:" + starsTotal);
+            // console.log(starsTotal / starsAverage);
+            let star = (starsTotal / starsAverage)
+            star && setRatings(star);
         }
-
 
         currentUser && getUsers();
         getSeriesRequest();
@@ -144,17 +164,15 @@ function DetailsPage() {
     //getstars if namn (id) matchar firebase get star rating annars gör ny star rating
     // const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series") : null;
     const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series", "ratings", id.replaceAll('-', ' ').replace(/\./g, '')) : null;
-    const starsRef = doc(db, "Series", "SeriesStars", id.replaceAll('-', ' '), "rating");
 
     async function addEpisode(murloclog, starrating) {
         setPostId(makeid(9));
         let date = Date().toLocaleLowerCase();
         let datelol = new Date();
-        Object.assign(murloclog, starrating, { date: datelol.getTime() / 360000 }, { user: username });
+        Object.assign(murloclog, starrating, { dateseconds: datelol.getTime() / 360000 }, { user: username }, { date: date });
         const logRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "logSeries", postId) : null;
         await setDoc(logRefMurlocMrrrglUpdate, {
             review: murloclog,
-            date: date,
         });
     }
 
@@ -164,21 +182,24 @@ function DetailsPage() {
         const reviewRefUpdated = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "postSeries", postId);
         const reviewRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "postSeries", postId) : null
         let date = Date().toLocaleLowerCase();
-        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: postId }, { date: date }, { seriesname: id.replaceAll('-', ' ') });
+        let datelol = new Date();
+        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: postId }, { date: date }, { seriesname: id.replaceAll('-', ' ') }, { dateseconds: datelol.getTime() / 360000 }, { index: reviewsUpdate.filter(x => x.user === username).length.toString() });
 
         await setDoc(reviewRefUpdated, {
             user: username,
             review: reviewText,
             starrating: starrating,
-            likes: 0,
+            likes: [],
+            comments: [],
             reviewId: postId,
             date: date,
+            dateNumbers: datelol.getTime() / 360000,
             seriesname: id.replaceAll('-', ' '),
             index: reviewsUpdate.filter(x => x.user === username).length.toString(), //index === reviews where(username == sebboseb).length + 1
         });
 
         await setDoc(reviewRefMurlocMrrrglUpdate, {
-            review: murloc
+            review: murloc,
         });
     }
 
@@ -186,38 +207,49 @@ function DetailsPage() {
         let date = new Date();
         let date3 = new Date(reviewDate);
 
-        let murlocMinute = parseInt((Math.abs(date3.getTime() - date.getTime())) / 360000);
+        let murlocMinute = parseInt((Math.abs((date3.getMinutes() - date.getMinutes()))));
         let murlocHour = parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000);
         let murlocDay = parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000 / 24);
         let murlocDayText = (murlocDay + " day ago");
         let murlocDaysText = (murlocDay + " days ago");
         let murlocHourText = (murlocHour + "h ago");
-        let murlocMinuteText = (murlocMinute + "min ago");
+        let murlocMinuteText = (murlocMinute + " min ago");
 
+        if (murlocHour <= 1) { return murlocMinuteText }
         if (murlocDay > 1) { return murlocDaysText }
         if (murlocHour <= 23) { return murlocHourText }
         if (murlocHour >= 24) { return murlocDayText }
-        if (murlocHour === 0) { return murlocMinuteText }
     }
 
     async function changeRating(newRating, name) {
-        setLolmurloc(newRating);
-        Object.assign(succession, { star_rating: newRating }, { user: username });
-        console.log(succession);
-        if ((succession.name).includes(".")) {
-            (succession.name) = (succession.name).replace(/\./g, '');
-            console.log(succession.name);
+
+        if (newRating !== lolmurloc) {
+
+            const starsRef = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "ratings", newRating.toString());
+            const starsRefOld = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "ratings", lolmurloc.toString());
+
+            setLolmurloc(newRating);
+            Object.assign(succession, { star_rating: newRating }, { user: username });
+            console.log(succession);
+            if ((succession.name).includes(".")) {
+                (succession.name) = (succession.name).replace(/\./g, '');
+                console.log(succession.name);
+            }
+
+            setIsInFavourites(true);
+            await setDoc(userDocumentFav, {
+                [succession.name]:
+                    succession,
+            });
+
+            await updateDoc(starsRef, {
+                rating: increment(1)
+            });
+
+            await updateDoc(starsRefOld, {
+                rating: increment(-1)
+            });
         }
-
-        setIsInFavourites(true);
-        await setDoc(userDocumentFav, {
-            [succession.name]:
-                succession,
-        });
-
-        await setDoc(starsRef, {
-
-        })
     }
 
     async function deleteRating() {
@@ -282,6 +314,15 @@ function DetailsPage() {
         });
     }
 
+    async function setNewRatings() {
+        for (let i = 1; i <= 5; i++) {
+            const starsRefFirst = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "ratings", (i).toString());
+            setDoc(starsRefFirst, {
+                rating: 0
+            })
+        }
+    }
+
     return (
         <>
             <div className=" w-screen flex justify-center relative">
@@ -307,11 +348,11 @@ function DetailsPage() {
                                     <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-80 rounded m-1 border-gray-50 border shadow in" alt={succession.name}></img>
                                     {currentUser &&
                                         <div onMouseEnter={e => {
-                                            setStyle({display: 'block'});
+                                            setStyle({ display: 'block' });
                                         }}
-                                        onMouseLeave={e => {
-                                            setStyle({display: 'none'})
-                                        }} className="flex items-center space-x-1 cursor-pointer">
+                                            onMouseLeave={e => {
+                                                setStyle({ display: 'none' })
+                                            }} className="flex items-center space-x-1 cursor-pointer">
                                             <h1 style={style} className="text-white" onClick={() => changeRating(0)}>x</h1>
                                             <StarRatings
                                                 rating={lolmurloc}
@@ -326,8 +367,8 @@ function DetailsPage() {
                                             {
                                                 isInFavourites ?
                                                     <div className=" mt-1">
-                                                    <BsEyeFill size={30} color={"#35A7FF"} onClick={() => deleteRating()} className="text-white"></BsEyeFill></div> :
-                                                    <BsEye onClick={() => changeRating(0)} className="text-white"></BsEye>
+                                                        <BsEyeFill size={30} color={"#35A7FF"} onClick={() => deleteRating()} className="text-white"></BsEyeFill></div> :
+                                                    <BsEye size={30} onClick={() => changeRating(0)} className="text-white mt-1"></BsEye>
                                             }
                                         </div>
                                     }
@@ -338,6 +379,66 @@ function DetailsPage() {
                                             onClick={() => setInputClicked(true)}
                                         >Logga in</button>}
                                         <div onClick={() => setReviewInput(!reviewInput)} className="bg-soofa-orange w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-yellow-600"></div>
+                                    </div>
+                                    <div className="flex items-end gap-1 mt-3">
+                                        <StarRatings
+                                            rating={1}
+                                            starRatedColor="#f59e0b"
+                                            numberOfStars={1}
+                                            starDimension="12px"
+                                            starSpacing="1px"
+                                            changeRating={""}
+                                            name="rating"
+                                            starHoverColor="#f59e0b"
+                                        />
+                                        {stars.length !== 0 && <Chart
+                                            width={90}
+                                            height={45}
+                                            chartType="ColumnChart"
+                                            loader={<div>Loading Chart</div>}
+                                            data={[
+                                                ["Number", "Amount"],
+                                                ["1", stars[0]],
+                                                ["2", stars[1]],
+                                                ["3", stars[2]],
+                                                ["4", stars[3]],
+                                                ["5", stars[4]]
+                                            ]}
+                                            options={{
+                                                chartArea: {
+                                                    top: 0,
+                                                    left: 0,
+                                                    right: 0,
+                                                    bottom: 0
+                                                },
+                                                enableInteractivity: false,
+                                                title: 'Ratings',
+                                                colors: ["#696969"],
+                                                backgroundColor: '#14181C',
+                                                bar: { groupWidth: "95%" },
+                                                hAxis: {
+                                                    title: 'Ratings',
+                                                    minValue: 0,
+                                                },
+                                                vAxis: {
+                                                    ticks: [],
+                                                    title: 'Amount',
+                                                },
+                                            }}
+                                        />}
+                                        <div className="flex flex-col items-center mt-3">
+                                            <h1 className="text-white -mb-3">{ratings.toFixed(1)}</h1>
+                                            <StarRatings
+                                                rating={5}
+                                                starRatedColor="#f59e0b"
+                                                numberOfStars={5}
+                                                starDimension="10px"
+                                                starSpacing="0px"
+                                                changeRating={""}
+                                                name="rating"
+                                                starHoverColor="#f59e0b"
+                                            />
+                                        </div>
                                     </div>
                                     <div className=" flex flex-col text-white">
                                         {/* {ratings !== 0 ? Object.values(ratings).reduce((b, c) => b + c) : null}
@@ -416,7 +517,7 @@ function DetailsPage() {
                                                                     numberOfStars={5}
                                                                     starDimension="14px"
                                                                     starSpacing="0.3px"
-                                                                    changeRating={changeRating}
+                                                                    changeRating={null}
                                                                     name="rating"
                                                                     starHoverColor="#f59e0b"
                                                                 />
@@ -449,7 +550,7 @@ function DetailsPage() {
                                                                         <h1 className="cursor-pointer">
                                                                             {
                                                                                 thingy.likes.find(user => user.user === username) ?
-                                                                                    <BsHeartFill color={"#f59e0b"} onClick={() => deleteLike(thingy.reviewId)}/>
+                                                                                    <BsHeartFill color={"#f59e0b"} onClick={() => deleteLike(thingy.reviewId)} />
                                                                                     : <BsHeart onClick={() => likeReview(thingy.reviewId, thingy.likes)}></BsHeart>
                                                                             }
                                                                         </h1>

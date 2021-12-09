@@ -31,7 +31,7 @@ function RecentActivity() {
                 let murlocdata = Object.values(qk.docs.map(doc => doc.data()));
                 let murlocdatalol = Object.values(qklol.docs.map(doc => doc.data()));
                 console.log(murlocdata)
-                setFeed(prevFollowed => prevFollowed.concat(murlocdata, murlocdatalol));
+                setFeed(prevFollowed => prevFollowed.concat(murlocdata, murlocdatalol).sort((b, c) => parseFloat(c.review.dateseconds) - parseFloat(b.review.dateseconds)));
             }
         }
 
@@ -42,20 +42,18 @@ function RecentActivity() {
         let date = new Date();
         let date3 = new Date(reviewDate);
 
-        console.log(parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000));
-        let murlocMinute = parseInt((Math.abs(date3.getTime() - date.getTime())) / 360000);
+        let murlocMinute = parseInt((Math.abs((date3.getMinutes() - date.getMinutes()))));
         let murlocHour = parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000);
         let murlocDay = parseInt((Math.abs(date3.getTime() - date.getTime())) / 3600000 / 24);
-        console.log(murlocDay);
         let murlocDayText = (murlocDay + " day ago");
         let murlocDaysText = (murlocDay + " days ago");
         let murlocHourText = (murlocHour + "h ago");
-        let murlocMinuteText = (murlocMinute + "min ago");
+        let murlocMinuteText = (murlocMinute + " min ago");
 
+        if (murlocHour <= 1) { return murlocMinuteText }
         if (murlocDay > 1) { return murlocDaysText }
         if (murlocHour <= 23) { return murlocHourText }
         if (murlocHour >= 24) { return murlocDayText }
-        if (murlocHour <= 1) { return murlocMinuteText }
     }
 
     return (
