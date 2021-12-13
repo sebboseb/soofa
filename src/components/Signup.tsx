@@ -3,7 +3,6 @@
 import React, {useRef} from 'react';
 import '../index.css';
 import { useAuth } from './contexts/AuthContext';
-import { useHistory } from 'react-router-dom';
 
 export default function Signup() {
 
@@ -12,7 +11,6 @@ export default function Signup() {
     const usernameRef = useRef() as React.MutableRefObject<HTMLInputElement>;
     // const passwordConfirmRef = useRef() as React.MutableRefObject<HTMLInputElement>;
     const {signup} = useAuth();
-    const history = useHistory();
 
     async function handleSubmit(e: any) {
         e.preventDefault();

@@ -17,7 +17,6 @@ function PersonReview() {
 
     const [review, setReview] = useState([]);
     const [query, setQuery] = useState("");
-    const [postId, setPostId] = useState(makeid(9));
     const [succession, setSuccession] = useState([]);
     const [username, setUsername] = useState("");
 
@@ -40,7 +39,7 @@ function PersonReview() {
         }
 
         getReview();
-    }, []);
+    }, [currentUser.uid, id, indexId, profileId]);
 
     const onChange = (e) => {
         e.preventDefault();
@@ -62,8 +61,9 @@ function PersonReview() {
     async function commentReview(reviewId) {
         setPostId(makeid(9))
         const commentReviewref = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "postSeries", reviewId);
+        let date = Date().toLocaleLowerCase();
         await updateDoc(commentReviewref, {
-            comments: arrayUnion({ comment: query, user: username }),
+            comments: arrayUnion({ comment: query, user: username, datecomment: date }),
         });
     }
 
@@ -151,7 +151,7 @@ function PersonReview() {
                                             <li className="flex">{comment.user.charAt(0).toUpperCase() + comment.user.slice(1)}</li>
                                             <span className="ml-16">{comment.comment}</span>
                                         </div>
-                                        <h1>{sortArray(review.date)}</h1>
+                                        <h1>{sortArray(comment.datecomment)}</h1>
                                     </div>
                                 ))}
                             </div>

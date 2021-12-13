@@ -17,8 +17,6 @@ function EpisodeLore() {
     const { currentUser } = useAuth();
     
 
-    const [season, setSeason] = useState([]);
-    const [episodes, setEpisodes] = useState([]);
     const [isInFavourites, setIsInFavourites] = useState(false);
     const [postId, setPostId] = useState(makeid(9));
     const [reviewInput, setReviewInput] = useState(false);
@@ -34,7 +32,7 @@ function EpisodeLore() {
 
             currentUser && db.collection("User").doc(currentUser.uid).collection("Favourites").doc("Episode").get().then(doc => {
                 if (doc.data()) {
-                    // setIsInFavourites(true);
+                    setIsInFavourites(true);
                     if (doc.data()[id.replaceAll('-', ' ') + " " + episodeLoreList.name]) {
                         if (doc.data()[id.replaceAll('-', ' ') + " " + episodeLoreList.name]["star_rating"]) {
                             console.log(doc.data()[id.replaceAll('-', ' ') + " " + episodeLoreList.name]["star_rating"]);
@@ -43,7 +41,7 @@ function EpisodeLore() {
                     }
                 }
                 else {
-                    // setIsInFavourites(false);
+                    setIsInFavourites(false);
                     setLolmurloc(0);
                     console.log("lol");
                 }
@@ -120,21 +118,6 @@ function EpisodeLore() {
         // await setDoc(starsRef, {
 
         // })
-    }
-
-    async function deleteRating() {
-        setLolmurloc(0);
-        if (isInFavourites) {
-            await updateDoc(userDocumentFav, {
-                [id.replaceAll('-', ' ') + " " + episode.name]:
-                    deleteField(),
-            });
-        } else {
-            await setDoc(userDocumentFav, {
-                [id.replaceAll('-', ' ') + " " + episode.name]:
-                    deleteField(),
-            });
-        }
     }
 
     const onChange = (e) => {

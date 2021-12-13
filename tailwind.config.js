@@ -30,6 +30,9 @@ module.exports = {
         'youtube-white-bg': '#F9F9F9',
         'soofa-blue': '#016BA5'
       },
+      width: {
+        'poster-width': '212px'
+      },
       height: {
         'extra-height': '500px'
       },
@@ -40,7 +43,12 @@ module.exports = {
     },
   },
   variants: {
-    extend: {},
+    extend: {
+      padding: ['hover'],
+      margin: ['hover'],
+      boxSizing: ['hover'],
+      borderWidth: ['hover']
+    },
   },
   plugins: [],
 }

@@ -1,5 +1,5 @@
-export async function getPopularRequest() {
-    const url = "https://api.themoviedb.org/3/tv/popular?api_key=e333684dcb3e9eac6a70505572519a23&language=sv-SE";
+export async function getPopularRequest(page: number) {
+    const url = `https://api.themoviedb.org/3/tv/popular?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US&page=${page}`;
     const response = await fetch(url);
     const responseJson = await response.json();
     const seriesResults = responseJson.results;
@@ -101,7 +101,7 @@ export async function getEpisodeRequest(id: any, seasonNr: any, episodeNr: any) 
 }
 
 export async function getYearRequest() {
-    const url = `https://api.themoviedb.org/3/search/tv?api_key=e333684dcb3e9eac6a70505572519a23&query=m&year=2013`;
+    const url = `https://api.themoviedb.org/3/search/tv?api_key=e333684dcb3e9eac6a70505572519a23&query=m&year=2019`;
     const responseSolo = await fetch(url);
     const responseSoloJson = await responseSolo.json();
     const personSearchList = responseSoloJson.results;

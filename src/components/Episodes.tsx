@@ -68,7 +68,7 @@ function Episodes() {
         }
 
         getSeriesRequest();
-    }, [currentUser, id, seasonId]);
+    }, [currentUser, id, seasonId, minusNumber]);
 
     function makeid(length) {
         var result = '';
@@ -144,21 +144,6 @@ function Episodes() {
         // await setDoc(starsRef, {
 
         // })
-    }
-
-    async function deleteRating() {
-        setLolmurloc(0);
-        if (isInFavourites) {
-            await updateDoc(userDocumentFav, {
-                [id.replaceAll('-', ' ') + " " + season[seasonId - minusNumber].name]:
-                    deleteField(),
-            });
-        } else {
-            await setDoc(userDocumentFav, {
-                [id.replaceAll('-', ' ') + " " + season[seasonId - minusNumber].name]:
-                    deleteField(),
-            });
-        }
     }
 
     const onChange = (e) => {

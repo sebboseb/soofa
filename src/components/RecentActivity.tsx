@@ -1,7 +1,6 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { useAuth } from './contexts/AuthContext';
 import { Link, useParams } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
 
@@ -10,7 +9,6 @@ function RecentActivity() {
 
     const { profileId, activityId } = useParams();
 
-    const { currentUser } = useAuth();
     const [feed, setFeed] = useState([]);
     const [currentUid, setCurrentUid] = useState("");
 
@@ -36,7 +34,7 @@ function RecentActivity() {
         }
 
         getUsers();
-    }, [currentUid, activityId]);
+    }, [currentUid, activityId, profileId]);
 
     function sortArray(reviewDate) {
         let date = new Date();
@@ -85,10 +83,10 @@ function RecentActivity() {
                                                 <Link to={`/${thingy.review.user}`}>
                                                     <span className=" dark:text-white">{thingy.review.user} </span>
                                                 </Link>
-                                                watched
+                                                {thingy.review.liked === true ? <span>watched and liked</span> : <span>watched</span>}
                                                 <Link to={activityId === "series" ? `/series/${thingy.review.name}` : activityId === "season" ? `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episodes` : `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episode/${thingy.review.episode_number}`}>
                                                     <h1 className=" text-xl dark:text-white">
-                                                        {activityId === "series" ? `${thingy.review.name}` : activityId === "season" ? `${thingy.review.seriesname}` + " " + `${thingy.review.name}` : `${thingy.review.name}`}
+                                                        {activityId === "series" ? `${thingy.review.name}` : activityId === "season" ? `${thingy.review.seriesname} ${thingy.review.name}` : `${thingy.review.name}`}
                                                     </h1>
                                                 </Link>
                                                 <div className="-mt-1 -ml-1">

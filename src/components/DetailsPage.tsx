@@ -7,11 +7,10 @@ import { getCreditsRequest, getSeasonsRequest, getSearchRequest } from './utils/
 import { db } from '../firebase';
 import { doc, updateDoc, setDoc, deleteDoc, arrayUnion, arrayRemove, increment } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
-import Tilt from 'react-parallax-tilt';
 import LoginPage from './LoginPage';
 import Review from './Review';
 import { FaCommentAlt } from 'react-icons/fa';
-import { BsHeart, BsHeartFill, BsEye, BsEyeFill } from 'react-icons/bs';
+import { BsHeart, BsHeartFill, BsEye, BsEyeFill, BsCollection, BsCollectionFill } from 'react-icons/bs';
 import Chart from "react-google-charts";
 
 function DetailsPage() {
@@ -26,7 +25,7 @@ function DetailsPage() {
     const [isInFavourites, setIsInFavourites] = useState(false);
     const [username, setUsername] = useState([]);
     const [inputClicked, setInputClicked] = useState(false);
-    const [reviews, setReviews] = useState([]);
+    // const [reviews, setReviews] = useState([]);
     const [reviewInput, setReviewInput] = useState(false);
     const [query, setQuery] = useState("");
     const [postId, setPostId] = useState(makeid(9));
@@ -37,6 +36,8 @@ function DetailsPage() {
     const [style, setStyle] = useState({ display: 'none' });
     const [ratings, setRatings] = useState(0);
     const [stars, setStars] = useState([]);
+    const [likedSeries, setLikedSeries] = useState(false);
+    const [isInWatchlist, setIsInWatchlist] = useState(false);
     // const [average, setAverage] = useState([]);
 
     useEffect(() => {
@@ -52,6 +53,9 @@ function DetailsPage() {
                             setLolmurloc(doc.data()[id.replaceAll('-', ' ')]["star_rating"]);
                         }
                     }
+                    // const likedSnapshot = await db.collection('User').doc(currentUser.uid).collection("Favourites").doc("Series").collection("ratings").doc(id.replaceAll('-', ' ')).get();
+                    // console.log(likedSnapshot.data()[id.replaceAll('-', ' ')]['liked']);
+                    setLikedSeries(doc.data()[id.replaceAll('-', ' ')]['liked']);
                 }
                 else {
                     setIsInFavourites(false);
@@ -66,6 +70,17 @@ function DetailsPage() {
                 }
                 else {
                     setNewRatings();
+                }
+            });
+
+            db.collection("User").doc(currentUser.uid).collection("Watchlist").doc("Series").collection("ratings").doc(id.replaceAll('-', ' ')).get().then(doc => {
+                if (doc.exists) {
+                    console.log("In watchlist");
+                    setIsInWatchlist(true);
+                }
+                else {
+                    console.log("Not in watchlist");
+                    setIsInWatchlist(false);
                 }
             });
 
@@ -114,14 +129,14 @@ function DetailsPage() {
             console.log(castingList);
             console.log(castingList.crew);
 
-            const snapshot = await db.collection("Posts").doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).get();
-            if (snapshot.data()) {
-                console.log(snapshot.data());
-                let murlocdata = Object.values(snapshot.data());
-                const murl = murlocdata.sort((b, c) => b.date - c.date);
-                setReviews(murl);
-                // setReviews(snapshot.docs.map(doc => doc.data()));
-            }
+            // const snapshot = await db.collection("Posts").doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).get();
+            // if (snapshot.data()) {
+            //     console.log(snapshot.data());
+            //     let murlocdata = Object.values(snapshot.data());
+            //     const murl = murlocdata.sort((b, c) => b.date - c.date);
+            //     setReviews(murl);
+            //     // setReviews(snapshot.docs.map(doc => doc.data()));
+            // }
 
             const qk = await db.collection('Posts').doc(id).collection("userPosts").doc("Logs").get();
             console.log(qk.data());
@@ -144,6 +159,10 @@ function DetailsPage() {
             // console.log(starsTotal / starsAverage);
             let star = (starsTotal / starsAverage)
             star && setRatings(star);
+
+            // const likedSnapshot = await db.collection('User').doc(currentUser.uid).collection("Favourites").doc("Series").collection("ratings").doc(id.replaceAll('-', ' ')).get();
+            // // console.log(likedSnapshot.data()[id.replaceAll('-', ' ')]['liked']);
+            // setLikedSeries(likedSnapshot.data()[id.replaceAll('-', ' ')]['liked']);
         }
 
         currentUser && getUsers();
@@ -164,12 +183,19 @@ function DetailsPage() {
     //getstars if namn (id) matchar firebase get star rating annars gör ny star rating
     // const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series") : null;
     const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Series", "ratings", id.replaceAll('-', ' ').replace(/\./g, '')) : null;
+    const userDocumentWatchlist = currentUser ? doc(db, "User", currentUser.uid, "Watchlist", "Series", "ratings", id.replaceAll('-', ' ').replace(/\./g, '')) : null;
 
     async function addEpisode(murloclog, starrating) {
         setPostId(makeid(9));
         let date = Date().toLocaleLowerCase();
         let datelol = new Date();
-        Object.assign(murloclog, starrating, { dateseconds: datelol.getTime() / 360000 }, { user: username }, { date: date });
+        Object.assign(murloclog, starrating,
+            { dateseconds: datelol.getTime() / 360000 },
+            { user: username },
+            { date: date },
+            { index: reviewsUpdate.filter(x => x.user === username).length.toString() },
+            { liked: likedSeries }
+        );
         const logRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "logSeries", postId) : null;
         await setDoc(logRefMurlocMrrrglUpdate, {
             review: murloclog,
@@ -183,7 +209,17 @@ function DetailsPage() {
         const reviewRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "postSeries", postId) : null
         let date = Date().toLocaleLowerCase();
         let datelol = new Date();
-        Object.assign(murloc, { review: reviewText }, { star_rating: starrating }, { user: username }, { postId: postId }, { date: date }, { seriesname: id.replaceAll('-', ' ') }, { dateseconds: datelol.getTime() / 360000 }, { index: reviewsUpdate.filter(x => x.user === username).length.toString() });
+        Object.assign(murloc,
+            { review: reviewText },
+            { star_rating: starrating },
+            { user: username },
+            { postId: postId },
+            { date: date },
+            { seriesname: id.replaceAll('-', ' ') },
+            { dateseconds: datelol.getTime() / 360000 },
+            { index: reviewsUpdate.filter(x => x.user === username).length.toString() },
+            { liked: likedSeries }
+        );
 
         await setDoc(reviewRefUpdated, {
             user: username,
@@ -196,6 +232,7 @@ function DetailsPage() {
             dateNumbers: datelol.getTime() / 360000,
             seriesname: id.replaceAll('-', ' '),
             index: reviewsUpdate.filter(x => x.user === username).length.toString(), //index === reviews where(username == sebboseb).length + 1
+            liked: likedSeries,
         });
 
         await setDoc(reviewRefMurlocMrrrglUpdate, {
@@ -223,70 +260,70 @@ function DetailsPage() {
 
     async function changeRating(newRating, name) {
 
-        if (newRating !== lolmurloc) {
+        // if (newRating !== lolmurloc) {
 
-            const starsRef = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "ratings", newRating.toString());
-            const starsRefOld = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "ratings", lolmurloc.toString());
+        const starsRef = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "ratings", newRating.toString());
+        const starsRefOld = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "ratings", lolmurloc.toString());
 
-            setLolmurloc(newRating);
-            Object.assign(succession, { star_rating: newRating }, { user: username });
-            console.log(succession);
-            if ((succession.name).includes(".")) {
-                (succession.name) = (succession.name).replace(/\./g, '');
-                console.log(succession.name);
-            }
-
-            setIsInFavourites(true);
-            await setDoc(userDocumentFav, {
-                [succession.name]:
-                    succession,
-            });
-
-            await updateDoc(starsRef, {
-                rating: increment(1)
-            });
-
-            await updateDoc(starsRefOld, {
-                rating: increment(-1)
-            });
+        setLolmurloc(newRating);
+        Object.assign(succession, { star_rating: newRating }, { user: username });
+        console.log(succession);
+        if ((succession.name).includes(".")) {
+            (succession.name) = (succession.name).replace(/\./g, '');
+            console.log(succession.name);
         }
+
+        setIsInFavourites(true);
+        await setDoc(userDocumentFav, {
+            [succession.name]:
+                succession,
+        });
+
+        await updateDoc(starsRef, {
+            rating: increment(1)
+        });
+
+        await updateDoc(starsRefOld, {
+            rating: increment(-1)
+        });
+        // }
     }
 
     async function deleteRating() {
         setLolmurloc(0);
         if (isInFavourites) {
-            await deleteDoc(userDocumentFav)
+            await deleteDoc(userDocumentFav);
             setIsInFavourites(false);
         }
     }
 
     if (hasSpecial) {
-        for (let i = 0; i <= 20; i++) {
+        for (let i = 0; i <= season.length; i++) {
             (season[i] && (season[i].name !== "Specials")) &&
                 seasonsLOL.push(
                     <Link key={season[i].id} to={{
                         pathname: `/${id}/season-${i}/episodes`,
                     }}>
-                        <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
-                            <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
-                                <img src={`https://image.tmdb.org/t/p/original${season[i].poster_path}`} className=" rounded" alt={season[i].name}></img>
-                            </li>
-                        </Tilt>
+                        {/* <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}> */}
+                        <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white border border-white">
+                            <img src={season[i].poster_path !== null ? `https://image.tmdb.org/t/p/original${season[i].poster_path}` : `https://image.tmdb.org/t/p/original${succession.poster_path}`} className=" rounded" alt={season[i].name}></img>
+                        </li>
+                        {/* </Tilt> */}
                     </Link>
                 )
         }
     } else {
-        for (let i = 0; i <= 20; i++) {
+        for (let i = 0; i <= season.length + 1; i++) {
             season[i - 1] &&
                 seasonsLOL.push(
                     <Link key={season[i - 1].id} to={{
                         pathname: `/${id}/season-${season[i - 1].season_number}/episodes`,
                     }}>
-                        <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
-                            <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
-                                <img src={`https://image.tmdb.org/t/p/original${season[i - 1].poster_path}`} className=" rounded" alt={season[i - 1].name}></img>
-                            </li>
-                        </Tilt>
+                        {/* <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}> */}
+                        <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white border border-white">
+                            <img src={season[i - 1].poster_path !== null ? `https://image.tmdb.org/t/p/original${season[i - 1].poster_path}` : `https://image.tmdb.org/t/p/original${succession.poster_path}`} className=" rounded" alt={season[i - 1].name}></img>
+                        </li>
+                        {/* </Tilt> */}
                     </Link>
                 )
         }
@@ -323,6 +360,39 @@ function DetailsPage() {
         }
     }
 
+    async function likeSeries() {
+        if (!isInFavourites) {
+            changeRating(0);
+        }
+
+        if (!likedSeries) {
+            setLikedSeries(true);
+            await setDoc(userDocumentFav, {
+                [succession.name]:
+                    { liked: true }
+            }, { merge: true });
+        } else {
+            setLikedSeries(false);
+            await setDoc(userDocumentFav, {
+                [succession.name]:
+                    { liked: false }
+            }, { merge: true });
+        }
+    }
+
+    async function addToWatchlist() {
+        if (!isInWatchlist) {
+            await setDoc(userDocumentWatchlist, {
+                [succession.name]:
+                    succession,
+            });
+            setIsInWatchlist(true);
+        } else {
+            await deleteDoc(userDocumentWatchlist);
+            setIsInWatchlist(false);
+        }
+    }
+
     return (
         <>
             <div className=" w-screen flex justify-center relative">
@@ -346,41 +416,60 @@ function DetailsPage() {
                             <div className="flex flex-col items-center">
                                 <div className=" sticky top-10 flex flex-col items-center">
                                     <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-80 rounded m-1 border-gray-50 border shadow in" alt={succession.name}></img>
-                                    {currentUser &&
-                                        <div onMouseEnter={e => {
-                                            setStyle({ display: 'block' });
-                                        }}
-                                            onMouseLeave={e => {
-                                                setStyle({ display: 'none' })
-                                            }} className="flex items-center space-x-1 cursor-pointer">
-                                            <h1 style={style} className="text-white" onClick={() => changeRating(0)}>x</h1>
-                                            <StarRatings
-                                                rating={lolmurloc}
-                                                starRatedColor="#f59e0b"
-                                                numberOfStars={5}
-                                                starDimension="24px"
-                                                starSpacing="1px"
-                                                changeRating={changeRating}
-                                                name="rating"
-                                                starHoverColor="#f59e0b"
-                                            />
-                                            {
-                                                isInFavourites ?
-                                                    <div className=" mt-1">
-                                                        <BsEyeFill size={30} color={"#35A7FF"} onClick={() => deleteRating()} className="text-white"></BsEyeFill></div> :
-                                                    <BsEye size={30} onClick={() => changeRating(0)} className="text-white mt-1"></BsEye>
-                                            }
+                                    <div className="flex flex-col bg-gray-800 rounded items-center w-poster-width p-3 mt-2 shadow">
+                                        {currentUser &&
+                                            <div className="flex flex-col items-center">
+                                                <div className="flex items-center justify-center gap-x-7 cursor-pointer">
+                                                    {
+                                                        isInFavourites ?
+                                                            <div className=" mt-1">
+                                                                <BsEyeFill size={35} color={"#35A7FF"} onClick={() => deleteRating()} className="text-white"></BsEyeFill></div> :
+                                                            <BsEye size={35} onClick={() => changeRating(0)} className="text-white mt-1"></BsEye>
+                                                    }
+                                                    {
+                                                        likedSeries ?
+                                                            <div className=" mt-1">
+                                                                <BsHeartFill size={30} color={"#f59e0b"} onClick={() => likeSeries()} className="text-white"></BsHeartFill></div> :
+                                                            <BsHeart onClick={() => likeSeries()} size={35} className="text-white mt-1"></BsHeart>
+                                                    }
+                                                    {
+                                                        isInWatchlist ?
+                                                            <div className=" mt-1">
+                                                                <BsCollectionFill size={35} onClick={() => addToWatchlist()} className="text-white"></BsCollectionFill></div> :
+                                                            <BsCollection onClick={() => addToWatchlist()} size={35} className="text-white mt-1"></BsCollection>
+                                                    }
+                                                </div>
+                                                <div onMouseEnter={e => {
+                                                    setStyle({ display: 'block' });
+                                                }}
+                                                    onMouseLeave={e => {
+                                                        setStyle({ display: 'none' })
+                                                    }} className="flex items-center space-x-1 cursor-pointer border-t pt-3 border-gray-600 my-3 w-full justify-center">
+                                                    <h1 style={style} className="text-white" onClick={() => changeRating(0)}>x</h1>
+                                                    <StarRatings
+                                                        rating={lolmurloc}
+                                                        starRatedColor="#f59e0b"
+                                                        numberOfStars={5}
+                                                        starDimension="30px"
+                                                        starSpacing="1px"
+                                                        changeRating={changeRating}
+                                                        name="rating"
+                                                        starHoverColor="#f59e0b"
+                                                    />
+                                                </div>
+                                            </div>
+                                        }
+                                        <div className={currentUser ? "flex space-x-1 border-t border-gray-600 pt-3" : "flex space-x-1 -mt-1"}>
+                                            {currentUser ? <button className=" w-32 h-12 bg bg-soofa-orange rounded shadow hover:bg-yellow-600 dark:text-white font-semibold mt-2"
+                                                onClick={() => addEpisode(succession, { star_rating: lolmurloc })}
+                                            >Log</button> : <button className=" w-32 h-12 bg-soofa-orange rounded shadow hover:bg-yellow-600 dark:text-white font-semibold mt-2"
+                                                onClick={() => setInputClicked(true)}
+                                            >Log in</button>}
+                                            <div onClick={() => setReviewInput(!reviewInput)} className="bg-soofa-orange w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-yellow-600"></div>
                                         </div>
-                                    }
-                                    <div className="flex space-x-1">
-                                        {currentUser ? <button className=" w-32 h-12 bg bg-soofa-orange rounded shadow hover:bg-yellow-600 dark:text-white font-semibold mt-2"
-                                            onClick={() => addEpisode(succession, { star_rating: lolmurloc })}
-                                        >Logga</button> : <button className=" w-32 h-12bg-green-500 rounded shadow hover:bg-yellow-600 dark:text-white font-semibold mt-2"
-                                            onClick={() => setInputClicked(true)}
-                                        >Logga in</button>}
-                                        <div onClick={() => setReviewInput(!reviewInput)} className="bg-soofa-orange w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-yellow-600"></div>
                                     </div>
-                                    <div className="flex items-end gap-1 mt-3">
+                                    <h1 className=" text-white border-b mt-3 pb-0.5 border-gray-400 w-poster-width">Ratings</h1>
+                                    <div className="flex items-end gap-1 mt-3 ">
                                         <StarRatings
                                             rating={1}
                                             starRatedColor="#f59e0b"
@@ -391,41 +480,43 @@ function DetailsPage() {
                                             name="rating"
                                             starHoverColor="#f59e0b"
                                         />
-                                        {stars.length !== 0 && <Chart
-                                            width={90}
-                                            height={45}
-                                            chartType="ColumnChart"
-                                            loader={<div>Loading Chart</div>}
-                                            data={[
-                                                ["Number", "Amount"],
-                                                ["1", stars[0]],
-                                                ["2", stars[1]],
-                                                ["3", stars[2]],
-                                                ["4", stars[3]],
-                                                ["5", stars[4]]
-                                            ]}
-                                            options={{
-                                                chartArea: {
-                                                    top: 0,
-                                                    left: 0,
-                                                    right: 0,
-                                                    bottom: 0
-                                                },
-                                                enableInteractivity: false,
-                                                title: 'Ratings',
-                                                colors: ["#696969"],
-                                                backgroundColor: '#14181C',
-                                                bar: { groupWidth: "95%" },
-                                                hAxis: {
+                                        {
+                                            stars.length !== 0 && <Chart
+                                                width={90}
+                                                height={45}
+                                                chartType="ColumnChart"
+                                                loader={<div>Loading Chart</div>}
+                                                data={[
+                                                    ["Number", "Amount"],
+                                                    ["1", stars[0]],
+                                                    ["2", stars[1]],
+                                                    ["3", stars[2]],
+                                                    ["4", stars[3]],
+                                                    ["5", stars[4]]
+                                                ]}
+                                                options={{
+                                                    chartArea: {
+                                                        top: 0,
+                                                        left: 0,
+                                                        right: 0,
+                                                        bottom: 0
+                                                    },
+                                                    enableInteractivity: false,
                                                     title: 'Ratings',
-                                                    minValue: 0,
-                                                },
-                                                vAxis: {
-                                                    ticks: [],
-                                                    title: 'Amount',
-                                                },
-                                            }}
-                                        />}
+                                                    colors: ["#696969"],
+                                                    backgroundColor: '#14181C',
+                                                    bar: { groupWidth: "95%" },
+                                                    hAxis: {
+                                                        title: 'Ratings',
+                                                        minValue: 0,
+                                                    },
+                                                    vAxis: {
+                                                        ticks: [],
+                                                        title: 'Amount',
+                                                    },
+                                                }}
+                                            />
+                                        }
                                         <div className="flex flex-col items-center mt-3">
                                             <h1 className="text-white -mb-3">{ratings.toFixed(1)}</h1>
                                             <StarRatings
@@ -459,22 +550,21 @@ function DetailsPage() {
                                 </div>
                             </div>
                             <div className="flex flex-col max-w-4xl px-14">
-                                <div className="flex items-end">
-                                    <div className="flex space-x-4 items-end">
-                                        <h1 className=" dark:text-white font-semibold mt-1 mb-7 text-3xl">{succession.name}</h1>
-                                        <h1 className=" dark:text-gray-500 font-semibold mb-7 text-md"><u>{succession.first_air_date && succession.first_air_date.split('-')[0]}</u></h1>
-                                        <h1 className=" dark:text-white font-semibold mb-7 text-md">
-                                            <ul className="flex">
-                                                {
-                                                    (crewList.filter(kuk => kuk.department === 'Directing')).map((directors) => (
-                                                        <Link to={{
-                                                            pathname: `/director/${(directors.name).replace(/\s/g, '-')}`,
-                                                        }}><li className="hover:text-gray-300 cursor-pointer"><u>{directors.name}</u>&nbsp;</li>
-                                                        </Link>
-                                                    ))
-                                                }
-                                            </ul>
-                                        </h1></div>
+                                <div className="flex items-end flex-wrap">
+                                    <div className="flex gap-x-3 items-end flex-wrap mb-7 max-w-lg">
+                                        <h1 className=" dark:text-white font-semibold mt-1 text-3xl">{succession.name}</h1>
+                                        <h1 className=" dark:text-gray-500 font-semibold text-md"><u>{succession.first_air_date && succession.first_air_date.split('-')[0]}</u></h1>
+                                        {
+                                            (crewList.filter(kuk => kuk.department === 'Directing')).map((directors) => (
+
+                                                <Link className="whitespace-nowrap" to={{
+                                                    pathname: `/director/${(directors.name).replace(/\s/g, '-')}`,
+                                                }}>
+                                                    <span className="hover:text-gray-300 cursor-pointer text-white"><u>{directors.name}</u>&nbsp;</span>
+                                                </Link>
+                                            ))
+                                        }
+                                    </div>
                                 </div>
                                 <p className=" dark:text-gray-300 font-semibold pb-4 max-w-xl">{succession.overview}</p>
                                 <div className="flex max-w-3xl justify-center">
@@ -527,11 +617,12 @@ function DetailsPage() {
                                                 </div>
                                             </div>
                                         </li>
-                                    </ul>}
+                                    </ul>
+                                    }
                                     <div className="flex justify-center">
                                         {reviewsUpdate.length !== 0 ?
                                             <ul className="space-y-4 max-w-xl w-screen mt-16">
-                                                <div className="flex justify-between dark:text-white">
+                                                <div className="flex justify-between dark:text-white border-b border-white pb-2">
                                                     <h1>Popular Reviews</h1>
                                                     <Link to={{
                                                         pathname: `/reviews/${id.replace(/\s/g, '-')}`,
@@ -541,7 +632,7 @@ function DetailsPage() {
                                                 </div>
                                                 {reviewsUpdate.map((thingy, index) => (
                                                     index <= 40 &&
-                                                    <li className=" dark:text-white border-t dark:border-white border-black">
+                                                    <li className=" dark:text-white border-b dark:border-gray-600 border-black pb-1">
                                                         <div className="flex justify-between mt-4">
                                                             <div className="flex">
                                                                 <div className="flex flex-col">
@@ -561,7 +652,7 @@ function DetailsPage() {
                                                             <div className="flex flex-col">
                                                                 {sortArray(thingy.date)}
                                                                 <div className="flex justify-end mt-8">
-                                                                    <Link to={`/${thingy.user}/${thingy.seriesname}/${thingy.index}/`} className="flex items-center">
+                                                                    <Link to={`/${thingy.user}/${thingy.seriesname && (thingy.seriesname).replaceAll(' ', '-')}/${thingy.index}/`} className="flex items-center">
                                                                         <h1 className="mb-1 mr-1">{thingy.comments && thingy.comments.length}</h1>
                                                                         <FaCommentAlt />
                                                                     </Link></div>

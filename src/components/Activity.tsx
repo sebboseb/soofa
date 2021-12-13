@@ -36,7 +36,7 @@ function Activity() {
         }
 
         getUsers();
-    }, [currentUser.uid, activityId]);
+    }, [currentUser.uid, activityId, currentUser]);
     //
     function sortArray(reviewDate) {
         let date = new Date();
@@ -85,12 +85,14 @@ function Activity() {
                                                 <Link to={`/${thingy.review.user}`}>
                                                     <span className=" dark:text-white">{thingy.review.user} </span>
                                                 </Link>
-                                                watched
-                                                <Link to={activityId === "series" ? `/series/${thingy.review.name}` : activityId === "season" ? `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episodes` : `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episode/${thingy.review.episode_number}`}>
+                                                {thingy.review.liked === true ? <span>watched and liked</span> : <span>watched</span>}
+                                                {thingy.review.review === undefined ? <Link to={activityId === "series" ? `/series/${thingy.review.name}` : activityId === "season" ? `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episodes` : `/${thingy.review.seriesname}/season-${thingy.review.season_number}/episode/${thingy.review.episode_number}`}>
                                                     <h1 className=" text-xl dark:text-white">
-                                                        {activityId === "series" ? `${thingy.review.name}` : activityId === "season" ? `${thingy.review.seriesname}` + " " + `${thingy.review.name}` : `${thingy.review.name}`}
+                                                        {activityId === "series" ? `${thingy.review.name}` : activityId === "season" ? `${thingy.review.seriesname} ${thingy.review.name}` : `${thingy.review.name}`}
                                                     </h1>
-                                                </Link>
+                                                </Link> : <Link to={`/${thingy.review.user}/${thingy.review.seriesname && thingy.review.seriesname.replaceAll(' ', '-')}/${thingy.review.index}/`}><h1 className=" text-xl dark:text-white">
+                                                    {activityId === "series" ? `${thingy.review.name}` : activityId === "season" ? `${thingy.review.seriesname} ${thingy.review.name}` : `${thingy.review.name}`}
+                                                </h1></Link>}
                                                 <div className="-mt-1 -ml-1">
                                                     <StarRatings
                                                         rating={thingy.review.star_rating}

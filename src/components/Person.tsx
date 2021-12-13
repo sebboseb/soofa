@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 function Person() {
 
-    const { knownforId, actorId } = useParams();
+    const { actorId } = useParams();
 
     const [person, setPerson] = useState([]);
     const [profile, setProfile] = useState([]);
@@ -51,7 +51,7 @@ function Person() {
             } */}
             <div className="flex flex-wrap">
                 {
-                    person.filter(Boolean).map((thingy, index) => (
+                    person.sort((b,c) => c.popularity - b.popularity).filter(Boolean).map((thingy, index) => (
                         thingy.poster_path &&
                         <div className="p-1 flex flex-col items-center w-44">
                             <Link to={{

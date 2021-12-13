@@ -1,6 +1,6 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
-import { Link, useHistory, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import Dropdown from './Dropdown';
 import { useAuth } from './contexts/AuthContext';
 import { db } from '../firebase';
@@ -13,13 +13,12 @@ function MainPageNavbar() {
 
     const [username, setUsername] = useState("");
     const { currentUser } = useAuth();
-    const [error, setError] = useState("");
     // const [clicked, setClicked] = useState(false);
     const [inputClicked, setInputClicked] = useState(true);
     const [bgcolor, setBgcolor] = useState("")
 
     useEffect(() => {
-        setBgcolor((location.pathname).includes("/series/") ? "bg-gradient-to-b from-youtube-white-bg dark:bg-transparent dark:bg-gradient-to-b dark:from-transparent" : "letterboxd-navbar-bg");
+        setBgcolor((location.pathname).includes("/series/") || (location.pathname) === "/" ? "bg-gradient-to-b from-youtube-white-bg dark:bg-transparent dark:bg-gradient-to-b dark:from-transparent" : "bg-letterboxd-navbar-bg");
 
         const getUsers = async () => {
             currentUser && db.collection("User").doc(currentUser.uid).get().then(doc => {
@@ -34,7 +33,6 @@ function MainPageNavbar() {
 
     return (
         <>
-            {error}
             <div className="flex w-screen justify-center">
                 <div className={` w-full max-w-7xl bg-transparent h-16 z-50 relative flex items-center ${bgcolor}`}>
                     <div className="flex justify-end w-full max-w-6xl items-center h-16 absolute">
@@ -59,7 +57,7 @@ function MainPageNavbar() {
                             </div>
                             {/* {currentUser ? null : <h1 onClick={() => {setClicked(true)}} className="font-semibold text-white text-xl">Create account</h1>} */}
                             {currentUser ? null : <Modal></Modal>}
-                            <Link to="/dashboard"><h1 className="font-semibold dark:text-white text-xl">Series</h1></Link>
+                            <Link to="/dashboard/page/1"><h1 className="font-semibold dark:text-white text-xl">Series</h1></Link>
                             {currentUser && <Link to="/activity/series" className="font-semibold dark:text-white text-xl">Activity</Link>}
                             <Link to="/users"><h1 className="font-semibold dark:text-white text-xl">Users</h1></Link>
                             <Dropdown></Dropdown>

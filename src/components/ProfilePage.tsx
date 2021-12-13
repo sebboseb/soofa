@@ -1,7 +1,7 @@
 //@ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { doc, updateDoc, onSnapshot, documentId, collection, query, limit, getDocs, orderBy } from "firebase/firestore";
+import { doc, updateDoc, documentId, collection, query, limit, getDocs, orderBy } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';

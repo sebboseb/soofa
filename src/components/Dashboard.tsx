@@ -1,23 +1,23 @@
 // @ts-nocheck
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { db } from '../firebase';
 import { useAuth } from './contexts/AuthContext';
-
-import Tilt from 'react-parallax-tilt';
-
-import { getYearRequest } from './utils/api';
+import { getPopularRequest } from './utils/api';
 
 function Dashboard() {
 
     const { currentUser } = useAuth();
     const [series, setSeries] = useState([]);
-    const items = [];
     const [username, setUsername] = useState("");
-    const [query, setQuery] = useState("Succession");
+
+    const { pageId } = useParams();
+
+    const maxPage = parseInt(pageId) * 3;
 
     useEffect(() => {
+        setSeries([]);
         const getUsers = async () => {
             db.collection("User").doc(currentUser.uid).get().then(doc => {
                 setUsername(doc.data().Username);
@@ -30,14 +30,32 @@ function Dashboard() {
         }
 
         async function getSeriesRequest() {
-            const popularList = await getYearRequest();
-            setSeries(popularList);
-            console.log(popularList);
+            if (parseInt(pageId) === 1) {
+                for (let i = parseInt(pageId); i < maxPage; i++) {
+                    const popularList = await getPopularRequest(i);
+                    setSeries(prevFollowed => prevFollowed.concat(popularList));
+                    console.log(popularList);
+
+                    // console.log(i + "i");
+                    // console.log(pageId + "pageId");
+                    // console.log(maxPage + "maxPage");
+                }
+            } else {
+                for (let i = parseInt(pageId) * 3; i < maxPage + 2; i++) {
+                    const popularList = await getPopularRequest(i);
+                    setSeries(prevFollowed => prevFollowed.concat(popularList));
+                    console.log(popularList);
+
+                    // console.log(i + "i");
+                    // console.log(pageId + "pageId");
+                    // console.log(maxPage + "maxPage");
+                }
+            }
         }
 
         currentUser && getUsers();
         getSeriesRequest();
-    }, [currentUser]);
+    }, [currentUser, pageId, maxPage]);
 
     function makeid(length) {
         var result = '';
@@ -50,73 +68,40 @@ function Dashboard() {
         return result;
     }
 
-    for (let i = 1; i <= 20; i++) {
-        // {getStars((series[i - 1].name))}
-        // {console.log(thisRating)}
-        items.push(
-            //w16h24
-            series[i - 1] &&
-            <div><Link key={makeid(5)} to={{
-                pathname: `/series/${(series[i - 1].name).replace(/\s/g, '-')}`,
-            }}>
-              
-                <Tilt tiltEnable={false} glareEnable={true} className=" cursor-pointer" tiltReverse={true} scale={1.05}>
-                    <li className="bg-black w-44 h-66 rounded mx-1 my-1 text-white">
-                        <img src={`https://image.tmdb.org/t/p/original${series[i - 1].poster_path}`} alt={series[i - 1].name}></img>
-                        <p className="text-center font-bold">{series[i - 1].name}</p>
-                    </li>
-                </Tilt>
-            </Link>
-            </div>
-        )
-    }
-
-    const onChange = (e) => {
-        e.preventDefault();
-
-        setQuery(e.target.value);
-
-        fetch(`https://api.themoviedb.org/3/search/tv?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US&query=${query}`).then((res) => res.json()).then((data) => {
-            if (!data.errors) {
-                setSeries(data.results);
-            } else {
-                setSeries([]);
-            }
-        });
-    }
-
     return (
         <>
             <div className=" w-screen flex justify-center relative">
-                <div className=" w-full max-w-6xl h-auto min-h-screen bg-gray-700 flex justify-center">
-                    <div className=" mt-36 flex w-auto flex-col space-y-8 items-center">
-                        <span 
-                        ><h1 className="text-white mt-16 font-semibold text-xl">Welcome back <Link to={{
-                            pathname: `/${username}`,
-                        }}>{username}</Link> here is what your friends have been watching</h1></span>
-                        <input type="text" placeholder="Sök efter en serie" value={query} onChange={onChange} />
-                        <div className="flex mt-16 space-x-4">
-
+                <div className=" w-full max-w-6xl h-auto min-h-screen bg-letterboxd-bg flex justify-center">
+                    <div className=" mt-36 flex max-w-4xl flex-col items-center">
+                        <div className="border-white border-b w-screen max-w-full text-center pb-3">
+                            <h1 className="text-white mt-16 font-semibold text-xl">Welcome back&nbsp;
+                                <Link to={`/${username}`}>
+                                    {username}
+                                </Link> here is what's popular this week</h1>
                         </div>
-                        <ul className="flex flex-wrap list-none pt-2 pb-2 justify-center">
+                        <ul className="flex flex-wrap list-none justify-center mt-3 border-white border-b pb-3">
                             {
                                 //onClick upp med meny kolla starrating
                                 series.filter(Boolean).map((thingy, index) => (
-                                    thingy.poster_path &&
+                                    thingy &&
                                     <div>
-                                        {thingy.origin_country == 'US' ?
-                                        <Link key={makeid(5)} to={{
-                                            pathname: `/series/${(thingy.name).replace(/\s/g, '-')}`,
-                                        }}>
-
-                                            <li className="bg-black w-52 rounded mx-1 my-1 text-white">
-                                                <img className="" src={`https://image.tmdb.org/t/p/original${thingy.poster_path}`} alt={thingy.name}></img>
-                                            </li>
-                                        </Link> : null}
+                                        {
+                                            // thingy.origin_country == 'US' ?
+                                            <Link key={makeid(5)} to={`/series/${(thingy.name).replace(/\s/g, '-')}`}>
+                                                <li className="bg-black w-24 rounded m-1 text-white border border-white">
+                                                    <img className="" src={thingy.poster_path !== null ? `https://image.tmdb.org/t/p/original${thingy.poster_path}` : `https://a.ltrbxd.com/resized/sm/upload/cl/dn/kr/f1/4C9LHDxMsoYI0S3iMPZdm3Oevwo-0-230-0-345-crop.jpg?k=ad899f40ce`} alt={thingy.name}></img>
+                                                </li>
+                                            </Link>
+                                            //  : null
+                                        }
                                     </div>
                                 ))
                             }
                         </ul>
+                        <div className="flex flex-row-reverse gap-1">
+                            <Link to={`/dashboard/page/${parseInt(pageId) + 1}`} className="w-20 h-10 bg-soofa-orange rounded"><h1 className="p-1 text-xs font-semibold text-white mt-2 text-center">Next</h1></Link>
+                            {parseInt(pageId) !== 1 && <Link to={`/dashboard/page/${parseInt(pageId) - 1}`} className="w-20 h-10 bg-soofa-orange rounded"><h1 className="p-1 text-xs font-semibold text-white mt-2 text-center">Previous</h1></Link>}
+                        </div>
                     </div>
                 </div>
             </div>

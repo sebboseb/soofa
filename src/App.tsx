@@ -21,6 +21,7 @@ import ReviewPage from './components/ReviewPage';
 import Users from './components/Users';
 import RecentActivity from './components/RecentActivity';
 import PersonReview from './components/PersonReview';
+import UserSeriesPage from './components/UserSeriesPage';
 // import { Provider } from 'react-redux';
 // import { createStore, applyMiddleware } from 'redux';
 // import rootReducer from './redux/reducers';
@@ -40,13 +41,14 @@ function App() {
                 {/* <PrivateRoute exact path="/" component={Dashboard}></PrivateRoute> */}
                 <PrivateRoute path="/updateprofile" component={UpdateProfile}></PrivateRoute>
                 <Route path="/signup" component={Signup}></Route>
-                <Route path="/dashboard" component={Dashboard}></Route>
+                <Route path="/dashboard/page/:pageId" component={Dashboard}></Route>
                 <Route path="/login" component={LoginPage}></Route>
                 <Route path="/forgotpassword" component={ForgotPassword}></Route>
                 <Route path="/series/:id" component={DetailsPage}></Route>
                 <Route path="/reviews/:id" component={ReviewPage}></Route>
                 <Route path="/:id/season-:seasonId/episodes" component={Episodes}></Route>
                 <Route path="/activity/:activityId" component={Activity}></Route>
+                <Route exact path="/:profileId/series/" component={UserSeriesPage}></Route>
                 <Route exact path="/:profileId/activity/:activityId" component={RecentActivity}></Route>
                 <Route exact path="/:profileId/:id/:indexId/" component={PersonReview}></Route>
                 <Route exact path="/:knownforId/:actorId" component={Person}></Route>
