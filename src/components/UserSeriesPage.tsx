@@ -42,10 +42,11 @@ function UserSeriesPage() {
         }
 
         getAllSeries();
-    }, [profileId, currentUid]);
+    }, [profileId, currentUid, currentUser.uid]);
 
     return (
         <div className="mt-24">
+            {username}
             <h1 className="text-white">All Series</h1>
             <div>
                 <ul className="flex max-w-screen flex-wrap justify-center md:justify-start max-w-2xl">

@@ -23,6 +23,7 @@ function ProfilePage() {
     const [recentSeries, setRecentSeries] = useState([]);
     const [recentSeason, setRecentSeason] = useState([]);
     const [recentEpisode, setRecentEpisode] = useState([]);
+    const [watchlist, setWatchlist] = useState([]);
 
     useEffect(() => {
         const getUsers = async () => {
@@ -134,6 +135,11 @@ function ProfilePage() {
                 const qreturnEpisode = await getDocs(qknEpisode)
                 const followingMurlocqEpisode = qreturnEpisode.docs.map(doc => doc.data());
                 setRecentEpisode(followingMurlocqEpisode);
+
+                const UsersWatchlistRef = await db.collection("User").doc(currentUid).collection("Watchlist").doc("Series").collection("ratings").get();
+                let watchlistSnapshot = Object.values(UsersWatchlistRef.docs.map(doc => doc.data()[doc.id]));
+                const watchlistMurl = watchlistSnapshot.sort((b, c) => parseFloat(b.dateseconds) - parseFloat(c.dateseconds));
+                setWatchlist(watchlistMurl);
             }
 
             currentUser && db.collection("User").doc(currentUser.uid).get().then(doc => {
@@ -189,11 +195,23 @@ function ProfilePage() {
 
     return (
         <>
-            <div className="flex w-screen justify-center mt-24">
-                <div className="w-screen flex max-w-4xl">
+            <div className="flex w-screen justify-center mt-9">
+                <div className="w-screen flex max-w-5xl px-10">
                     <div className="flex justify-between dark:text-white font-semibold text-3xl w-full relative mb-4">
-                        <h1>{profileId}</h1>
-                        
+                        <div className="flex gap-x-3">
+                            <div className="w-16 h-16 bg-green-400 rounded-full"></div>
+                            <div className="flex flex-col">
+                                <h1>{profileId}</h1>
+                                <div className="flex gap-x-3">
+                                    <p className="text-sm text-gray-400">
+                                        Stockholm
+                                    </p>
+                                    <p className="text-sm text-gray-400">
+                                        Twitter
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                         {(currentUser && (currentUid === currentUser.uid)) && <button onClick={handleLogout}>Log Out</button>}
                     </div>
                     {(currentUser && (currentUid !== currentUser.uid)) &&
@@ -206,7 +224,7 @@ function ProfilePage() {
                         >
                             {isFollowing ? <h1>Unfollow</h1> : <h1>Follow</h1>}</button>}</div></div>
             <div className=" w-screen flex justify-center relative">
-                <div className=" w-full max-w-5xl min-h-screen h-auto dark:bg-letterboxd-bg flex justify-center">
+                <div className=" w-full max-w-5xl min-h-screen h-auto dark:bg-letterboxd-bg flex justify-center gap-x-9">
                     <div className=" dark:text-white font-semibold text-3xl flex flex-col">
                         <div className=" mt-4 max-w-2xl">
                             <Link to={`/${username}/activity/episode`} className="text-white font-semibold text-xl">Recent Episode Activity</Link>
@@ -266,7 +284,7 @@ function ProfilePage() {
                                             <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.poster_path}`} alt="" className=" w-40 rounded border-white border" />
                                         </Link>
                                         <div className="flex items-center">
-                                        {recentClaims.review.review !== undefined ? <GrTextAlignFull size={24} className=" mt-3 pr-1"/> : null}
+                                            {recentClaims.review.review !== undefined ? <GrTextAlignFull size={24} className=" mt-3 pr-1" /> : null}
                                             <StarRatings
                                                 rating={recentClaims.review.star_rating}
                                                 starRatedColor="#f59e0b"
@@ -307,28 +325,45 @@ function ProfilePage() {
                             </div>
                         </div>
                     </div>
-                    {/* FOLLOWING */}
-                    <div className="flex h-screen text-white font-semibold text-xl border-t border-white mb-1">
-                        <div className="flex space-x-8 max-w-max">
-                            <div className=" flex flex-col">
-                                Following {followed.length}
-                                {followed.map((user) => (
-                                    <ul key={user.Uid} className="list-none">
-                                        <li>{user.Username}</li>
+                    {/* RIGHT */}
+                    <div className="flex flex-col">
+                        <div className="flex text-white font-semibold text-xl border-t border-white mb-1 mt-24">
+                            <div className="flex space-x-8 max-w-max">
+                                <div className=" flex flex-col">
+                                    <h1>Watchlist</h1>
+                                    <ul className="flex ml-12 flex-row-reverse max-w-max relative">
+                                    <div className="hover:border-soofa-orange hover:border-4 rounded transform duration-150 h-full w-w-62 -left-12 absolute"></div>
+                                        {watchlist.map((watchlistItem) => (
+                                            <li className="rounded border-white border -ml-12">
+                                                <img className="w-24" src={`https://image.tmdb.org/t/p/original${watchlistItem.poster_path}`} alt="" />
+                                            </li>
+                                        ))}
                                     </ul>
-                                ))}
+                                </div>
                             </div>
-                            <div className=" flex flex-col">
-                                <h1>Followers {followers.length}</h1>
-                                {followers.map((user) => (
-                                    <ul key={user.Uid} className="list-none">
-                                        <li>
-                                            <Link to={`/${user.Username}`}>
-                                                {user.Username}
-                                            </Link>
-                                        </li>
-                                    </ul>
-                                ))}
+                        </div>
+                        <div className="flex text-white font-semibold text-xl border-t border-white mb-1 mt-24">
+                            <div className="flex space-x-8 max-w-max">
+                                <div className=" flex flex-col">
+                                    Following {followed.length}
+                                    {followed.map((user) => (
+                                        <ul key={user.Uid} className="list-none">
+                                            <li>{user.Username}</li>
+                                        </ul>
+                                    ))}
+                                </div>
+                                <div className=" flex flex-col">
+                                    <h1>Followers {followers.length}</h1>
+                                    {followers.map((user) => (
+                                        <ul key={user.Uid} className="list-none">
+                                            <li>
+                                                <Link to={`/${user.Username}`}>
+                                                    {user.Username}
+                                                </Link>
+                                            </li>
+                                        </ul>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>

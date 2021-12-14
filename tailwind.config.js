@@ -31,7 +31,8 @@ module.exports = {
         'soofa-blue': '#016BA5'
       },
       width: {
-        'poster-width': '212px'
+        'poster-width': '212px',
+        'w-62': '248px'
       },
       height: {
         'extra-height': '500px'

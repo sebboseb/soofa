@@ -381,6 +381,10 @@ function DetailsPage() {
     }
 
     async function addToWatchlist() {
+        let date = Date().toLocaleLowerCase();
+        let datelol = new Date();
+        Object.assign(succession, { date: date },
+            { dateseconds: datelol.getTime() / 360000 },)
         if (!isInWatchlist) {
             await setDoc(userDocumentWatchlist, {
                 [succession.name]:
