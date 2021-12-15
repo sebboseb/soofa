@@ -108,3 +108,12 @@ export async function getYearRequest() {
 
     return personSearchList;
 }
+
+export async function getServicesRequest(id: number) {
+    const url = `https://api.themoviedb.org/3/tv/${id}/watch/providers?api_key=e333684dcb3e9eac6a70505572519a23`;
+    const responseSolo = await fetch(url);
+    const responseSoloJson = await responseSolo.json();
+    const servicesList = responseSoloJson.results;
+
+    return servicesList;
+}

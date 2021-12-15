@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import StarRatings from 'react-star-ratings';
 import { Link, useParams } from 'react-router-dom';
-import { getCreditsRequest, getSeasonsRequest, getSearchRequest } from './utils/api';
+import { getCreditsRequest, getSeasonsRequest, getSearchRequest, getServicesRequest } from './utils/api';
 import { db } from '../firebase';
 import { doc, updateDoc, setDoc, deleteDoc, arrayUnion, arrayRemove, increment } from "firebase/firestore";
 import { useAuth } from './contexts/AuthContext';
@@ -38,6 +38,7 @@ function DetailsPage() {
     const [stars, setStars] = useState([]);
     const [likedSeries, setLikedSeries] = useState(false);
     const [isInWatchlist, setIsInWatchlist] = useState(false);
+    const [services, setServices] = useState([]);
     // const [average, setAverage] = useState([]);
 
     useEffect(() => {
@@ -128,6 +129,10 @@ function DetailsPage() {
             setCrewList(castingList.crew);
             console.log(castingList);
             console.log(castingList.crew);
+
+            const servicesList = await getServicesRequest(seriesList[0].id);
+            setServices([...servicesList['US']['free'], ...servicesList['US']['buy'], ...servicesList['US']['free'], ...servicesList['US']['flatrate']]);
+            console.log(servicesList['US']);
 
             // const snapshot = await db.collection("Posts").doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).get();
             // if (snapshot.data()) {
@@ -384,7 +389,7 @@ function DetailsPage() {
         let date = Date().toLocaleLowerCase();
         let datelol = new Date();
         Object.assign(succession, { date: date },
-            { dateseconds: datelol.getTime() / 360000 },)
+            { dateseconds: datelol.getTime() / 360000 })
         if (!isInWatchlist) {
             await setDoc(userDocumentWatchlist, {
                 [succession.name]:
@@ -551,6 +556,20 @@ function DetailsPage() {
                                                 <h1>Review</h1>
                                             </div>
                                         </div> : null}
+                                
+                                <div className="w-poster-width h-auto mt-4">
+                                        <div className="flex flex-col items-center border-b border-gray-400">
+                                            <div className="text-center text-white mb-1">Where to watch</div>
+                                            <div className="flex flex-wrap gap-1 justify-center border-t border-gray-400 py-3">
+                                                {(services).map((service) => (
+                                                    <div>
+                                                        <img className="w-7 rounded" src={`https://image.tmdb.org/t/p/original${service.logo_path}`} alt="" />
+                                                        {/* {service.provider_name} */}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                    </div>
+                                </div>
                                 </div>
                             </div>
                             <div className="flex flex-col max-w-4xl px-14">

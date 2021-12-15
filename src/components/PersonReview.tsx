@@ -33,13 +33,15 @@ function PersonReview() {
             const seriesList = await getSearchRequest(id.replaceAll('-', ' '));
             setSuccession(seriesList[0]);
 
-            db.collection("User").doc(currentUser.uid).get().then(doc => {
-                setUsername(doc.data().Username);
-            });
+            if (currentUser) {
+                db.collection("User").doc(currentUser.uid).get().then(doc => {
+                    setUsername(doc.data().Username);
+                });
+            }
         }
 
         getReview();
-    }, [currentUser.uid, id, indexId, profileId]);
+    }, [id, indexId, profileId]);
 
     const onChange = (e) => {
         e.preventDefault();
@@ -163,7 +165,7 @@ function PersonReview() {
 
                     }
                     <div className="flex flex-col items-end">
-                        <textarea className=" w-full max-w-xl h-44 align-text-top p-4 text-lg rounded bg-gray-600" type="text" value={query} onChange={onChange} placeholder={`Reply as ${username.charAt(0).toUpperCase() + username.slice(1)}...`}></textarea>
+                        <textarea className=" w-full max-w-xl h-44 align-text-top p-4 text-lg rounded bg-gray-600" type="text" value={query} onChange={onChange} placeholder={currentUser ? `Reply as ${username.charAt(0).toUpperCase() + username.slice(1)}...` : `Sign in to leave a comment`}></textarea>
                         <h1 className=" w-24 h-12 flex items-center justify-center bg-soofa-orange hover:bg-yellow-600 rounded mt-4 cursor-pointer font-semibold" onClick={() => commentReview(review.reviewId)}>Comment</h1>
                     </div>
                 </div>

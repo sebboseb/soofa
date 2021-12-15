@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { Link, useParams } from 'react-router-dom';
 import StarRatings from 'react-star-ratings';
+import { collection, getDocs } from '@firebase/firestore';
 
 
 function RecentActivity() {
@@ -26,6 +27,16 @@ function RecentActivity() {
                 setFeed([])
                 const qk = await db.collection('Posts').doc(currentUid).collection("userPosts").doc("Logs").collection(`post${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`).get();
                 const qklol = await db.collection('Posts').doc(currentUid).collection("userPosts").doc("Logs").collection(`log${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`).get();
+
+                // const qkQuery = collection(db, "Posts", (currentUid), "userPosts", "Logs", `post${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`);
+                // const qklolQuery = collection(db, "Posts", (currentUid), "userPosts", "Logs", `log${activityId.charAt(0).toUpperCase() + activityId.slice(1)}`);
+                // const watchlistQuery = query(qkQuery, limit(4));
+                // const watchlistQuery = query(qklolQuery, limit(4));
+
+                // const dataSnapshot = await getDocs(qkQuery);
+                // const dataSnapshotlol = await getDocs(qklolQuery);
+
+
                 let murlocdata = Object.values(qk.docs.map(doc => doc.data()));
                 let murlocdatalol = Object.values(qklol.docs.map(doc => doc.data()));
                 console.log(murlocdata)
