@@ -202,7 +202,9 @@ function ProfilePage() {
                 <div className="w-screen flex max-w-5xl">
                     <div className="flex justify-between dark:text-white w-full relative items-center">
                         <div className="flex gap-x-3">
-                            <div className="w-24 h-24 bg-green-400 rounded-full"></div>
+                            <div className="w-24 h-24 bg-green-400 rounded-full overflow-hidden">
+                                <img src="https://i.imgur.com/VjVjdCw.png" alt="" />
+                            </div>
                             <div className="flex flex-col">
                                 <h1 className="font-semibold text-3xl capitalize">{profileId}</h1>
                                 <div className="flex gap-x-3">
@@ -213,14 +215,14 @@ function ProfilePage() {
                                         Twitter
                                     </p>
                                 </div>
-                                <div className=" w-24 h-8 bg-gray-500 text-gray-100 hover:text-white rounded shadow flex items-center justify-center mt-1">
+                                {(currentUser && (currentUid === currentUser.uid)) && <div className=" w-24 h-8 bg-gray-500 text-gray-100 hover:text-white rounded shadow flex items-center justify-center mt-1">
                                     {/* <h1 className="text-sm ">Edit Profile</h1> */}
-                                    {(currentUser && (currentUid === currentUser.uid)) && <button className="text-sm" onClick={handleLogout}>Log Out</button>}
-                                </div>
+                                    <button className="text-sm" onClick={handleLogout}>Log Out</button>
+                                </div>}
                             </div>
                         </div>
                         <ul className="flex">
-                            <Link to={`/${username}/series/`}>
+                            <Link to={`/${profileId}/series/`}>
                                 <li className="flex flex-col items-center border-gray-600 w-24 text-center h-16">
                                     <h1 className=" text-3xl font-semibold">{claimed.length}</h1>
                                     <p>Series</p>
@@ -259,7 +261,7 @@ function ProfilePage() {
                             Activity
                         </li>
                         <li>
-                            <Link to={`/${username}/series/`}>
+                            <Link to={`/${profileId}/series/`}>
                                 Series
                             </Link>
                         </li>
@@ -288,17 +290,17 @@ function ProfilePage() {
                             <div className="border-t border-white mb-1"></div>
                             <ul className="flex flex-wrap justify-center md:justify-start">
                                 {recentEpisode.map((recentClaims, index) => (
-                                    <div className="flex flex-col items-center mx-1 my-1">
+                                    <div className="flex flex-col mx-1 my-1">
                                         <Link to={`/${recentClaims.review.seriesname && (recentClaims.review.seriesname).replace(/\s/g, '-')}/season-${recentClaims.review.season_number}/episode/${recentClaims.review.episode_number}`}>
                                             <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.still_path}`} alt="" className=" w-40 rounded border-white border" />
                                         </Link>
-                                        <div className="flex items-center">
+                                        <div className="flex -mt-3">
                                             <StarRatings
                                                 rating={recentClaims.review.star_rating}
                                                 starRatedColor="#f59e0b"
                                                 numberOfStars={5}
-                                                starDimension="24px"
-                                                starSpacing="1px"
+                                                starDimension="16px"
+                                                starSpacing=".1px"
                                                 name={index.toString()}
                                                 starHoverColor="#f59e0b"
                                             />
@@ -312,17 +314,17 @@ function ProfilePage() {
                             <div className="border-t border-white mb-1"></div>
                             <ul className="flex flex-wrap justify-center md:justify-start">
                                 {recentSeason.map((recentClaims, index) => (
-                                    <div className="flex flex-col items-center mx-1 my-1">
+                                    <div className="flex flex-col mx-1 my-1">
                                         <Link to={`/${recentClaims.review.seriesname && (recentClaims.review.seriesname).replace(/\s/g, '-')}/season-${recentClaims.review.season_number}/episodes`}>
                                             <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.poster_path}`} alt="" className=" w-40 rounded border-white border" />
                                         </Link>
-                                        <div className="flex items-center">
+                                        <div className="flex -mt-3">
                                             <StarRatings
                                                 rating={recentClaims.review.star_rating}
                                                 starRatedColor="#f59e0b"
                                                 numberOfStars={5}
-                                                starDimension="24px"
-                                                starSpacing="1px"
+                                                starDimension="16px"
+                                                starSpacing=".1px"
                                                 name={index.toString()}
                                                 starHoverColor="#f59e0b"
                                             />
@@ -336,18 +338,18 @@ function ProfilePage() {
                             <div className="border-t border-white mb-1"></div>
                             <ul className="flex flex-wrap justify-center md:justify-start">
                                 {recentSeries.map((recentClaims, index) => (
-                                    <div className="flex flex-col items-center mx-1 my-1">
+                                    <div className="flex flex-col mx-1 my-1">
                                         <Link to={recentClaims.review.review === undefined ? `/series/${(recentClaims.review.name).replace(/\s/g, '-')}` : `/${recentClaims.review.user}/${recentClaims.review.seriesname.replaceAll(' ', '-')}/${recentClaims.review.index}/`}>
                                             <img src={`https://image.tmdb.org/t/p/original${recentClaims.review.poster_path}`} alt="" className=" w-40 rounded border-white border" />
                                         </Link>
-                                        <div className="flex items-center">
+                                        <div className="flex -mt-3">
                                             {recentClaims.review.review !== undefined ? <GrTextAlignFull size={24} className=" mt-3 pr-1" /> : null}
                                             <StarRatings
                                                 rating={recentClaims.review.star_rating}
                                                 starRatedColor="#f59e0b"
                                                 numberOfStars={5}
-                                                starDimension="24px"
-                                                starSpacing="1px"
+                                                starDimension="16px"
+                                                starSpacing=".1px"
                                                 name={index.toString()}
                                                 starHoverColor="#f59e0b"
                                             />

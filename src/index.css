@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+    #searchDiv {
+    @apply bg-white;
+    @apply w-64;
+    display: none;
+    @apply rounded;
+}
+    
+    #inputDiv:focus + #searchDiv { display: block; }
+    #searchDiv:hover { display: block; }

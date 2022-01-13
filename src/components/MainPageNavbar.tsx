@@ -16,6 +16,8 @@ function MainPageNavbar() {
     // const [clicked, setClicked] = useState(false);
     const [inputClicked, setInputClicked] = useState(true);
     const [bgcolor, setBgcolor] = useState("")
+    const [series, setSeries] = useState([]);
+    const [query, setQuery] = useState("");
 
     useEffect(() => {
         setBgcolor((location.pathname).includes("/series/") || (location.pathname) === "/" ? "bg-gradient-to-b from-youtube-white-bg dark:bg-transparent dark:bg-gradient-to-b dark:from-transparent" : "bg-letterboxd-navbar-bg");
@@ -29,7 +31,19 @@ function MainPageNavbar() {
         getUsers();
     }, [currentUser, location]);
 
+    const onChange = (e) => {
+        e.preventDefault();
 
+        setQuery(e.target.value);
+
+        fetch(`https://api.themoviedb.org/3/search/tv?api_key=e333684dcb3e9eac6a70505572519a23&language=en-US&query=${e.target.value}`).then((res) => res.json()).then((data) => {
+            if (!data.errors) {
+                setSeries(data.results);
+            } else {
+                setSeries([]);
+            }
+        });
+    }
 
     return (
         <>
@@ -46,7 +60,7 @@ function MainPageNavbar() {
                                     <div>
                                         {inputClicked ? <div>
                                             <h1 onClick={() => setInputClicked(false)} className="font-semibold dark:text-white text-xl">Sign in</h1>
-                                            </div> :
+                                        </div> :
                                             <div className="mt-80">
                                                 <div onClick={() => setInputClicked(true)} className="dark:text-white font-semibold cursor-pointer">
                                                     x</div>
@@ -58,9 +72,24 @@ function MainPageNavbar() {
                             {/* {currentUser ? null : <h1 onClick={() => {setClicked(true)}} className="font-semibold text-white text-xl">Create account</h1>} */}
                             {currentUser ? null : <Modal></Modal>}
                             <Link to="/dashboard/page/1"><h1 className="font-semibold dark:text-white text-xl">Series</h1></Link>
-                            {currentUser && <Link to="/activity/series" className="font-semibold dark:text-white text-xl">Activity</Link>}
+                            {currentUser && <Link to="/activity/episode" className="font-semibold dark:text-white text-xl">Activity</Link>}
                             <Link to="/users"><h1 className="font-semibold dark:text-white text-xl">Users</h1></Link>
-                            <Dropdown></Dropdown>
+                            <div>
+                                <input id="inputDiv" className="rounded p-1 py-2 w-64" type="text" placeholder="Search Series..." value={query} onChange={onChange} autoComplete="off" />
+                                <div className="hover:block absolute" id="searchDiv">
+                                    {query.length !== 0 && <ul className="flex flex-col gap-y-1 p-1">
+                                        {series.map((thingy, index) => (
+                                            index <= 3 && thingy.poster_path &&
+                                            <Link to={`/series/${(thingy.name).replaceAll(' ', '-')}`}>
+                                                <div className="flex hover:bg-gray-300 transition duration-150 p-1 rounded">
+                                                    <img className=" w-auto h-32 border border-white rounded" src={`https://image.tmdb.org/t/p/original${thingy.poster_path}`} alt="" />
+                                                    <li className="text-black">{thingy.name}</li>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </ul>}
+                                </div>
+                            </div>
                             {/* <input className="rounded shadow h-8 w-56 p-4 z-10" type="text" placeholder="Search a series" /> */}
                         </ul>
                     </div>

@@ -74,9 +74,9 @@ function RecentActivity() {
                         <u className=" text-soofa-orange">You</u>
                     </div>
                     <div className="flex max-w-xl w-screen justify-between text-white font-semibold text-xl">
-                        <Link to={`/${profileId}/activity/series`}>{activityId === "series" ? <u>Shows</u> : <h1>Shows</h1>}</Link>
-                        <Link to={`/${profileId}/activity/season`}>{activityId === "season" ? <u>Seasons</u> : <h1>Seasons</h1>}</Link>
                         <Link to={`/${profileId}/activity/episode`}>{activityId === "episode" ? <u>Episodes</u> : <h1>Episodes</h1>}</Link>
+                        <Link to={`/${profileId}/activity/season`}>{activityId === "season" ? <u>Seasons</u> : <h1>Seasons</h1>}</Link>
+                        <Link to={`/${profileId}/activity/series`}>{activityId === "series" ? <u>Shows</u> : <h1>Shows</h1>}</Link>
                     </div>
                     <ul className="space-y-4">
                         {feed.map((thingy) => (

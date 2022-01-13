@@ -15,7 +15,7 @@ function EpisodeLore() {
     const [lolmurloc, setLolmurloc] = useState(0);
 
     const { currentUser } = useAuth();
-    
+
 
     const [isInFavourites, setIsInFavourites] = useState(false);
     const [postId, setPostId] = useState(makeid(9));
@@ -56,12 +56,12 @@ function EpisodeLore() {
     }, [currentUser, id, seasonId, episodeId]);
 
     const userDocumentFav = currentUser ? doc(db, "User", currentUser.uid, "Favourites", "Episode") : null;
-    
+
     async function addEpisode(murlocEpisode, starrating) {
         setPostId(makeid(9));
         let date = Date().toLocaleLowerCase();
         let datelol = new Date();
-        Object.assign(murlocEpisode, starrating, { dateseconds: datelol.getTime() / 360000 }, { user: username }, { date: date }, {seriesname: id.replaceAll('-', ' ')});
+        Object.assign(murlocEpisode, starrating, { dateseconds: datelol.getTime() / 360000 }, { user: username }, { date: date }, { seriesname: id.replaceAll('-', ' ') });
         const logRefMurlocMrrrglUpdate = currentUser ? doc(db, "Posts", currentUser.uid, "userPosts", "Logs", "logEpisode", postId) : null;
         await setDoc(logRefMurlocMrrrglUpdate, {
             review: murlocEpisode,
@@ -151,29 +151,29 @@ function EpisodeLore() {
                 </Link>
             </div>
             {currentUser && <StarRatings
-                                    rating={lolmurloc}
-                                    starRatedColor="#f59e0b"
-                                    numberOfStars={5}
-                                    starDimension="24px"
-                                    starSpacing="1px"
-                                    changeRating={changeRating}
-                                    name={episodeId}
-                                    starHoverColor="#f59e0b"
-                                />}
-                                <div className="flex space-x-1">
-                            <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
-                                onClick={() => addEpisode(episode, { star_rating: lolmurloc })}
-                            >Logga</button>
-                            <div onClick={() => setReviewInput(!reviewInput)} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600">
-                            </div>
-                        </div>
-                        {reviewInput ?
-                            <div>
-                                <input className=" absolute text-black" type="text" value={reviewQuery} onChange={onChange} />
-                                <div onClick={() => addReviewEpisode(reviewQuery, lolmurloc, episode, episode.name)} className="bg-red-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600 absolute">
-                                    <h1>Review</h1>
-                                </div>
-                            </div> : null}
+                rating={lolmurloc}
+                starRatedColor="#f59e0b"
+                numberOfStars={5}
+                starDimension="24px"
+                starSpacing="1px"
+                changeRating={changeRating}
+                name={episodeId}
+                starHoverColor="#f59e0b"
+            />}
+            <div className="flex space-x-1">
+                <button className=" w-32 h-12 bg bg-green-500 rounded shadow hover:bg-green-600 dark:text-white font-semibold mt-2"
+                    onClick={() => addEpisode(episode, { star_rating: lolmurloc })}
+                >Logga</button>
+                <div onClick={() => setReviewInput(!reviewInput)} className="bg-green-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600">
+                </div>
+            </div>
+            {reviewInput ?
+                <div>
+                    <input className=" absolute text-black" type="text" value={reviewQuery} onChange={onChange} />
+                    <div onClick={() => addReviewEpisode(reviewQuery, lolmurloc, episode, episode.name)} className="bg-red-500 w-8 h-12 rounded shadow mt-2 cursor-pointer hover:bg-green-600 absolute">
+                        <h1>Review</h1>
+                    </div>
+                </div> : null}
             <div className="text-white">
                 <p>{episode.name}</p>
                 <p>{episode.overview}</p>

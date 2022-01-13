@@ -62,6 +62,7 @@ function DetailsPage() {
                     setIsInFavourites(false);
                     setLolmurloc(0);
                     console.log("lol");
+                    setLikedSeries(false);
                 }
             });
 
@@ -130,9 +131,14 @@ function DetailsPage() {
             console.log(castingList);
             console.log(castingList.crew);
 
+            // const servicesList = await getServicesRequest(seriesList[0].id);
+            // setServices([...servicesList['US']['free'], ...servicesList['US']['buy'], ...servicesList['US']['free'], ...servicesList['US']['flatrate']]);
+            // console.log(servicesList['US']);
+
             const servicesList = await getServicesRequest(seriesList[0].id);
-            setServices([...servicesList['US']['free'], ...servicesList['US']['buy'], ...servicesList['US']['free'], ...servicesList['US']['flatrate']]);
-            console.log(servicesList['US']);
+            setServices(servicesList);
+            // (servicesList['US']) ? [...servicesList['US']['free'], ...servicesList['US']['buy'], ...servicesList['US']['free'], ...servicesList['US']['flatrate']] : []
+            // console.log(servicesList['US']);
 
             // const snapshot = await db.collection("Posts").doc("Reviews").collection("userPosts").doc(id.replaceAll('-', ' ')).get();
             // if (snapshot.data()) {
@@ -282,7 +288,7 @@ function DetailsPage() {
         await setDoc(userDocumentFav, {
             [succession.name]:
                 succession,
-        });
+        },{merge: true});
 
         await updateDoc(starsRef, {
             rating: increment(1)
@@ -556,20 +562,41 @@ function DetailsPage() {
                                                 <h1>Review</h1>
                                             </div>
                                         </div> : null}
-                                
-                                <div className="w-poster-width h-auto mt-4">
+
+                                    <div className="w-poster-width h-auto mt-4">
                                         <div className="flex flex-col items-center border-b border-gray-400">
                                             <div className="text-center text-white mb-1">Where to watch</div>
-                                            <div className="flex flex-wrap gap-1 justify-center border-t border-gray-400 py-3">
-                                                {(services).map((service) => (
-                                                    <div>
-                                                        <img className="w-7 rounded" src={`https://image.tmdb.org/t/p/original${service.logo_path}`} alt="" />
-                                                        {/* {service.provider_name} */}
-                                                    </div>
-                                                ))}
+                                            <div className="border-t border-gray-400 py-3">
+                                                {services.US && <div className="flex flex-wrap justify-center gap-1">
+                                                    {services.US.buy?.map((service) => (
+                                                        <div>
+                                                            <img className="w-7 rounded" src={`https://image.tmdb.org/t/p/original${service.logo_path}`} alt="" />
+                                                        </div>
+                                                    ))}
+                                                    {services.US.ads?.map((service) => (
+                                                        <div>
+                                                            <img className="w-7 rounded" src={`https://image.tmdb.org/t/p/original${service.logo_path}`} alt="" />
+                                                        </div>
+                                                    ))}
+                                                    {services.US.free?.map((service) => (
+                                                        <div>
+                                                            <img className="w-7 rounded" src={`https://image.tmdb.org/t/p/original${service.logo_path}`} alt="" />
+                                                        </div>
+                                                    ))}
+                                                    {services.US.flatrate?.map((service) => (
+                                                        <div>
+                                                            <img className="w-7 rounded" src={`https://image.tmdb.org/t/p/original${service.logo_path}`} alt="" />
+                                                        </div>
+                                                    ))}
+                                                    {services.US.rent?.map((service) => (
+                                                        <div>
+                                                            <img className="w-7 rounded" src={`https://image.tmdb.org/t/p/original${service.logo_path}`} alt="" />
+                                                        </div>
+                                                    ))}
+                                                </div>}
                                             </div>
+                                        </div>
                                     </div>
-                                </div>
                                 </div>
                             </div>
                             <div className="flex flex-col max-w-4xl px-14">

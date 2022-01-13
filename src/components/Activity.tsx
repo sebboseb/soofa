@@ -65,9 +65,9 @@ function Activity() {
                         <Link to={`/${username}/activity/${activityId}`} className=" text-soofa-orange">You</Link>
                     </div>
                     <div className="flex max-w-xl w-screen justify-between text-white font-semibold text-xl">
-                        <Link to={`/activity/series`}>{activityId === "series" ? <u>Shows</u> : <h1>Shows</h1>}</Link>
-                        <Link to={`/activity/season`}>{activityId === "season" ? <u>Seasons</u> : <h1>Seasons</h1>}</Link>
                         <Link to={`/activity/episode`}>{activityId === "episode" ? <u>Episodes</u> : <h1>Episodes</h1>}</Link>
+                        <Link to={`/activity/season`}>{activityId === "season" ? <u>Seasons</u> : <h1>Seasons</h1>}</Link>
+                        <Link to={`/activity/series`}>{activityId === "series" ? <u>Shows</u> : <h1>Shows</h1>}</Link>
                     </div>
                     <ul className="space-y-4">
                         {feed.length !== 0 ? feed.map((thingy) => (

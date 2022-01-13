@@ -61,7 +61,7 @@ function PersonReview() {
     }
 
     async function commentReview(reviewId) {
-        setPostId(makeid(9))
+        // setPostId(makeid(9))
         const commentReviewref = doc(db, "Posts", "Reviews", "userPosts", id.replaceAll('-', ' '), "postSeries", reviewId);
         let date = Date().toLocaleLowerCase();
         await updateDoc(commentReviewref, {
