@@ -83,7 +83,7 @@ function Dashboard() {
                             {
                                 //onClick upp med meny kolla starrating
                                 series.filter(Boolean).map((thingy, index) => (
-                                    thingy &&
+                                    // thingy &&
                                     <div>
                                         {
                                             // thingy.origin_country == 'US' ?
