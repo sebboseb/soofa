@@ -105,9 +105,11 @@ function PersonReview() {
 
     return (
         <div className=" w-screen flex justify-center relative">
-            <div className=" absolute left-16 top-16 flex">
-                <Link to={`/series/${succession.name && succession.name.replaceAll(' ', '-')}`}>
-                    <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-80 rounded m-1 border-gray-50 border shadow sticky" alt={succession.name}></img></Link>
+            <div className='max-w-6xl w-screen absolute'>
+                <div className=" absolute left-4 top-16 flex">
+                    <Link to={`/series/${succession.name && succession.name.replaceAll(' ', '-')}`}>
+                        <img src={`https://image.tmdb.org/t/p/original${succession.poster_path}`} className="min-w-max max-w-min h-80 rounded m-1 border-gray-50 border shadow sticky" alt={succession.name}></img></Link>
+                </div>
             </div>
             <div className=" w-full max-w-6xl min-h-screen text-white dark:bg-letterboxd-bg flex justify-center dark:text-white">
                 <div className="flex flex-col">
